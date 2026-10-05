@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { grantAdConsent } from "./AdSlot";
 import { CloseIcon, LockIcon } from "./Icons";
 import { button } from "./ui";
 
@@ -23,6 +24,9 @@ export function CookieConsent() {
     } catch {
       // The banner can still be dismissed when browser storage is unavailable.
     }
+    // Accepting also grants the separate ad consent. Declining leaves ads off,
+    // which is the state most privacy-conscious visitors will stay in.
+    if (value === "accepted") grantAdConsent();
     window.dispatchEvent(new Event("pqt-cookie-consent-changed"));
     setVisible(false);
   }
@@ -42,7 +46,8 @@ export function CookieConsent() {
             where the full wording plus the two buttons covered the hero. */}
             <span className="hidden sm:inline">
               We use local storage for theme and consent preferences. Allowing
-              analytics sends anonymous tool usage events only. Read our{" "}
+              this also serves ads from Google AdSense and sends anonymous tool
+              usage events. Your documents are never shared. Read our{" "}
             </span>
             <span className="sm:hidden">Local storage for preferences only.{" "}</span>
             <Link to="/privacy" className="font-semibold text-brand-700 underline underline-offset-2 dark:text-brand-300">Privacy Policy</Link>.
@@ -53,8 +58,8 @@ export function CookieConsent() {
         </button>
       </div>
       <div className="cookie-banner-actions mt-4 flex flex-wrap justify-end gap-2 sm:pl-8">
-        <button type="button" onClick={() => choose("declined")} className={button("secondary", "sm")}>Continue without analytics</button>
-        <button type="button" onClick={() => choose("accepted")} className={button("primary", "sm")}>Allow anonymous analytics</button>
+        <button type="button" onClick={() => choose("declined")} className={button("secondary", "sm")}>Continue without ads</button>
+        <button type="button" onClick={() => choose("accepted")} className={button("primary", "sm")}>Allow ads and analytics</button>
       </div>
     </div>
   );

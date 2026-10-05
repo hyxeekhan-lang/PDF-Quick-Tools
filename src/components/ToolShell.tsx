@@ -1,10 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { toolEvents } from "#/lib/analytics";
-import { breadcrumbJsonLd, faqJsonLd, softwareJsonLd, type FaqItem } from "#/lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, howToJsonLd, softwareJsonLd, type FaqItem } from "#/lib/seo";
+import { howToFor } from "#/lib/how-to";
 import { relatedTools, type Tool } from "#/lib/tools";
+import { AdSlot } from "./AdSlot";
 import { Faq } from "./Faq";
-import { ArrowRightIcon, LockIcon, ToolIcon } from "./Icons";
+import { HowTo } from "./HowTo";
+import { ArrowRightIcon, LockIcon } from "./Icons";
+import { ToolIconTile } from "./ToolIconTile";
 import { heading, muted } from "./ui";
 
 interface ToolShellProps {
@@ -17,6 +21,9 @@ interface ToolShellProps {
 }
 
 export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
+  // Looked up by path rather than passed in, so adding a tool gets its walkthrough
+  // without touching that route. A tool with no entry yet simply shows nothing.
+  const howTo = howToFor(tool.href);
   useEffect(() => {
     toolEvents.opened(tool.name);
   }, [tool.name]);
@@ -26,26 +33,6 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <script
-        type="application/ld+json"
-        // Static, built from our own data. No user input reaches it.
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify([
-            softwareJsonLd({
-              name: tool.name,
-              description: tool.blurb,
-              path: tool.href,
-            }),
-            faqJsonLd(faq),
-            breadcrumbJsonLd([
-              { name: "Home", path: "/" },
-              { name: "All Tools", path: "/tools" },
-              { name: tool.name, path: tool.href },
-            ]),
-          ]),
-        }}
-      />
-
       <nav aria-label="Breadcrumb" className="mb-6">
         <ol className="flex flex-wrap items-center gap-1.5 text-sm text-ink-500 dark:text-ink-500">
           <li>
@@ -67,9 +54,7 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
       </nav>
 
       <header className="flex flex-col items-start gap-4 animate-slide-in-left sm:flex-row sm:items-center">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-600 text-white animate-rotate-in">
-          <ToolIcon name={tool.icon} className="h-6 w-6" />
-        </span>
+        <ToolIconTile name={tool.icon} size="lg" className="animate-rotate-in" />
         <div>
           <h1 className={heading.h1}>{tool.name}</h1>
           <p className={`mt-1.5 text-lg ${muted}`}>{tool.subtitle}</p>
@@ -86,6 +71,10 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
             : "Most regular PDF tools run in this browser tab on your device. They are not uploaded to a server as part of the standard workflow."}
         </p>
 
+        {/* Below the tool and above the prose, so the ad never sits between the
+            user and the result they just produced. */}
+        <AdSlot format="inArticle" className="mt-10" />
+
         <section aria-labelledby="about-heading" className="prose-none">
           <h2 id="about-heading" className={heading.h2}>
             About {tool.name}
@@ -94,6 +83,8 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
             {about}
           </div>
         </section>
+
+        <HowTo toolName={tool.name} steps={howTo} />
 
         <Faq items={faq} />
 
@@ -111,9 +102,7 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
                   to={item.href}
                   className="group flex items-center gap-3 rounded-xl bg-white px-4 py-3.5 ring-1 ring-ink-200 transition-colors hover:ring-brand-300 dark:bg-ink-900 dark:ring-ink-800 dark:hover:ring-brand-600/60"
                 >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-600/15 dark:text-brand-300">
-                    <ToolIcon name={item.icon} className="h-4.5 w-4.5" />
-                  </span>
+                  <ToolIconTile name={item.icon} size="sm" />
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-semibold text-ink-900 dark:text-white">
                       {item.name}
@@ -137,6 +126,34 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
             </Link>
           </p>
         </section>
+
+        <script
+          type="application/ld+json"
+          // Static, built from our own data. No user input reaches it.
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              softwareJsonLd({
+                name: tool.name,
+                description: tool.blurb,
+                path: tool.href,
+              }),
+              faqJsonLd(faq),
+              breadcrumbJsonLd([
+                { name: "Home", path: "/" },
+                { name: "All Tools", path: "/tools" },
+                { name: tool.name, path: tool.href },
+              ]),
+              howTo.length > 0
+                ? howToJsonLd({
+                    name: `How to ${tool.name}`,
+                    description: tool.blurb,
+                    path: tool.href,
+                    steps: howTo,
+                  })
+                : null,
+            ].filter(Boolean)),
+          }}
+        />
       </div>
     </div>
   );

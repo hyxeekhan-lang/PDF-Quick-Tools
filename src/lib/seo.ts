@@ -70,6 +70,33 @@ export function softwareJsonLd(input: {
   };
 }
 
+/**
+ * HowTo structured data, matching the visible numbered walkthrough.
+ *
+ * Google retired the HowTo rich result from desktop/mobile displays, but the
+ * markup still carries the page structure and costs nothing. Kept accurate to
+ * what is on screen: the steps here are the same array the <ol> renders.
+ */
+export function howToJsonLd(input: {
+  name: string;
+  description: string;
+  path: string;
+  steps: { title: string; body: string }[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: input.name,
+    description: input.description,
+    step: input.steps.map((step, index) => ({
+      "@type": "HowToStep",
+      position: index + 1,
+      name: step.title,
+      text: step.body,
+    })),
+  };
+}
+
 /** BreadcrumbList structured data, matching the visible breadcrumb trail. */
 export function breadcrumbJsonLd(
   items: { name: string; path: string }[],

@@ -17,6 +17,7 @@ import {
   SparkIcon,
   TargetIcon,
 } from "#/components/Icons";
+import { AdSlot } from "#/components/AdSlot";
 import { ToolCard } from "#/components/ToolCard";
 import { ExtensionBanner } from "#/components/ExtensionBanner";
 import { AiNotice } from "#/components/AiNotice";
@@ -168,6 +169,8 @@ function Home() {
           </li>
         </ul>
       </section>
+
+      <AdSlot format="leaderboard" className="mx-auto max-w-6xl" />
 
       <section aria-labelledby="current-tools-heading" className={`${sectionWrap} mt-20 animate-fade-in-up`}>
         <div className="flex flex-wrap items-end justify-between gap-4">

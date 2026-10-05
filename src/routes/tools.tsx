@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useId, useMemo, useState } from "react";
 import { CloseIcon, SearchIcon } from "#/components/Icons";
 import { ToolCard } from "#/components/ToolCard";
+import { AdSlot } from "#/components/AdSlot";
 import { EmptyState } from "#/components/ToolFeedback";
 import { button, cx, heading, muted, sectionWrap } from "#/components/ui";
 import { pageHead } from "#/lib/seo";
@@ -155,6 +156,8 @@ function AllTools() {
           />
         </div>
       )}
+
+      <AdSlot format="fluid" />
 
       <section className="rounded-2xl bg-ink-50 p-6 sm:p-8 dark:bg-ink-900/50 animate-blur-in">
         <h2 className={heading.h3}>Cannot find what you need?</h2>

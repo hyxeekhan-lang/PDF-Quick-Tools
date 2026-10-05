@@ -1,13 +1,16 @@
 import { Link } from "@tanstack/react-router";
 import type { Tool } from "#/lib/tools";
-import { ArrowRightIcon, ToolIcon } from "./Icons";
+import { ArrowRightIcon } from "./Icons";
+import { ToolIconTile } from "./ToolIconTile";
 
 export function ToolCard({ tool }: { tool: Tool }) {
   return (
     <div className="tool-card-motion group relative flex h-full flex-col rounded-2xl bg-white p-6 ring-1 ring-ink-200/80 transition-all duration-200 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand-600/10 hover:ring-brand-300 dark:bg-ink-900 dark:ring-ink-800 dark:hover:shadow-black/30 dark:hover:ring-brand-600/60 hover-lift card-glow">
-      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-colors group-hover:bg-brand-600 group-hover:text-white dark:bg-brand-600/15 dark:text-brand-300 dark:group-hover:bg-brand-600 dark:group-hover:text-white">
-        <ToolIcon name={tool.icon} className="h-5.5 w-5.5" />
-      </span>
+      <ToolIconTile
+        name={tool.icon}
+        size="lg"
+        className="transition-transform duration-200 group-hover:scale-105"
+      />
 
       <h3 className="mt-5 text-base font-semibold text-ink-900 dark:text-white">
         <Link to={tool.href} className="before:absolute before:inset-0 before:content-['']">

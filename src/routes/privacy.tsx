@@ -114,20 +114,56 @@ function Privacy() {
         <p>
           We store small preferences in your browser for theme and consent
           choices. If you allow analytics, an anonymous consent preference lets
-          us measure tool usage. No advertising tracking cookies are used by the
-          site.
+          us measure tool usage.
         </p>
       </Block>
 
-      <Block title="No advertising">
+      <Block title="Advertising and Google AdSense">
         <p>
-          This site serves no third-party display ads. Nothing is loaded from an
-          ad network, and there are no pop-unders, pop-ups, or scripts that open
-          a new tab on their own.
+          This site is supported by advertising through Google AdSense. Google
+          and its partners may use cookies or similar technologies to serve and
+          measure ads based on your prior visits to this and other websites.
         </p>
         <p>
-          We do not sell personal information or use document contents for
-          advertising of any kind.
+          Google's use of advertising cookies enables it and its partners to
+          serve ads to you based on that activity. You may opt out of
+          personalised advertising by visiting{" "}
+          <a
+            href="https://adssettings.google.com"
+            target="_blank"
+            rel="noreferrer"
+            className="font-semibold text-brand-700 underline underline-offset-2 dark:text-brand-300"
+          >
+            Google Ads Settings
+          </a>
+          . You can also opt out of a third-party vendor's use of cookies for
+          personalised advertising at{" "}
+          <a
+            href="https://optout.aboutads.info"
+            target="_blank"
+            rel="noreferrer"
+            className="font-semibold text-brand-700 underline underline-offset-2 dark:text-brand-300"
+          >
+            aboutads.info
+          </a>
+          .
+        </p>
+        <p>
+          Advertising is served only after you accept cookies. If you decline,
+          no ad script is loaded and you continue to see every tool working
+          normally without them.
+        </p>
+      </Block>
+
+      <Block title="What we do not do with your documents">
+        <p>
+          We do not sell personal information, and we never use the contents of
+          a document you open or process for advertising of any kind. The PDFs
+          you work with here are not sent to any ad network.
+        </p>
+        <p>
+          There are no pop-unders, pop-ups, or scripts that open a new tab on
+          their own.
         </p>
       </Block>
 

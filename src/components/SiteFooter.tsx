@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { EXTENSION_DOWNLOAD_URL, GITHUB_RELEASE_URL, SITE_NAME, SITE_TAGLINE } from "#/lib/site";
+import { AdSlot } from "./AdSlot";
 import { BrandMark } from "./BrandMark";
 
 const TOOL_LINKS = [
@@ -57,7 +58,11 @@ function Column({
 
 export function SiteFooter() {
   return (
-    <footer className="mt-20 border-t border-ink-200 bg-ink-50 dark:border-ink-800 dark:bg-ink-900/40">
+    <>
+      {/* Above the footer rather than inside it: the footer is already dense
+          with link columns, and an ad competing with those reads as clutter. */}
+      <AdSlot format="fluid" className="mx-auto max-w-6xl" />
+      <footer className="mt-20 border-t border-ink-200 bg-ink-50 dark:border-ink-800 dark:bg-ink-900/40">
       <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
@@ -105,6 +110,7 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
-    </footer>
+      </footer>
+    </>
   );
 }
