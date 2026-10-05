@@ -5,16 +5,16 @@
 </p>
 
 <p align="center">
-  <a href="https://pd-f-tool.vercel.app/">Open the live website</a>
+  <a href="https://pdfpilot.site/">Open the live website</a>
   ·
-  <a href="https://pd-f-tool.vercel.app/tools">Browse all tools</a>
+  <a href="https://pdfpilot.site/tools">Browse all tools</a>
   ·
   <a href="https://github.com/jutthamid148-svg/PDF-Tools/releases/tag/v1.0.0">Chrome Extension release</a>
 </p>
 
 PDF Quick Tools is a browser-based PDF workspace for compressing, merging, splitting, converting, editing, organizing, and understanding documents with AI.
 
-> **Live:** [pd-f-tool.vercel.app](https://pd-f-tool.vercel.app/)
+> **Live:** [pdfpilot.site](https://pdfpilot.site/)
 
 ## Screenshots
 
@@ -77,11 +77,11 @@ Every AI tool uses the same document workflow: browser-side PDF text extraction,
 
 Read the full policies:
 
-- [Privacy Policy](https://pd-f-tool.vercel.app/privacy)
-- [Terms of Use](https://pd-f-tool.vercel.app/terms)
-- [Disclaimer](https://pd-f-tool.vercel.app/disclaimer)
-- [About Muhammad Hamid](https://pd-f-tool.vercel.app/about)
-- [Contact](https://pd-f-tool.vercel.app/contact)
+- [Privacy Policy](https://pdfpilot.site/privacy)
+- [Terms of Use](https://pdfpilot.site/terms)
+- [Disclaimer](https://pdfpilot.site/disclaimer)
+- [About Muhammad Hamid](https://pdfpilot.site/about)
+- [Contact](https://pdfpilot.site/contact)
 
 ## Chrome Extension
 
@@ -89,7 +89,7 @@ The companion Manifest V3 extension provides quick access to PDF tools from Chro
 
 ### Download
 
-- [Download the Chrome Extension ZIP](https://pd-f-tool.vercel.app/downloads/pdf-tool-chrome-extension.zip)
+- [Download the Chrome Extension ZIP](https://pdfpilot.site/downloads/pdf-tool-chrome-extension.zip)
 - [GitHub Release v1.0.0](https://github.com/jutthamid148-svg/PDF-Tools/releases/tag/v1.0.0)
 
 ### Install locally
@@ -120,7 +120,7 @@ For Chrome Web Store publishing, upload the ZIP through the Chrome Developer Das
 
 - Node.js 18 or newer
 - npm
-- A Gemini API key for AI features
+- An AI provider key for the website tools (Groq recommended)
 
 ### Setup
 
@@ -130,10 +130,15 @@ cd PDF-Tools
 npm install
 ```
 
-Create `.env.local`:
+Create `.env.local` with either Groq or Gemini:
 
 ```env
-GEMINI_API_KEY=your_gemini_api_key_here
+# Preferred for this project
+GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=openai/gpt-oss-120b
+
+# Optional fallback if you want Gemini instead
+# GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 Start the development server:
@@ -143,6 +148,17 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+### Vercel deployment
+
+In the Vercel dashboard, add the same variable(s) under Project → Settings → Environment Variables:
+
+```env
+GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=openai/gpt-oss-120b
+```
+
+The app will automatically prefer Groq first and fall back to Gemini if Groq is not set.
 
 ### Validation and builds
 
@@ -172,7 +188,7 @@ scripts/              Asset generation scripts
 
 ## Deployment
 
-The production website is deployed at [pd-f-tool.vercel.app](https://pd-f-tool.vercel.app/).
+The production website is deployed at [pdfpilot.site](https://pdfpilot.site/).
 
 The repository includes the PWA manifest, service worker, PNG install icons, extension build configuration, and GitHub release package.
 

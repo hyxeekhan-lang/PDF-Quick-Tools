@@ -23,6 +23,37 @@ export async function extractPdfText(file: File): Promise<string> {
     }
   }
 
+  if (textParts.length > 0) {
+    return textParts.join("\n\n");
+  }
+
+  const maxOcrPages = Math.min(pdf.numPages, 4);
+  for (let i = 1; i <= maxOcrPages; i++) {
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale: 1.5 });
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.floor(viewport.width));
+    canvas.height = Math.max(1, Math.floor(viewport.height));
+    const context = canvas.getContext("2d", { alpha: false });
+    if (!context) continue;
+
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    await page.render({ canvas, canvasContext: context, viewport }).promise;
+
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+    const imageData = dataUrl.split(",")[1] ?? "";
+    const response = await callGemini(
+      "Extract all visible text from this scanned page. Preserve headings, paragraphs, and lists. If no text is visible, return exactly: NO_TEXT",
+      { mimeType: "image/jpeg", data: imageData },
+    );
+
+    const cleaned = response.replace(/\s*NO_TEXT\s*/i, "").trim();
+    if (cleaned) {
+      textParts.push(`[Page ${i}]\n${cleaned}`);
+    }
+  }
+
   return textParts.join("\n\n");
 }
 

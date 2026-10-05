@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { button, cx } from "#/components/ui";
-import { CheckIcon, RefreshIcon, ListIcon } from "#/components/Icons";
+import { CheckIcon, RefreshIcon, ListIcon, TrophyIcon } from "#/components/Icons";
+import { AiNotice } from "#/components/AiNotice";
 
 export interface QuizQuestion {
   type: "mcq" | "true-false" | "short-answer";
@@ -48,12 +49,12 @@ export function AiQuizPanel({ questions, onRegenerate }: AiQuizPanelProps) {
       {showResults && (
         <div className="rounded-2xl bg-brand-50/50 p-5 ring-1 ring-brand-100 dark:bg-brand-600/10 dark:ring-brand-600/25">
           <div className="flex items-center gap-3">
-            <span className="text-2xl font-bold text-brand-600 dark:text-brand-400">
-              {score}/{questions.length}
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-600/10 text-brand-600 dark:bg-brand-400/15 dark:text-brand-300">
+              <TrophyIcon className="h-6 w-6" />
             </span>
             <div>
-              <p className="text-sm font-semibold text-brand-900 dark:text-brand-200">
-                {score === questions.length ? "Perfect Score! 🎉" : score >= questions.length * 0.7 ? "Great Job! 👏" : "Keep Practicing! 📚"}
+              <p className="flex items-center gap-1.5 text-sm font-semibold text-brand-900 dark:text-brand-200">
+                {score === questions.length ? "Perfect Score!" : score >= questions.length * 0.7 ? "Great Job!" : "Keep Practicing!"}
               </p>
               <p className="text-xs text-brand-700 dark:text-brand-300">
                 You got {score} out of {questions.length} correct
@@ -198,6 +199,8 @@ export function AiQuizPanel({ questions, onRegenerate }: AiQuizPanelProps) {
           </>
         )}
       </div>
+
+      <AiNotice tone="inline" className="mt-4" />
     </div>
   );
 }

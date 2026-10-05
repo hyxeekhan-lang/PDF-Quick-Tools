@@ -259,6 +259,57 @@ export function SparkIcon(props: IconProps) {
   );
 }
 
+export function LeafIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M5 19c0-7 5-12 15-13 0 10-5 14-11 14H5z" />
+      <path d="M5 19c3-4 6-6 10-8" />
+    </Svg>
+  );
+}
+
+export function FolderIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    </Svg>
+  );
+}
+
+export function TargetIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="4.5" />
+      <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+    </Svg>
+  );
+}
+
+export function TrophyIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M7 4h10v5a5 5 0 0 1-10 0z" />
+      <path d="M7 6H4.5A2.5 2.5 0 0 0 7 10.5" />
+      <path d="M17 6h2.5A2.5 2.5 0 0 1 17 10.5" />
+      <path d="M12 14v4" />
+      <path d="M9 20h6" />
+      <path d="M10 18h4l.6 2H9.4z" />
+    </Svg>
+  );
+}
+
+export function HandIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12" />
+      <path d="M11 12V4.5a1.5 1.5 0 0 1 3 0V12" />
+      <path d="M14 12V6.5a1.5 1.5 0 0 1 3 0V13" />
+      <path d="M8 12.5 6.6 11a1.6 1.6 0 0 0-2.4 2.1l3.3 5A4 4 0 0 0 10.9 20H14a4 4 0 0 0 4-4v-3.5" />
+    </Svg>
+  );
+}
+
 export function ArrowRightIcon(props: IconProps) {
   return (
     <Svg {...props}>
@@ -273,6 +324,26 @@ export function SearchIcon(props: IconProps) {
     <Svg {...props}>
       <circle cx="11" cy="11" r="6.5" />
       <path d="m16 16 4 4" />
+    </Svg>
+  );
+}
+
+export function HomeIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 10.5 12 4l8 6.5" />
+      <path d="M6 10v9a1 1 0 0 0 1 1h3.5v-5h3v5H17a1 1 0 0 0 1-1v-9" />
+    </Svg>
+  );
+}
+
+export function GridIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="4" y="4" width="7" height="7" rx="1.5" />
+      <rect x="13" y="4" width="7" height="7" rx="1.5" />
+      <rect x="4" y="13" width="7" height="7" rx="1.5" />
+      <rect x="13" y="13" width="7" height="7" rx="1.5" />
     </Svg>
   );
 }
@@ -448,6 +519,86 @@ export function SendIcon(props: IconProps) {
   );
 }
 
+export function CropIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M6.5 2v15.5H22" />
+      <path d="M2 6.5h15.5V22" />
+    </Svg>
+  );
+}
+
+export function ResizeIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M8 8h8v8H8z" />
+    </Svg>
+  );
+}
+
+export function FlattenIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 3v11" />
+      <path d="m8 10 4 4 4-4" />
+      <path d="M4 18h16" />
+      <path d="M4 21h16" />
+    </Svg>
+  );
+}
+
+export function GrayscaleIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 3v18a9 9 0 0 0 0-18z" fill="currentColor" stroke="none" />
+    </Svg>
+  );
+}
+
+export function MetadataIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M7 9h6" />
+      <path d="M7 13h4" />
+      <circle cx="16" cy="16" r="2.5" />
+    </Svg>
+  );
+}
+
+export function TextIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 6h16" />
+      <path d="M4 11h16" />
+      <path d="M4 16h10" />
+    </Svg>
+  );
+}
+
+export function BlankPageIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+      <path d="M14 3v5h5" />
+      <path d="M12 11v6" />
+      <path d="M9.5 14.5 12 17l2.5-2.5" />
+    </Svg>
+  );
+}
+
+export function HeaderIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M3 9h18" />
+      <path d="M7 14h7" />
+    </Svg>
+  );
+}
+
 const TOOL_ICONS: Record<ToolIconName, (props: IconProps) => React.ReactElement> = {
   compress: CompressIcon,
   merge: MergeIcon,
@@ -477,6 +628,14 @@ const TOOL_ICONS: Record<ToolIconName, (props: IconProps) => React.ReactElement>
   analyze: BrainIcon,
   resume: NotesIcon,
   questions: QuizIcon,
+  crop: CropIcon,
+  resize: ResizeIcon,
+  flatten: FlattenIcon,
+  grayscale: GrayscaleIcon,
+  metadata: MetadataIcon,
+  text: TextIcon,
+  blank: BlankPageIcon,
+  header: HeaderIcon,
 };
 
 export function ToolIcon({

@@ -1,46 +1,68 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { EXTENSION_DOWNLOAD_URL, GITHUB_RELEASE_URL, SITE_NAME } from "#/lib/site";
-import { CloseIcon, MenuIcon } from "./Icons";
+import { SITE_NAME } from "#/lib/site";
+import {
+  CompressIcon,
+  DownloadIcon,
+  GridIcon,
+  HomeIcon,
+  MergeIcon,
+  SparkIcon,
+  SplitIcon,
+} from "./Icons";
 import { BrandMark } from "./BrandMark";
 import { ThemeToggle } from "./ThemeToggle";
 import { button, cx } from "./ui";
 
 const NAV = [
-  { to: "/", label: "Home" },
-  { to: "/ai-summarizer", label: "AI Tools" },
-  { to: "/compress-pdf", label: "Compress" },
-  { to: "/merge-pdf", label: "Merge" },
-  { to: "/split-pdf", label: "Split" },
+  { to: "/", label: "Home", Icon: HomeIcon },
+  { to: "/ai-summarizer", label: "AI Tools", Icon: SparkIcon },
+  { to: "/compress-pdf", label: "Compress", Icon: CompressIcon },
+  { to: "/merge-pdf", label: "Merge", Icon: MergeIcon },
+  { to: "/split-pdf", label: "Split", Icon: SplitIcon },
 ] as const;
 
 export function SiteHeader() {
-  const [open, setOpen] = useState(false);
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const [scrolled, setScrolled] = useState(false);
 
-  // A tap on a nav link changes the route without unmounting the header.
+  // The header sits over content on a frosted background. Without a shadow it
+  // reads as flat until you scroll, at which point a list scrolls right under
+  // it with no separation.
   useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    if (!open) return;
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
+    function onScroll() {
+      setScrolled(window.scrollY > 4);
     }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-ink-200/80 bg-white/85 backdrop-blur-md dark:border-ink-800 dark:bg-ink-950/85">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-4 sm:px-6">
+    <header
+      className={cx(
+        // z-[70], not z-50: the cookie banner sits at z-60, so at z-50 it
+        // painted straight over the bottom of the nav row.
+        "sticky top-0 z-[70] border-b bg-white/85 backdrop-blur-md transition-shadow dark:bg-ink-950/85",
+        scrolled
+          ? "border-ink-200/80 shadow-[0_1px_12px_rgba(15,23,42,0.08)] dark:border-ink-800 dark:shadow-[0_1px_12px_rgba(0,0,0,0.4)]"
+          : "border-transparent",
+      )}
+    >
+      {/* No flex-wrap anywhere in this bar. The height is a fixed h-16, so the
+          moment a control wraps it escapes the bar and is clipped against the
+          page. Every child below is shrinkable or conditionally rendered
+          instead. */}
+      <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:gap-3 sm:px-6">
         <Link
           to="/"
-          className="flex shrink-0 items-center gap-2 rounded-lg text-ink-900 dark:text-white"
+          className="flex min-w-0 flex-1 items-center gap-2 rounded-lg text-ink-900 lg:flex-none dark:text-white"
         >
-          <BrandMark />
-          <span className="text-[17px] font-bold tracking-tight line-grow">{SITE_NAME}</span>
+          <span className="shrink-0"><BrandMark /></span>
+          {/* The full name needs ~140px it does not have on a 390px screen, so
+              the mark carries the brand on phones and the word joins at sm. */}
+          <span className="hidden truncate text-[17px] font-bold tracking-tight line-grow sm:inline">
+            {SITE_NAME}
+          </span>
         </Link>
 
         <nav aria-label="Main" className="ml-4 hidden lg:block">
@@ -50,11 +72,9 @@ export function SiteHeader() {
                 <Link
                   to={item.to}
                   activeOptions={{ exact: item.to === "/" }}
-                  className="block rounded-lg px-3 py-2 text-sm font-medium text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900 dark:text-ink-300 dark:hover:bg-ink-800 dark:hover:text-white line-grow"
-                  activeProps={{
-                    className:
-                      "block rounded-lg px-3 py-2 text-sm font-semibold text-brand-700 bg-brand-50 dark:text-brand-300 dark:bg-brand-600/15",
-                  }}
+                  /* Same reason as the mobile pills: activeProps merges at equal
+                     specificity, so its colors can lose to the base class list. */
+                  className="block rounded-lg px-3 py-2 text-sm font-medium text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900 dark:text-ink-300 dark:hover:bg-ink-800 dark:hover:text-white line-grow aria-[current=page]:bg-brand-50 aria-[current=page]:font-semibold aria-[current=page]:text-brand-700 dark:aria-[current=page]:bg-brand-600/15 dark:aria-[current=page]:text-brand-300"
                 >
                   {item.label}
                 </Link>
@@ -63,62 +83,54 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        {/* shrink-0 so these four stay rigid while the logo yields the space. */}
+        <div className="ml-auto flex shrink-0 items-center justify-end gap-1.5 sm:gap-2">
           <InstallAppButton />
           <ThemeToggle />
-          <Link to="/tools" className={cx(button("primary", "sm"), "hidden sm:inline-flex")}>
+          <Link to="/tools" className={cx(button("primary", "sm"), "max-sm:!hidden")}>
             All Tools
           </Link>
-          <button
-            type="button"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink-600 hover:bg-ink-100 lg:hidden dark:text-ink-300 dark:hover:bg-ink-800"
-            aria-expanded={open}
-            aria-controls="mobile-nav"
-            aria-label={open ? "Close menu" : "Open menu"}
-            onClick={() => setOpen((value) => !value)}
-          >
-            {open ? <CloseIcon /> : <MenuIcon />}
-          </button>
         </div>
       </div>
 
-      <div
-        id="mobile-nav"
-        hidden={!open}
-        className={cx(
-          "border-t border-ink-200 bg-white lg:hidden dark:border-ink-800 dark:bg-ink-950",
-          open && "animate-slide-down",
-        )}
-      >
-        <nav aria-label="Mobile" className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
-          <ul className="flex flex-col">
+      {/* Mobile nav is a second row of pills inside the bar, not a drawer.
+
+          The overflow-x:auto lives on this <nav>, not on the <ul> below it.
+          Putting the scroller on the ul itself put the whole document 15px into
+          overflow even though the ul's own box was correctly 390px - a scroll
+          container nested inside the page flow leaks its content width upward.
+          Scrolling one level up, on an element with no overflowing content of
+          its own, keeps the leak from happening. */}
+      <div className="min-w-0 overflow-x-clip border-t border-ink-200 bg-white/95 lg:hidden dark:border-ink-800 dark:bg-ink-950/95">
+        <nav
+          aria-label="Mobile"
+          className="animate-mobile-nav-in min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          <ul className="flex w-max items-center gap-2 px-4 py-2.5 sm:px-6">
             {NAV.map((item) => (
-              <li key={item.to}>
+              <li key={item.to} className="shrink-0">
                 <Link
                   to={item.to}
                   activeOptions={{ exact: item.to === "/" }}
-                  className="block rounded-lg px-3 py-3 text-base font-medium text-ink-700 hover:bg-ink-100 dark:text-ink-200 dark:hover:bg-ink-800"
-                  activeProps={{
-                    className:
-                      "block rounded-lg px-3 py-3 text-base font-semibold text-brand-700 bg-brand-50 dark:text-brand-300 dark:bg-brand-600/15",
-                  }}
+                  /* Active styling rides on aria-current, not activeProps. activeProps
+                     merges into this same className at identical specificity, so its
+                     bg-brand-600 lost to the bg-white declared here and the active pill
+                     rendered white-on-white. One class string means no collision. */
+                  className="flex items-center gap-1.5 rounded-full border border-ink-200 bg-white py-1.5 pl-2 pr-3.5 text-sm font-medium whitespace-nowrap text-ink-700 transition-colors hover:border-ink-300 hover:bg-ink-50 dark:border-ink-800 dark:bg-ink-900 dark:text-ink-200 dark:hover:bg-ink-800 aria-[current=page]:border-transparent aria-[current=page]:bg-brand-600 aria-[current=page]:font-semibold aria-[current=page]:text-white dark:aria-[current=page]:bg-brand-600 dark:aria-[current=page]:text-white"
                 >
+                  <item.Icon className="h-4 w-4 shrink-0" />
                   {item.label}
                 </Link>
               </li>
             ))}
-            <li className="mt-2">
-              <Link to="/tools" className={cx(button("primary", "md"), "w-full")}>
+            <li className="shrink-0">
+              <Link
+                to="/tools"
+                className="flex items-center gap-1.5 rounded-full bg-ink-900 py-1.5 pl-2 pr-3.5 text-sm font-semibold whitespace-nowrap text-white dark:bg-white dark:text-ink-950"
+              >
+                <GridIcon className="h-4 w-4 shrink-0" />
                 All Tools
               </Link>
-            </li>
-            <li className="mt-2 grid gap-2 sm:grid-cols-2">
-              <a href={EXTENSION_DOWNLOAD_URL} download className={cx(button("secondary", "md"), "w-full")}>
-                Chrome Extension
-              </a>
-              <a href={GITHUB_RELEASE_URL} target="_blank" rel="noreferrer" className={cx(button("secondary", "md"), "w-full")}>
-                GitHub Release
-              </a>
             </li>
           </ul>
         </nav>
@@ -158,8 +170,17 @@ function InstallAppButton() {
 
   return (
     <>
-      <button type="button" onClick={() => void install()} className={button("secondary", "sm")}>
-        Install App
+      {/* On a phone the header has room for the install action as an icon only.
+          The accessible name stays full, so a screen reader still announces it. */}
+      <button
+        type="button"
+        onClick={() => void install()}
+        className={cx(button("secondary", "sm"), "h-9 w-9 shrink-0 justify-center p-0 sm:h-auto sm:w-auto sm:px-4")}
+        aria-label="Install app"
+        title="Install app"
+      >
+        <DownloadIcon className="h-4 w-4 shrink-0" />
+        <span className="hidden sm:inline">Install App</span>
       </button>
       {message && (
         <span className="sr-only" role="status" aria-live="polite">

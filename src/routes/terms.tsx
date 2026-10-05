@@ -30,10 +30,11 @@ function Terms() {
 
       <Block title="Your files are your responsibility">
         <p>
-          Because processing happens on your device, we never see your files and
-          cannot recover them. Keep your original. Download your result before
-          closing the tab, because the processed file is held in browser memory
-          and is gone once the tab closes.
+          Most regular PDF tools process on your device, so the original file stays
+          in the browser and is not stored by us. If you use an AI feature, extracted
+          text may be sent to the AI provider for the request. Keep your original.
+          Download your result before closing the tab, because the processed file is
+          held in browser memory and is gone once the tab closes.
         </p>
       </Block>
 

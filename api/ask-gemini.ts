@@ -1,5 +1,9 @@
-const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent";
+const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+
+function getGeminiModel() {
+  return process.env.GEMINI_MODEL ?? "gemini-3.5-flash-lite";
+}
 
 const MAX_PROMPT_LENGTH = 36_000;
 const MAX_ATTACHMENT_LENGTH = 10_000_000;
@@ -11,8 +15,143 @@ function json(body: unknown, status = 200) {
   });
 }
 
+function getProvider() {
+  if (process.env.GEMINI_API_KEY) return "gemini";
+  if (process.env.GROQ_API_KEY) return "groq";
+  return null;
+}
+
+function isQuotaOrRateLimitError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  return /(quota|rate limit|RESOURCE_EXHAUSTED|429|exceeded your daily quota|daily quota)/i.test(message);
+}
+
+function extractGroqText(payload: unknown): string | null {
+  const content = (payload as {
+    choices?: Array<{
+      message?: { content?: string | Array<{ type?: string; text?: string }> };
+    }>;
+  })?.choices?.[0]?.message?.content;
+
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    const text = content
+      .filter(
+        (part): part is { type: string; text: string } =>
+          typeof part === "object" && part !== null && part.type === "text" && typeof part.text === "string",
+      )
+      .map((part) => part.text)
+      .join("");
+    if (text.trim().length > 0) return text;
+  }
+
+  return null;
+}
+
+async function callGroq(prompt: string, attachment: { mimeType: string; data: string } | null) {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing GROQ_API_KEY");
+  }
+
+  const model = process.env.GROQ_MODEL ?? "openai/gpt-oss-120b";
+  const messages: Array<
+    | { role: "user"; content: string }
+    | {
+        role: "user";
+        content: Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }>;
+      }
+  > = [];
+
+  if (attachment) {
+    messages.push({
+      role: "user",
+      content: [
+        { type: "text", text: prompt },
+        {
+          type: "image_url",
+          image_url: { url: `data:${attachment.mimeType};base64,${attachment.data}` },
+        },
+      ],
+    });
+  } else {
+    messages.push({ role: "user", content: prompt });
+  }
+
+  const upstream = await fetch(GROQ_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages,
+      temperature: 0.7,
+      max_tokens: 4096,
+    }),
+  });
+
+  if (!upstream.ok) {
+    const errorBody = await upstream.text();
+    throw new Error(`Groq API error: ${upstream.status}: ${errorBody}`);
+  }
+
+  const payload = (await upstream.json()) as unknown;
+  const text = extractGroqText(payload);
+  if (typeof text !== "string" || text.trim().length === 0) {
+    throw new Error("Groq API returned an empty response.");
+  }
+
+  return text;
+}
+
+async function callGemini(prompt: string, attachmentPart: { inline_data: { mime_type: string; data: string } } | null) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing GEMINI_API_KEY");
+  }
+
+  const model = getGeminiModel();
+  const upstream = await fetch(`${GEMINI_API_BASE}/${model}:generateContent`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-goog-api-key": apiKey,
+    },
+    body: JSON.stringify({
+      contents: [
+        {
+          parts: [
+            { text: prompt },
+            ...(attachmentPart ? [attachmentPart] : []),
+          ],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 4096,
+      },
+    }),
+  });
+
+  if (!upstream.ok) {
+    throw new Error(`Gemini API error: ${upstream.status}`);
+  }
+
+  const payload = (await upstream.json()) as {
+    candidates?: Array<{ content?: { parts?: Array<{ text?: unknown }> } }>;
+  };
+  const text = payload.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (typeof text !== "string" || text.trim().length === 0) {
+    throw new Error("Gemini API returned an empty response.");
+  }
+
+  return text;
+}
+
 /**
- * Keeps the Gemini credential on Vercel rather than exposing it in the browser
+ * Keeps the AI credential on Vercel rather than exposing it in the browser
  * bundle. The UI only ever sends the prepared prompt to this same-origin route.
  */
 export default {
@@ -63,50 +202,43 @@ export default {
       };
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return json({ error: "AI is not configured yet." }, 503);
+    const preferredProvider = getProvider();
+    if (!preferredProvider) {
+      return json({ error: "AI is not configured yet. Add GROQ_API_KEY or GEMINI_API_KEY in Vercel." }, 503);
     }
 
-    try {
-      const upstream = await fetch(GEMINI_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // The key remains inside this Vercel Function and out of URL logs.
-          "x-goog-api-key": apiKey,
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: prompt },
-                ...(attachmentPart ? [attachmentPart] : []),
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 4096,
-          },
-        }),
-      });
+    const providerOrder = preferredProvider === "gemini" ? ["gemini", "groq"] : ["groq", "gemini"];
+    const providerNames = providerOrder.filter((name) => {
+      if (name === "gemini") return Boolean(process.env.GEMINI_API_KEY);
+      if (name === "groq") return Boolean(process.env.GROQ_API_KEY);
+      return false;
+    });
 
-      if (!upstream.ok) {
-        return json({ error: "The AI service is unavailable. Please try again." }, 502);
+    let lastError: unknown = null;
+
+    for (const provider of providerNames) {
+      try {
+        const text =
+          provider === "groq"
+            ? await callGroq(prompt, attachmentPart ? { mimeType: attachmentPart.inline_data.mime_type, data: attachmentPart.inline_data.data } : null)
+            : await callGemini(prompt, attachmentPart);
+
+        return json({ text });
+      } catch (error) {
+        lastError = error;
+        console.error("[ai] provider request failed:", provider, error);
+
+        if (!isQuotaOrRateLimitError(error)) {
+          break;
+        }
       }
-
-      const payload = (await upstream.json()) as {
-        candidates?: Array<{ content?: { parts?: Array<{ text?: unknown }> } }>;
-      };
-      const text = payload.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (typeof text !== "string" || text.trim().length === 0) {
-        return json({ error: "The AI service returned an empty response." }, 502);
-      }
-
-      return json({ text });
-    } catch {
-      return json({ error: "The AI service could not be reached. Please try again." }, 502);
     }
+
+    const message =
+      lastError instanceof Error && lastError.message
+        ? lastError.message
+        : "The AI service could not be reached. Please try again.";
+
+    return json({ error: message }, 502);
   },
 };

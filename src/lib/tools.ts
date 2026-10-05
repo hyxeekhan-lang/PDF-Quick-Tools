@@ -26,7 +26,15 @@ export type ToolIconName =
   | "grammar"
   | "analyze"
   | "resume"
-  | "questions";
+  | "questions"
+  | "crop"
+  | "resize"
+  | "flatten"
+  | "grayscale"
+  | "metadata"
+  | "text"
+  | "blank"
+  | "header";
 
 export type ToolCategory =
   | "Organize PDF"
@@ -61,7 +69,15 @@ export type ToolHref =
   | "/ai-grammar-checker"
   | "/ai-document-analyzer"
   | "/ai-resume-analyzer"
-  | "/ai-pdf-question-generator";
+  | "/ai-pdf-question-generator"
+  | "/crop-pdf"
+  | "/change-page-size"
+  | "/flatten-pdf"
+  | "/grayscale-pdf"
+  | "/remove-pdf-metadata"
+  | "/extract-pdf-text"
+  | "/insert-blank-page"
+  | "/add-header-footer";
 
 export interface Tool {
   href: ToolHref;
@@ -225,13 +241,13 @@ export const TOOLS: Tool[] = [
   {
     href: "/ai-summarizer",
     name: "AI Summarizer",
-    blurb: "Get instant summaries of any PDF with AI.",
-    subtitle: "Summarize your PDF in seconds with AI.",
+    blurb: "Get an AI summary of any PDF.",
+    subtitle: "Summarize your PDF with AI.",
     icon: "summarize",
     category: "AI Tools",
     title: "AI Summarizer — Summarize PDF with AI Online Free",
     description:
-      "Upload a PDF and get an instant AI-powered summary with key points, main topics, and estimated reading time. Free and no account needed.",
+      "Upload a PDF and get an AI-generated summary with key points, main topics, and estimated reading time. Free and no account needed.",
     popular: true,
   },
   {
@@ -243,7 +259,7 @@ export const TOOLS: Tool[] = [
     category: "AI Tools",
     title: "AI Chat — Ask Questions About Your PDF Free",
     description:
-      "Upload a PDF and ask any question about its content. Get instant AI-powered answers based on the document. Free and no account needed.",
+      "Upload a PDF and ask any question about its content. Get AI-generated answers based on the document. Free and no account needed.",
     popular: true,
   },
   {
@@ -379,6 +395,102 @@ export const TOOLS: Tool[] = [
     title: "AI PDF Question Generator — Create Questions from PDF",
     description: "Generate 5, 10, 20 or 50 multiple choice, true/false or short-answer questions based only on your PDF.",
     popular: false,
+  },
+  {
+    href: "/crop-pdf",
+    name: "Crop PDF",
+    blurb: "Trim the edges off PDF pages.",
+    subtitle: "Cut PDF pages down to a fixed size.",
+    icon: "crop",
+    category: "Edit PDF",
+    title: "Crop PDF — Trim PDF Pages Online Free",
+    description:
+      "Crop PDF pages to A4, US Letter, square or a business card size. Trim the margins off scans and downloads instantly, free and with no account.",
+    popular: true,
+  },
+  {
+    href: "/change-page-size",
+    name: "Change Page Size",
+    blurb: "Switch PDF pages between A4, Letter and Legal.",
+    subtitle: "Resize PDF pages to fit the printer.",
+    icon: "resize",
+    category: "Edit PDF",
+    title: "Change PDF Page Size — Resize PDF to A4 or Letter",
+    description:
+      "Change the page size of a PDF to A4, US Letter or Legal, in portrait or landscape. The existing content is scaled to fit rather than cropped. Free, no signup.",
+    popular: true,
+  },
+  {
+    href: "/flatten-pdf",
+    name: "Flatten PDF",
+    blurb: "Lock form fields and annotations into the page.",
+    subtitle: "Make PDF forms read-only and final.",
+    icon: "flatten",
+    category: "Edit PDF",
+    title: "Flatten PDF — Flatten Forms and Annotations Online Free",
+    description:
+      "Flatten a PDF so form fields, comments and annotations become part of the page. The result looks the same everywhere and can no longer be edited. Free and no account needed.",
+    popular: true,
+  },
+  {
+    href: "/grayscale-pdf",
+    name: "Grayscale PDF",
+    blurb: "Convert PDF pages to black and white.",
+    subtitle: "Print your PDF in black and white.",
+    icon: "grayscale",
+    category: "Optimize",
+    title: "Grayscale PDF — Convert PDF to Black and White",
+    description:
+      "Convert PDF pages to grayscale for cheaper printing and smaller files. Pick the pages and the quality, then download the monochrome PDF. Free, no account.",
+    popular: true,
+  },
+  {
+    href: "/remove-pdf-metadata",
+    name: "Remove PDF Metadata",
+    blurb: "Strip author, software and date details from a PDF.",
+    subtitle: "Clear the hidden details a PDF remembers.",
+    icon: "metadata",
+    category: "Optimize",
+    title: "Remove PDF Metadata — Clear Author and Personal Details",
+    description:
+      "Remove PDF metadata including the author, title, subject, keywords, creator, producer and creation dates. Clean a file before you send it to someone else. Free and private.",
+    popular: true,
+  },
+  {
+    href: "/extract-pdf-text",
+    name: "Extract Text from PDF",
+    blurb: "Pull the text out of your PDF into a .txt file.",
+    subtitle: "Copy the words out of a PDF.",
+    icon: "text",
+    category: "Convert",
+    title: "Extract Text from PDF — Convert PDF to Text Online Free",
+    description:
+      "Extract the text from the pages of a PDF and download it as a plain text file. Useful for notes, search and pasting into another document. Free and no account needed.",
+    popular: true,
+  },
+  {
+    href: "/insert-blank-page",
+    name: "Insert Blank Page",
+    blurb: "Add empty pages at the end or after each page.",
+    subtitle: "Add blank sheets anywhere in a PDF.",
+    icon: "blank",
+    category: "Organize PDF",
+    title: "Insert Blank Page — Add Empty Pages to a PDF",
+    description:
+      "Insert blank pages into a PDF at the end, at the start, or after every page you select. Useful for double-sided printing. Free, instant, no account.",
+    popular: true,
+  },
+  {
+    href: "/add-header-footer",
+    name: "Header and Footer",
+    blurb: "Add a line of text to the top or bottom of pages.",
+    subtitle: "Put a caption on every page of a PDF.",
+    icon: "header",
+    category: "Edit PDF",
+    title: "Add Header and Footer to PDF Pages Online Free",
+    description:
+      "Add a header or footer line of text to the pages of a PDF. Useful for file names, dates, page references and confidential markings. Free and no signup.",
+    popular: true,
   },
 ];
 

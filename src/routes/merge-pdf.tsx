@@ -47,7 +47,7 @@ const FAQ = [
   {
     question: "Are my files uploaded to a server?",
     answer:
-      "No. Merging happens inside this browser tab on your own device, so the files never leave your computer or phone.",
+      "Most regular merge operations happen in this browser tab on your own device, so the files are not uploaded to a server as part of the standard workflow.",
   },
 ];
 

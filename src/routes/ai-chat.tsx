@@ -4,6 +4,7 @@ import { FileUploader } from "#/components/FileUploader";
 import { ProgressBar, ErrorMessage } from "#/components/ToolFeedback";
 import { ToolPanel, ToolShell } from "#/components/ToolShell";
 import { button } from "#/components/ui";
+import { ChatIcon } from "#/components/Icons";
 import { useToolRun } from "#/hooks/useToolRun";
 import { type AcceptedFile, FriendlyError } from "#/lib/files";
 import { pageHead } from "#/lib/seo";
@@ -37,7 +38,7 @@ const FAQ = [
   {
     question: "Is my PDF uploaded?",
     answer:
-      "The PDF text is extracted in your browser. Only the extracted text is sent to the AI for answering your questions. The original file stays on your device.",
+      "The PDF text is extracted in your browser. Extracted text may be sent to the AI provider for answering your questions, while the original file stays on your device.",
   },
   {
     question: "What languages are supported?",
@@ -206,7 +207,8 @@ function AiChatPage() {
                   onClick={handleLoadPdf}
                   className={button("primary", "lg")}
                 >
-                  💬 Start Chatting
+                  <ChatIcon className="h-4 w-4" />
+                  Start Chatting
                 </button>
                 <button
                   type="button"
@@ -223,8 +225,9 @@ function AiChatPage() {
         {pdfText && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-ink-900 dark:text-white">
-                💬 Chat with: {file?.name}
+              <p className="flex items-center gap-2 text-sm font-semibold text-ink-900 dark:text-white">
+                <ChatIcon className="h-4 w-4 shrink-0 text-brand-600 dark:text-brand-400" />
+                Chat with: {file?.name}
               </p>
               <button
                 type="button"
@@ -263,8 +266,8 @@ function About() {
         ask follow-up questions to dive deeper into any topic.
       </p>
       <p>
-        The PDF text is extracted in your browser and sent to our AI service for
-        analysis. The original file never leaves your device.
+        The PDF text is extracted in your browser and may be sent to our AI
+        provider for analysis. The original file stays on your device.
       </p>
     </>
   );

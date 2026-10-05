@@ -1,10 +1,9 @@
-const CACHE_NAME = 'pdf-tools-v2';
+const CACHE_NAME = 'pdf-tools-v3';
 const STATIC_ASSETS = [
   '/',
   '/favicon.svg',
   '/manifest.json',
   '/robots.txt',
-  '/og-card.jpg',
 ];
 
 // Install: cache static assets

@@ -4,6 +4,7 @@ import { FileUploader } from "#/components/FileUploader";
 import { ProgressBar, ErrorMessage } from "#/components/ToolFeedback";
 import { ToolPanel, ToolShell } from "#/components/ToolShell";
 import { button } from "#/components/ui";
+import { BrainIcon } from "#/components/Icons";
 import { GenerateButton } from "#/components/GenerateButton";
 import { useToolRun } from "#/hooks/useToolRun";
 import { type AcceptedFile, FriendlyError } from "#/lib/files";
@@ -151,8 +152,9 @@ function AiQuizPage() {
         {questions && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-ink-900 dark:text-white">
-                🧠 Quiz: {file?.name}
+              <p className="flex items-center gap-2 text-sm font-semibold text-ink-900 dark:text-white">
+                <BrainIcon className="h-4 w-4 shrink-0 text-brand-600 dark:text-brand-400" />
+                Quiz: {file?.name}
               </p>
               <button
                 type="button"

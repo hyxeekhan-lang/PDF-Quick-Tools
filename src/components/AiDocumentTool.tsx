@@ -1,6 +1,8 @@
 import { useCallback, useState } from "react";
 import { AiChat, type ChatMessage } from "./AiChat";
+import { SparkIcon } from "./Icons";
 import { ErrorMessage, ProgressBar } from "./ToolFeedback";
+import { AiNotice } from "./AiNotice";
 import { FileUploader } from "./FileUploader";
 import { ToolPanel, ToolShell } from "./ToolShell";
 import { button } from "./ui";
@@ -32,11 +34,71 @@ const taskByHref: Record<string, AiDocumentTask | "ask"> = {
   "/ai-pdf-question-generator": "questions",
 };
 
-const faq = [
-  { question: "Does this tool invent information?", answer: "The AI is instructed to use only text extracted from your PDF and to identify missing information instead of guessing. Review generated content before relying on it." },
-  { question: "What PDFs work best?", answer: "Text-based PDFs work best. Scanned or image-only PDFs may not contain extractable text and will show a helpful error instead of a fabricated result." },
-  { question: "Is my original PDF uploaded?", answer: "The original PDF stays in your browser. Extracted text is sent to the existing AI service only when you run an action." },
-];
+const faqByTask: Record<AiDocumentTask | "ask", { question: string; answer: string }[]> = {
+  translator: [
+    { question: "Will the translation keep my formatting?", answer: "Text is extracted from your PDF and translated as plain text, so page layout, columns, and images from the original are not carried over. Copy or download the result and re-apply your layout if you need it." },
+    { question: "How accurate is machine translation here?", answer: "Quality depends on how clear the source text is and on the AI provider handling the request. Technical terms, idioms, and long sentences are the most likely to come out wrong, so review the output before using it." },
+    { question: "Which languages are supported?", answer: "The language list includes English, Urdu, Arabic, Spanish, French, German, Hindi, Chinese, Portuguese, and Turkish. You can also leave the source set to auto-detect." },
+  ],
+  rewriter: [
+    { question: "Will rewriting change the meaning?", answer: "The tool is asked to keep the original meaning and only adjust style, tone, or length. Because the output is generated, check that no important detail was dropped or altered." },
+    { question: "How much text is sent to the AI service?", answer: "Extracted text is truncated to a fixed length before it is sent, so very long documents are analysed in part. Shorten your selection or split the document if you need every sentence rewritten." },
+    { question: "Can I get the original text back?", answer: "Yes. The result panel shows the original extracted text alongside the rewritten version so you can compare them line by line." },
+  ],
+  presentation: [
+    { question: "Do I get an actual PowerPoint file?", answer: "No. You get structured slide content — slide titles, bullet points, and speaker notes — as text that you can copy or download. You still need to apply it in your own presentation software." },
+    { question: "How many slides will I get?", answer: "The slide count follows the amount of content the AI finds in your document, so a short PDF produces fewer slides than a long one." },
+    { question: "Are the slides editable?", answer: "They are plain text. Nothing is formatted automatically, so treat the output as a well-organised outline rather than a finished deck." },
+  ],
+  flashcards: [
+    { question: "How many cards can I create?", answer: "You choose 5, 10, 20, or 50 cards. The tool creates that many cards based on the content found in your PDF." },
+    { question: "Can I edit or delete a card?", answer: "Cards can be copied to your clipboard in bulk, but individual cards cannot be edited in the tool. You can regenerate the whole set instead." },
+    { question: "Are the cards correct?", answer: "Cards are generated from your document's text and can contain mistakes. Check each answer against the source, especially for dates, numbers, and definitions." },
+  ],
+  citations: [
+    { question: "Which citation styles are supported?", answer: "APA, MLA, Chicago, and Harvard. Pick the style before generating and the output is formatted in that style." },
+    { question: "Are the citations real and verifiable?", answer: "Citations are generated from the references found in your document text. Always confirm each source exists and that the details match before submitting the work." },
+    { question: "What if my document has no references?", answer: "If no sources can be identified, the tool says so rather than producing invented references." },
+  ],
+  grammar: [
+    { question: "What does the tool check?", answer: "It reviews the extracted text for grammar, spelling, punctuation, and sentence structure, and rewrites unclear sentences." },
+    { question: "Does it preserve my tone?", answer: "It aims to keep your meaning and tone while fixing errors, but rewrites are generated and can change emphasis. Read the corrected text before copying it back." },
+    { question: "Does it work on scanned PDFs?", answer: "Only if the pages have extractable text. If text cannot be extracted, the tool shows an error rather than guessing at your content." },
+  ],
+  analyzer: [
+    { question: "What does the analysis include?", answer: "The tool produces a structured report covering topics, key themes, tone, structure, and notable details found in your document." },
+    { question: "Is this a plagiarism check?", answer: "No. It summarises and describes your own document. It does not compare your text against other sources and cannot detect copied content." },
+    { question: "How long can my document be?", answer: "Extracted text is truncated to a fixed length before analysis, so very long documents are only partly covered." },
+  ],
+  resume: [
+    { question: "Does this predict whether I will get a job?", answer: "No. It reviews your resume's content and structure and, if you paste a job description, compares wording and skills. It does not score or predict hiring outcomes." },
+    { question: "Should I paste personal details?", answer: "Avoid contact details, identification numbers, and anything sensitive. Only the text you choose to send is processed." },
+    { question: "Is my resume uploaded?", answer: "The file stays in your browser. Extracted text is sent to the AI service only when you run the analysis." },
+  ],
+  questions: [
+    { question: "How many questions are generated?", answer: "You choose 5, 10, 20, or 50 questions, plus a difficulty level and question type such as multiple choice, true/false, or short answer." },
+    { question: "Are the answers guaranteed correct?", answer: "No. Questions and answers are generated from your document and can be wrong. Check each answer against the original text before using the questions with students." },
+    { question: "Can I edit a question?", answer: "Not inside the tool. You can copy the full set as JSON and edit it elsewhere." },
+  ],
+  ask: [
+    { question: "What can this chat do?", answer: "It answers questions about the PDF you loaded. It is instructed to rely only on that document's text and to say so plainly when an answer is not in the file." },
+    { question: "Does it use outside knowledge?", answer: "No. If the answer is not in your document, the chat is asked to say that instead of answering from general knowledge." },
+    { question: "How much of my document is available to it?", answer: "The extracted text is truncated to a fixed length before the chat starts, so questions about content beyond that point may not be answered." },
+  ],
+};
+
+const aboutByTask: Record<AiDocumentTask | "ask", string> = {
+  translator: "Text is extracted from your PDF in the browser and sent to the AI service to translate into your chosen language. Only the extracted text is transmitted — the original PDF file never leaves your device, and the result comes back as plain text you can copy or download.",
+  rewriter: "The text layer of your PDF is extracted locally and rewritten by the AI service according to the style you select. The original PDF is not uploaded, and the tool shows the original text beside the rewrite so you can compare them.",
+  presentation: "Slide content is drafted from the text of your PDF and returned as structured titles, bullet points, and speaker notes. This produces an outline you can paste into your own presentation software — it does not create a downloadable slide file.",
+  flashcards: "Your PDF's text is used to generate study cards, which you can flip through in the browser and copy in bulk. The original document is not uploaded; only extracted text is sent to generate the cards.",
+  citations: "References found in your PDF's text are formatted in the citation style you choose. The original file stays in your browser and only its extracted text is sent, so verify every reference before relying on it.",
+  grammar: "The text layer of your PDF is checked by the AI service for grammar, spelling, punctuation, and clarity. The original document remains on your device and only its extracted text is sent for review.",
+  analyzer: "Your PDF's text is analysed for topics, structure, and tone, and the findings are returned as a structured report. The original file is never uploaded, and the analysis covers only the extracted text.",
+  resume: "The text of your resume is sent to the AI service for a content and structure review, optionally compared against a job description you paste in. The original file stays in your browser and is not uploaded.",
+  questions: "Your PDF's text is used to draft practice questions in the format, difficulty, and quantity you choose. The original document is not uploaded, and results are plain text you can copy or download.",
+  ask: "The text of your PDF is extracted in your browser and loaded into a chat that answers questions about that document only. The original file is not uploaded, and the chat is instructed to say when an answer is not in the document.",
+};
 
 interface AiDocumentToolProps {
   href: ToolHref;
@@ -159,7 +221,7 @@ export function AiDocumentToolPage({ href }: AiDocumentToolProps) {
   const isAsk = task === "ask";
   const showingResult = isAsk ? Boolean(pdfText) : Boolean(result);
 
-  return <ToolShell tool={tool} faq={faq} about={<p>{tool.description} Text is extracted in your browser and sent to the existing AI service only for the requested analysis. The original PDF is not uploaded.</p>}>
+  return <ToolShell tool={tool} faq={faqByTask[task]} about={<p>{aboutByTask[task]}</p>}>
     <ToolPanel>
       {!file && <FileUploader kind="pdf" toolName={tool.name} onFiles={add} onRejected={run.fail} label={`Upload PDF to ${tool.name.replace("AI ", "")}`} />}
       {run.status === "error" && !file && run.error && <ErrorMessage message={run.error} />}
@@ -168,11 +230,12 @@ export function AiDocumentToolPage({ href }: AiDocumentToolProps) {
         {!isAsk && <Options task={task} options={options} setOptions={setOptions} />}
         {busy && <ProgressBar progress={run.progress} />}
         {run.status === "error" && run.error && <ErrorMessage message={run.error} onRetry={isAsk ? loadForChat : generate} onStartOver={reset} />}
-        {!busy && run.status !== "error" && <button type="button" onClick={isAsk ? loadForChat : generate} className={button("primary", "lg")}>{isAsk ? "Prepare document chat" : `Generate with AI`}</button>}
+        {!busy && run.status !== "error" && <button type="button" onClick={isAsk ? loadForChat : generate} className={button("primary", "lg", "gap-2.5")}><SparkIcon />{isAsk ? "Prepare document chat" : "Generate with AI"}</button>}
       </div>}
       {showingResult && <div className="space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-3"><p className="text-sm font-semibold text-ink-900 dark:text-white">{tool.name}: {file?.name}</p><div className="flex flex-wrap gap-2"><button type="button" onClick={reset} className={button("secondary", "sm")}>Start over</button>{!isAsk && result && <><button type="button" onClick={copyResult} className={button("ghost", "sm")}>Copy</button><button type="button" onClick={() => downloadText(`${file?.name.replace(/\.pdf$/i, "") ?? "ai-result"}-${tool.name.toLowerCase().replaceAll(" ", "-")}.txt`, JSON.stringify(result, null, 2))} className={button("primary", "sm")}>Download</button></>}</div></div>
         {isAsk ? <AiChat onSend={ask} messages={chat.messages} isLoading={isSending} suggestedQuestions={chat.messages.length === 0 ? ["What is this document about?", "What are the key points?", "What important dates are mentioned?"] : undefined} error={chatError} onRetry={chat.messages.at(-1)?.role === "user" ? () => ask(chat.messages.at(-1)?.content ?? "", false) : undefined} /> : result && <ResultView task={task} result={result} onCopy={copyResult} />}
+        <AiNotice />
       </div>}
     </ToolPanel>
   </ToolShell>;

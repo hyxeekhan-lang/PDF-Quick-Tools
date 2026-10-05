@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://pd-f-tool.vercel.app/sitemap.xml
+Sitemap: https://pdfpilot.site/sitemap.xml

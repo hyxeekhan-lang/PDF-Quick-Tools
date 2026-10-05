@@ -1,9 +1,11 @@
 export const SITE_NAME = "PDF Quick Tools";
 export const SITE_TAGLINE = "Simple online tools for working with PDF files.";
-export const SITE_URL = "https://pd-f-tool.vercel.app";
+export const SITE_URL = "https://pdfpilot.site";
 export const GITHUB_RELEASE_URL = "https://github.com/jutthamid148-svg/PDF-Tools/releases/tag/v1.0.0";
 export const EXTENSION_DOWNLOAD_URL = `${SITE_URL}/downloads/pdf-tool-chrome-extension.zip`;
-export const SITE_CARD = `${SITE_URL}/og-card.jpg`;
+// Reuse a deployed screenshot for social previews. The former og-card.jpg
+// reference pointed to a file that was not part of the public build.
+export const SITE_CARD = `${SITE_URL}/screenshots/home-desktop.png`;
 
 /** Where the contact form's mailto is addressed. Change this to your own inbox. */
 export const CONTACT_EMAIL = "jutthamid148@gmail.com";

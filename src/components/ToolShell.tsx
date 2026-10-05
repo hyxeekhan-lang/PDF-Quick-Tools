@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { toolEvents } from "#/lib/analytics";
-import { faqJsonLd, softwareJsonLd, type FaqItem } from "#/lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, softwareJsonLd, type FaqItem } from "#/lib/seo";
 import { relatedTools, type Tool } from "#/lib/tools";
 import { Faq } from "./Faq";
 import { ArrowRightIcon, LockIcon, ToolIcon } from "./Icons";
@@ -25,7 +25,7 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
   const isAiTool = tool.category === "AI Tools";
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
+    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <script
         type="application/ld+json"
         // Static, built from our own data. No user input reaches it.
@@ -37,6 +37,11 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
               path: tool.href,
             }),
             faqJsonLd(faq),
+            breadcrumbJsonLd([
+              { name: "Home", path: "/" },
+              { name: "All Tools", path: "/tools" },
+              { name: tool.name, path: tool.href },
+            ]),
           ]),
         }}
       />
@@ -71,63 +76,68 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
         </div>
       </header>
 
-      <div className="mt-8 animate-blur-in" style={{ animationDelay: "0.1s" }}>{children}</div>
+      <div className="mt-8 min-w-0">
+        <div className="animate-blur-in" style={{ animationDelay: "0.1s" }}>{children}</div>
 
-      <p className="mt-5 flex items-center justify-center gap-2 text-center text-sm text-ink-500 dark:text-ink-500">
-        <LockIcon className="h-4 w-4 shrink-0" />
-        {isAiTool
-          ? "Your original PDF stays in this browser. Extracted text is sent to the AI service only when you run an AI action."
-          : "Your file is processed in this browser tab. It is never uploaded to a server."}
-      </p>
-
-      <section aria-labelledby="about-heading" className="prose-none">
-        <h2 id="about-heading" className={heading.h2}>
-          About {tool.name}
-        </h2>
-        <div className="mt-4 space-y-4 text-[15px] leading-relaxed text-ink-600 dark:text-ink-400">
-          {about}
-        </div>
-      </section>
-
-      <Faq items={faq} />
-
-      <section aria-labelledby="related-heading" className="mt-16">
-        <h2 id="related-heading" className={heading.h2}>
-          Other PDF tools
-        </h2>
-        <ul className="mt-6 grid gap-3 sm:grid-cols-2 stagger-slide">
-          {related.map((item) => (
-            <li key={item.href}>
-              <Link
-                to={item.href}
-                className="group flex items-center gap-3 rounded-xl bg-white px-4 py-3.5 ring-1 ring-ink-200 transition-colors hover:ring-brand-300 dark:bg-ink-900 dark:ring-ink-800 dark:hover:ring-brand-600/60"
-              >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-600/15 dark:text-brand-300">
-                  <ToolIcon name={item.icon} className="h-4.5 w-4.5" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-ink-900 dark:text-white">
-                    {item.name}
-                  </span>
-                  <span className="block truncate text-xs text-ink-500 dark:text-ink-500">
-                    {item.blurb}
-                  </span>
-                </span>
-                <ArrowRightIcon className="h-4 w-4 shrink-0 text-ink-400 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-5">
-          <Link
-            to="/tools"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 dark:text-brand-300"
-          >
-            See all PDF tools
-            <ArrowRightIcon className="h-4 w-4" />
-          </Link>
+        <p className="mt-5 flex items-center justify-center gap-2 text-center text-sm text-ink-500 dark:text-ink-500">
+          <LockIcon className="h-4 w-4 shrink-0" />
+          {isAiTool
+            ? "Your original PDF stays in this browser. Extracted text may be sent to the AI provider when you run an AI action."
+            : "Most regular PDF tools run in this browser tab on your device. They are not uploaded to a server as part of the standard workflow."}
         </p>
-      </section>
+
+        <section aria-labelledby="about-heading" className="prose-none">
+          <h2 id="about-heading" className={heading.h2}>
+            About {tool.name}
+          </h2>
+          <div className="mt-4 space-y-4 text-[15px] leading-relaxed text-ink-600 dark:text-ink-400">
+            {about}
+          </div>
+        </section>
+
+        <Faq items={faq} />
+
+        <section aria-labelledby="related-heading" className="mt-16">
+          <h2 id="related-heading" className={heading.h2}>
+            Other PDF tools
+          </h2>
+          {/* min-w-0 on each item lets a grid item shrink below its content
+              width, which is what keeps the row from pushing the page sideways
+              on a narrow screen. */}
+          <ul className="mt-6 grid gap-3 sm:grid-cols-2 stagger-slide">
+            {related.map((item) => (
+              <li key={item.href} className="min-w-0">
+                <Link
+                  to={item.href}
+                  className="group flex items-center gap-3 rounded-xl bg-white px-4 py-3.5 ring-1 ring-ink-200 transition-colors hover:ring-brand-300 dark:bg-ink-900 dark:ring-ink-800 dark:hover:ring-brand-600/60"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-600/15 dark:text-brand-300">
+                    <ToolIcon name={item.icon} className="h-4.5 w-4.5" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold text-ink-900 dark:text-white">
+                      {item.name}
+                    </span>
+                    <span className="block truncate text-xs text-ink-500 dark:text-ink-500">
+                      {item.blurb}
+                    </span>
+                  </span>
+                  <ArrowRightIcon className="h-4 w-4 shrink-0 text-ink-400 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-5">
+            <Link
+              to="/tools"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 dark:text-brand-300"
+            >
+              See all PDF tools
+              <ArrowRightIcon className="h-4 w-4" />
+            </Link>
+          </p>
+        </section>
+      </div>
     </div>
   );
 }
@@ -136,7 +146,10 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
 export function ToolPanel({ children }: { children: React.ReactNode }) {
   return (
     <div className="rounded-3xl bg-white p-5 ring-1 ring-ink-200/80 shadow-sm sm:p-7 dark:bg-ink-900/70 dark:ring-ink-800">
-      <div className="flex flex-col gap-5">{children}</div>
+      {/* Capped rather than full-bleed: the surrounding copy runs the page
+          width, but a control panel stretched to 1150px puts the option and
+          the button that applies it at opposite ends of the screen. */}
+      <div className="mx-auto flex max-w-3xl flex-col gap-5">{children}</div>
     </div>
   );
 }

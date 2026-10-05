@@ -88,11 +88,39 @@ function makeCanvas(width: number, height: number): HTMLCanvasElement {
   return canvas;
 }
 
+/**
+ * Paints the whole canvas in one colour using the source pixels' brightness.
+ *
+ * `filter: "grayscale(1)"` on the 2D context is the built-in way to do this and
+ * is hardware accelerated where the browser supports it. Where it is not
+ * supported the property is simply ignored, so we fall back to reading every
+ * pixel back and converting it here rather than shipping a colour PDF that was
+ * supposed to be black and white.
+ */
+function toGrayscale(context: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
+  const supported = context.filter;
+  if (supported !== undefined && supported !== "none") {
+    context.filter = "grayscale(1)";
+    return;
+  }
+
+  const frame = context.getImageData(0, 0, canvas.width, canvas.height);
+  const pixels = frame.data;
+  for (let i = 0; i < pixels.length; i += 4) {
+    // Rec. 601 luma, which is closer to perceived brightness than a flat average.
+    const luma = (pixels[i] * 299 + pixels[i + 1] * 587 + pixels[i + 2] * 114) / 1000;
+    pixels[i] = luma;
+    pixels[i + 1] = luma;
+    pixels[i + 2] = luma;
+  }
+  context.putImageData(frame, 0, 0);
+}
+
 /** Renders one page of a pdf.js document onto a fresh canvas. */
 export async function renderPage(
   doc: PDFDocumentProxy,
   pageNumber: number,
-  options: { scale?: number; maxWidth?: number } = {},
+  options: { scale?: number; maxWidth?: number; grayscale?: boolean } = {},
 ): Promise<HTMLCanvasElement> {
   const page = await doc.getPage(pageNumber);
   const base = page.getViewport({ scale: 1 });
@@ -112,6 +140,7 @@ export async function renderPage(
   context.fillRect(0, 0, canvas.width, canvas.height);
   await page.render({ canvas, canvasContext: context, viewport }).promise;
   page.cleanup();
+  if (options.grayscale) toGrayscale(context, canvas);
   return canvas;
 }
 

@@ -1,16 +1,25 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Faq } from "#/components/Faq";
 import {
   ArrowRightIcon,
   BoltIcon,
+  BrainIcon,
   CheckIcon,
+  DownloadIcon,
+  FolderIcon,
+  KeyIcon,
+  LeafIcon,
+  LightbulbIcon,
   LockIcon,
+  NotesIcon,
+  PdfFileIcon,
   SparkIcon,
+  TargetIcon,
 } from "#/components/Icons";
 import { ToolCard } from "#/components/ToolCard";
 import { ExtensionBanner } from "#/components/ExtensionBanner";
-import { AiToolDrawer } from "#/components/AiToolDrawer";
+import { AiNotice } from "#/components/AiNotice";
 import { button, heading, muted, sectionWrap } from "#/components/ui";
 import { callGemini, extractPdfText, type AiAttachment } from "#/lib/ai";
 import { faqJsonLd, pageHead, softwareJsonLd, type FaqItem } from "#/lib/seo";
@@ -59,7 +68,7 @@ const FAQ: FaqItem[] = [
   {
     question: "What happens to my files?",
     answer:
-      "PDF tools process your file inside your browser, with no file upload or server copy. When you choose an AI tool, its extracted text is sent to the AI service to create the response; your original PDF stays on your device.",
+      "Most regular PDF tools process your file directly in your browser on your device. AI features may send extracted text to our AI processing provider to generate the result, while the original PDF remains on your device.",
   },
 ];
 
@@ -68,10 +77,10 @@ const popular = TOOLS.filter((tool) => tool.popular);
 const aiTools = TOOLS.filter((tool) => tool.category === "AI Tools");
 
 const STATS = [
-  { value: "Local", label: "Privacy-first processing", sub: "Original files stay on your device" },
-  { value: "0 sec", label: "Queue Wait Time", sub: "Instant local execution" },
+  { value: "Local", label: "Privacy-first processing", sub: "Regular tools run in your browser" },
+  { value: "Fast", label: "Browser-based processing", sub: "Most tools work without a server upload" },
   { value: "13+", label: "Essential PDF Tools", sub: "Including Next-Gen AI" },
-  { value: "Free", label: "No Subscriptions", sub: "No watermarks or limits" },
+  { value: "Free", label: "Free PDF tools", sub: "Simple document workflows" },
 ];
 
 function StatsBanner() {
@@ -100,17 +109,6 @@ function StatsBanner() {
 }
 
 function Home() {
-  const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
-
-  useEffect(() => {
-    if (!aiDrawerOpen) return;
-    function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setAiDrawerOpen(false);
-    }
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [aiDrawerOpen]);
-
   return (
     <>
       <script
@@ -122,22 +120,6 @@ function Home() {
           ]),
         }}
       />
-
-      <button
-        type="button"
-        onClick={() => setAiDrawerOpen(true)}
-        className="ai-corner-button"
-        aria-label="Open AI tools"
-        aria-expanded={aiDrawerOpen}
-      >
-        <span className="ai-corner-wordmark">AI Tool</span>
-        <span className="ai-corner-sparkles" aria-hidden="true">
-          <SparkIcon className="ai-corner-sparkle ai-corner-sparkle-small" />
-          <SparkIcon className="ai-corner-sparkle ai-corner-sparkle-large" />
-        </span>
-      </button>
-
-      {aiDrawerOpen && <AiToolDrawer onClose={() => setAiDrawerOpen(false)} />}
 
       <ExtensionBanner />
 
@@ -237,7 +219,7 @@ function Home() {
       <section id="ai-tools-section" className={`${sectionWrap} mt-24 animate-blur-in`}>
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="flex items-center gap-4">
-            <span className="flex h-13 w-13 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 via-indigo-600 to-purple-600 text-white shadow-lg shadow-brand-500/25 animate-glow-pulse">
+            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 via-indigo-600 to-purple-600 text-white shadow-lg shadow-brand-500/25 animate-glow-pulse">
               <SparkIcon className="h-6 w-6 animate-float" />
             </span>
             <div>
@@ -246,7 +228,7 @@ function Home() {
               </div>
               <h2 className={heading.h2}>AI-Powered PDF Workspace</h2>
               <p className={`mt-1 text-sm sm:text-base ${muted}`}>
-                Deep document understanding, instant summaries, quizzes & study notes in seconds
+                Deep document understanding, summaries, quizzes & study notes
               </p>
             </div>
           </div>
@@ -310,8 +292,9 @@ function Hero() {
             </h1>
 
             <p className="mt-6 max-w-xl text-lg/relaxed text-ink-600 sm:text-xl/relaxed dark:text-ink-400">
-              Compress, merge, split, convert and manage PDFs in seconds. No
-              complicated software, sign-up or watermark. Just drag, drop and done.
+              Compress, merge, split, convert and manage PDFs in seconds. Most
+              regular tools run in your browser on your device, while AI features
+              may send extracted text to an AI provider when you use them.
             </p>
 
             {/* CTA buttons */}
@@ -337,7 +320,7 @@ function Hero() {
             <ul className="mt-9 flex flex-wrap gap-x-6 gap-y-3 text-sm text-ink-600 dark:text-ink-400">
               {[
                 { icon: LockIcon, text: "No account needed" },
-                { icon: CheckIcon, text: "No watermarks" },
+                { icon: CheckIcon, text: "Browser-based tools" },
                 { icon: BoltIcon, text: "Works on mobile" },
               ].map((item) => (
                 <li key={item.text} className="flex items-center gap-2.5">
@@ -416,7 +399,7 @@ function Hero() {
                         {/* Upload zone */}
                         <div className="rounded-xl border-[1.5px] border-dashed border-brand-300/70 bg-gradient-to-b from-brand-50/60 to-white p-4 text-center dark:border-brand-700/50 dark:from-brand-900/15 dark:to-transparent sm:p-6">
                           <div className="mx-auto mb-2.5 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-100 to-brand-50 shadow-sm dark:from-brand-800/40 dark:to-brand-900/20">
-                            <span className="text-base">📄</span>
+                            <PdfFileIcon className="h-5 w-5 text-brand-600 dark:text-brand-300" />
                           </div>
                           <p className="text-[8px] font-bold text-brand-700 sm:text-[10px] dark:text-brand-300">
                             Drop your PDF here
@@ -502,7 +485,7 @@ function Hero() {
               {/* AI sparkle badge — top center */}
               <div className="absolute -top-6 left-1/2 -translate-x-1/2 animate-float" style={{ animationDelay: "0.3s" }}>
                 <div className="group flex h-10 w-10 cursor-default items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-xl shadow-amber-500/25 ring-1 ring-amber-400/20 transition-transform hover:scale-110">
-                  <span className="text-base">✨</span>
+                  <SparkIcon className="h-5 w-5" />
                 </div>
               </div>
 
@@ -526,8 +509,8 @@ function Hero() {
 
               {/* Tiny plant */}
               <div className="absolute -bottom-4 left-0 hidden sm:block animate-float" style={{ animationDelay: "1.5s" }}>
-                <div className="flex flex-col items-center">
-                  <div className="text-base leading-none">🌿</div>
+                <div className="flex flex-col items-center text-emerald-600 dark:text-emerald-400">
+                  <LeafIcon className="h-4 w-4" />
                   <div className="mt-0.5 h-3 w-4 rounded-b-lg bg-gradient-to-b from-amber-700 to-amber-800" />
                 </div>
               </div>
@@ -554,10 +537,10 @@ function Hero() {
 }
 
 const DEMO_PROMPTS = [
-  { label: "📝 Summarize", prompt: "Summarize what PDF Quick Tools offers in 3 bullet points." },
-  { label: "💡 Explain", prompt: "Explain how PDF compression works in simple terms." },
-  { label: "🎯 Quiz me", prompt: "Create 3 true/false questions about PDF file formats." },
-  { label: "🔑 Key points", prompt: "List the top 5 most useful free PDF tools everyone should know about." },
+  { icon: NotesIcon, label: "Summarize", prompt: "Summarize what PDF Quick Tools offers in 3 bullet points." },
+  { icon: LightbulbIcon, label: "Explain", prompt: "Explain how PDF compression works in simple terms." },
+  { icon: TargetIcon, label: "Quiz me", prompt: "Create 3 true/false questions about PDF file formats." },
+  { icon: KeyIcon, label: "Key points", prompt: "List the top 5 most useful free PDF tools everyone should know about." },
 ];
 
 function readFileAsDataUrl(file: File): Promise<string> {
@@ -603,7 +586,7 @@ function AiDemo() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "ai", text: "⚠️ AI is unavailable right now. Try again in a moment!" },
+        { role: "ai", text: "AI is unavailable right now. Try again in a moment!" },
       ]);
     } finally {
       setLoading(false);
@@ -635,10 +618,11 @@ function AiDemo() {
             </span>
             <div>
               <h2 className="text-lg font-bold text-white sm:text-xl">
-                Try AI Live — No Upload Needed
+                Try AI Live
               </h2>
               <p className="text-xs text-ink-400 sm:text-sm">
-                Ask anything about PDFs, file formats, or our tools. You can also attach a PDF or image.
+                Ask anything about PDFs, file formats, or our tools. Attaching a PDF or
+                image sends that content to our AI provider.
               </p>
             </div>
           </div>
@@ -651,8 +635,9 @@ function AiDemo() {
                 type="button"
                 disabled={loading}
                 onClick={() => handleSend(chip.prompt)}
-                className="btn-press rounded-full bg-white/[0.06] px-3.5 py-1.5 text-xs font-medium text-ink-300 ring-1 ring-white/[0.08] transition-all hover:bg-white/[0.1] hover:text-white hover:ring-brand-500/40 disabled:opacity-50 sm:text-sm"
+                className="btn-press inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-3.5 py-1.5 text-xs font-medium text-ink-300 ring-1 ring-white/[0.08] transition-all hover:bg-white/[0.1] hover:text-white hover:ring-brand-500/40 disabled:opacity-50 sm:text-sm"
               >
+                <chip.icon className="h-3.5 w-3.5 shrink-0" />
                 {chip.label}
               </button>
             ))}
@@ -662,14 +647,14 @@ function AiDemo() {
           <div className="mt-5 max-h-72 space-y-3 overflow-y-auto rounded-2xl bg-black/20 p-4 ring-1 ring-white/[0.04]">
             {messages.length === 0 && !loading && (
               <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.05] ring-1 ring-white/[0.06]">
-                  <span className="text-2xl">🧠</span>
+                <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.05] text-brand-300 ring-1 ring-white/[0.06]">
+                  <BrainIcon className="h-7 w-7" />
                 </div>
                 <p className="text-sm font-medium text-ink-300">
                   Pick a prompt above or type your own question
                 </p>
                 <p className="mt-1 text-xs text-ink-500">
-                  Powered by Gemini AI — instant responses
+                  Answers are generated by an AI provider and may contain mistakes.
                 </p>
               </div>
             )}
@@ -747,6 +732,7 @@ function AiDemo() {
               <button type="button" onClick={() => setAttachment(null)} className="shrink-0 font-semibold text-brand-300 hover:text-white">Remove</button>
             </div>
           )}
+          <AiNotice className="mt-4" />
         </div>
       </div>
     </section>
@@ -757,23 +743,23 @@ const STEPS = [
   {
     number: "01",
     title: "Select & Upload",
-    body: "Drop your PDF file or pick from device. Instant loading with zero wait time.",
-    icon: "📂",
-    badge: "100% Local",
+    body: "Drop a PDF file or choose one from your device. Most regular tools run in the browser.",
+    icon: FolderIcon,
+    badge: "Browser-based",
   },
   {
     number: "02",
     title: "One-Click Magic",
-    body: "Choose compress, merge, convert, or chat with AI. Fast browser-side processing.",
-    icon: "⚡",
-    badge: "Hardware-Accelerated",
+    body: "Choose compress, merge, convert, or use an AI feature. Most tasks run with fast browser-side processing.",
+    icon: BoltIcon,
+    badge: "Fast processing",
   },
   {
     number: "03",
     title: "Download Instantly",
-    body: "Grab clean, un-watermarked results directly to your disk with zero data trails.",
-    icon: "🎯",
-    badge: "No Watermark",
+    body: "Save the finished result directly to your device after processing.",
+    icon: DownloadIcon,
+    badge: "Download-ready",
   },
 ];
 
@@ -788,7 +774,7 @@ function HowItWorks() {
           How It Works in 3 Quick Steps
         </h2>
         <p className={`mt-2.5 text-base ${muted}`}>
-          Zero sign-ups, no waiting in cloud queues, and zero file uploads to foreign servers.
+          No account required, and most regular PDF tools run directly in your browser.
         </p>
       </div>
 
@@ -799,8 +785,8 @@ function HowItWorks() {
             className="group relative rounded-3xl bg-white p-8 ring-1 ring-ink-200/80 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand-500/10 hover:ring-brand-300 dark:bg-ink-900 dark:ring-ink-800 dark:hover:ring-brand-500/50"
           >
             <div className="flex items-center justify-between">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-2xl group-hover:scale-110 transition-transform duration-300 dark:bg-brand-900/30">
-                {step.icon}
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 group-hover:scale-110 transition-transform duration-300 dark:bg-brand-900/30 dark:text-brand-300">
+                <step.icon className="h-6 w-6" />
               </span>
               <span className="text-3xl font-black text-ink-500 transition-colors group-hover:text-brand-600 dark:text-ink-400 dark:group-hover:text-brand-300">
                 {step.number}
@@ -826,21 +812,21 @@ function HowItWorks() {
 const REASONS = [
   {
     icon: BoltIcon,
-    title: "Blazing Browser Speed",
-    body: "Direct WebAssembly and client-side processing without uploading megabytes over the wire.",
-    highlight: "Zero Latency",
+    title: "Fast Browser-Based Processing",
+    body: "Most regular PDF tools run directly in the browser on your device, which keeps everyday workflows efficient.",
+    highlight: "Fast PDF processing",
   },
   {
     icon: LockIcon,
-    title: "100% Client Privacy",
-    body: "Your sensitive contracts, tax docs, and personal files never touch any external server.",
-    highlight: "Bank-Grade Privacy",
+    title: "Privacy-First Processing",
+    body: "Regular PDF tools work in the browser on your device. AI features may send extracted text to our AI provider for analysis.",
+    highlight: "Browser-first privacy",
   },
   {
     icon: SparkIcon,
-    title: "Free Forever & Unlimited",
-    body: "No hidden subscriptions, watermark traps, or page limits on everyday document workflows.",
-    highlight: "No Hidden Paywall",
+    title: "Free PDF Tools",
+    body: "Simple document tools without an account, with browser and file-size limits depending on device memory and task type.",
+    highlight: "Free to use",
   },
 ];
 
@@ -852,7 +838,7 @@ function WhyUs() {
           Engineered for Frictionless Workflows
         </h2>
         <p className={`mt-2.5 ${muted}`}>
-          Why thousands choose PDF Quick Tools over heavy software suites.
+          Why PDF Quick Tools is useful.
         </p>
       </div>
 
@@ -880,11 +866,11 @@ function WhyUs() {
 }
 
 const PRIVACY_POINTS = [
-  "Your file is opened and processed by your own browser, on your own device.",
-  "PDF editing and conversion tools never upload your document to a server.",
-  "For AI tools, only extracted text is sent to the AI service when you choose an AI action; the original PDF stays on your device.",
-  "The finished file is held in your browser's memory until you close the tab.",
-  "No account, no email address and no tracking of what is inside your files.",
+  "Most regular PDF tools run in your browser on your own device.",
+  "AI features may send extracted text to the AI provider when you choose an AI action.",
+  "The original PDF remains on your device unless you explicitly upload it as part of an AI workflow.",
+  "The finished file stays in browser memory until you close the tab or refresh the page.",
+  "No account is required for the main PDF tools, and analytics are kept limited to basic usage events.",
 ];
 
 function Privacy() {
@@ -903,9 +889,9 @@ function Privacy() {
               Your files stay private
             </h2>
             <p className="mt-4 text-ink-300">
-              Most online PDF tools ask you to upload your document to their
-              servers first. This one does not, because it does not need to.
-              Everything runs inside the browser tab you already have open.
+              Most regular PDF tools run directly in your browser on your device.
+              AI features may send extracted text to our AI provider when you
+              choose an AI action, while the original PDF stays on your device.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link to="/privacy" className={button("primary", "md")}>

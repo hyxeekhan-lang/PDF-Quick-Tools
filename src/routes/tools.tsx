@@ -22,9 +22,9 @@ export const Route = createFileRoute("/tools")({
 const CATEGORY_BLURBS: Record<string, string> = {
   "AI Tools": "Translate, rewrite, analyze, chat with, quiz and study your PDFs using AI.",
   "Organize PDF": "Rearrange, trim and fix the pages inside a document.",
-  "Edit PDF": "Add signatures and watermarks to selected pages.",
-  Convert: "Move between PDF and image formats.",
-  Optimize: "Make a file smaller without leaving the browser.",
+  "Edit PDF": "Sign, watermark, crop, resize and lock the pages of a document.",
+  Convert: "Move between PDF, image and plain text formats.",
+  Optimize: "Make a file smaller or cleaner without leaving the browser.",
 };
 
 function AllTools() {
@@ -132,6 +132,7 @@ function AllTools() {
         );
       })}
 
+      
       {visibleTools.length === 0 && (
         <div className="mt-12">
           <EmptyState

@@ -33,7 +33,7 @@ const FAQ = [
   {
     question: "Is my PDF uploaded to a server?",
     answer:
-      "The PDF text is extracted in your browser. The extracted text is sent to our AI service for analysis, but the original file stays on your device.",
+      "The PDF text is extracted in your browser. The extracted text may be sent to our AI provider for analysis, while the original file stays on your device.",
   },
   {
     question: "What types of PDFs work best?",
@@ -48,7 +48,7 @@ const FAQ = [
   {
     question: "Do I need an account?",
     answer:
-      "No. There is no signup and no email required. Upload your PDF and get a summary instantly.",
+      "No. There is no signup and no email required. Upload your PDF and generate a summary.",
   },
 ];
 
@@ -219,8 +219,8 @@ function About() {
       <p>
         This is perfect for quickly understanding long documents, research papers,
         reports, or any PDF where you need the gist without reading every page.
-        The AI works directly in your browser and the original file never leaves
-        your device.
+        The PDF text is extracted in the browser and may be sent to our AI
+        provider for analysis. The original file stays on your device.
       </p>
       <p>
         For best results, use text-based PDFs rather than scanned documents.

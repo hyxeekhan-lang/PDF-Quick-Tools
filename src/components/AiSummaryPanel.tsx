@@ -1,5 +1,6 @@
 import { button } from "#/components/ui";
 import { CheckIcon, CopyIcon, RefreshIcon, LightbulbIcon, KeyIcon } from "#/components/Icons";
+import { AiNotice } from "#/components/AiNotice";
 
 export interface AiSummary {
   summary: string;
@@ -90,6 +91,8 @@ export function AiSummaryPanel({ result, onRegenerate, onCopy, copied }: AiSumma
           <RefreshIcon className="h-4 w-4" /> Regenerate
         </button>
       </div>
+
+      <AiNotice className="mt-4" />
     </div>
   );
 }

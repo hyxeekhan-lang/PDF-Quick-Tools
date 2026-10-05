@@ -45,8 +45,9 @@ function AboutPage() {
         </p>
         <p>
           The site is built around a core belief that users should stay in control
-          of their files. Everything important runs in the browser, on the device
-          you already have, so the process stays private, fast, and transparent.
+          of their files. Most regular tools run in the browser on the device you
+          already have, so the process stays simple and transparent. AI features may
+          send extracted text to the AI provider when you explicitly use them.
         </p>
       </Block>
 
@@ -55,7 +56,7 @@ function AboutPage() {
           items={[
             "Simple tools that do one job clearly and well.",
             "Zero account friction and no unnecessary signup steps.",
-            "Privacy-first processing that keeps documents on the user's device.",
+            "Privacy-first processing that keeps documents on the user's device for every non-AI tool.",
             "Open and honest communication about functionality, limits, and risks.",
           ]}
         />

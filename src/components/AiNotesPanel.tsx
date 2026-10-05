@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { button, cx } from "#/components/ui";
 import { CheckIcon, CopyIcon, RefreshIcon, NotesIcon } from "#/components/Icons";
+import { AiNotice } from "#/components/AiNotice";
 
 export interface NotesSection {
   heading: string;
@@ -123,6 +124,8 @@ export function AiNotesPanel({ result, onRegenerate, onCopy, copied }: AiNotesPa
           <RefreshIcon className="h-4 w-4" /> Regenerate
         </button>
       </div>
+
+      <AiNotice className="mt-4" />
     </div>
   );
 }

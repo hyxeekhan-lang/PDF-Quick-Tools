@@ -58,7 +58,7 @@ const FAQ = [
   {
     question: "Are my photos uploaded anywhere?",
     answer:
-      "No. The PDF is assembled in this browser tab on your own device, so the images never leave it.",
+      "Most regular image-to-PDF work happens in this browser tab on your own device, so the images are not uploaded to a server as part of the standard workflow.",
   },
 ];
 
@@ -243,8 +243,9 @@ function About() {
         a camera roll.
       </p>
       <p>
-        Images are read and embedded by your own browser. Nothing is uploaded, so
-        a photograph of a passport or a bank statement never leaves your device.
+        Images are read and embedded in your own browser, and the process is kept
+        local to the current tab. For regular file conversion, the source images are
+        not uploaded to a server as part of the normal workflow.
       </p>
     </>
   );

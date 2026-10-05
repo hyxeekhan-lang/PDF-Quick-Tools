@@ -50,11 +50,11 @@ function DisclaimerPage() {
 
       <Block title="Privacy and data handling">
         <p>
-          To the extent possible, the site is built to process files locally in the
-          browser and not upload user documents to a server. However, it is still
-          the user's responsibility to confirm that no sensitive information is
-          exposed through the browser, operating system, or third-party services
-          used by the device.
+          Most regular PDF tools are designed to run locally in the browser on the
+          user's own device. AI features may send extracted text to an AI provider
+          when you choose an AI action, and it remains the user's responsibility to
+          confirm that no sensitive information is exposed through the browser,
+          operating system, or third-party services used by the device.
         </p>
       </Block>
 

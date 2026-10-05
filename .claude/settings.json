@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git push *)",
+      "Bash(npx -y sharp-cli -i \"c:/Users/Admin/OneDrive/Desktop/PDf Tool/public/icons/icon-512.svg\" -o \"c:/Users/Admin/OneDrive/Desktop/PDf Tool/public/favicon.ico\" --resize 32x32 --resize 16x16 --resize 48x48)",
+      "Bash(npm run *)",
+      "Bash(npx vercel *)",
+      "Bash(npm ls *)",
+      "Bash(curl -s -L https://pd-f-tool.vercel.app -o /tmp/live.html)",
+      "Bash(NODE_OPTIONS=--max-old-space-size=4096 npm run build)"
+    ]
+  }
+}

@@ -18,7 +18,7 @@ function Privacy() {
     <ArticlePage
       title="Privacy Policy"
       intro={`How ${SITE_NAME} handles your files, and what we do and do not collect.`}
-      updated="14 September 2026"
+      updated="2 October 2026"
     >
       <Block title="Your files are not uploaded">
         <p>
@@ -43,9 +43,41 @@ function Privacy() {
           with information you are not permitted to share with an AI service.
         </p>
         <p>
+          The request reaches third-party AI providers, currently Google Gemini
+          and, as a fallback, Groq. If the first provider returns a quota or
+          rate-limit error, the same prompt is retried against the second
+          provider so the tool keeps working. Both providers process the request
+          under their own privacy policies and terms, and may retain content
+          according to those policies. We do not send your files to either
+          provider, only the text or page image needed for the action you
+          requested.
+        </p>
+        <p>
+          Only part of a long document is sent. Depending on the tool, extracted
+          text is truncated to roughly 12,000&ndash;32,000 characters, and the
+          rest is marked as truncated. If a PDF has no extractable text and
+          looks scanned, the first few pages are rendered to an image in your
+          browser and that image is sent instead of text.
+        </p>
+        <p>
           AI responses can be incomplete or incorrect. We do not use uploaded
           documents or extracted text to build a user profile, and we do not
           store document text in this site's application storage.
+        </p>
+      </Block>
+
+      <Block title="Server logs">
+        <p>
+          Like any web server, our hosting provider records technical request
+          logs such as IP address, timestamp, and requested URL. These are used
+          for security and diagnosing failures.
+        </p>
+        <p>
+          When an AI request fails, our server also writes the error status and
+          the AI provider's error response to its server console log. These
+          diagnostics are not linked to your document contents and are not used
+          for analytics or advertising. Do not send an AI tool any text you
+          would not want recorded in an error log.
         </p>
       </Block>
 
@@ -87,27 +119,15 @@ function Privacy() {
         </p>
       </Block>
 
-      <Block title="Advertising and Google services">
+      <Block title="No advertising">
         <p>
-          The site may use Google advertising services as monetization is
-          enabled. If ads are served, Google and its partners may use cookies,
-          web beacons, IP addresses, or similar identifiers to deliver, measure,
-          and limit advertising. Users can learn how Google uses data on partner
-          sites in the{" "}
-          <a
-            href="https://www.google.com/policies/privacy/partners/"
-            target="_blank"
-            rel="noreferrer"
-            className="font-semibold text-brand-700 underline underline-offset-2 dark:text-brand-300"
-          >
-            Google partner-sites privacy page
-          </a>
-          .
+          This site serves no third-party display ads. Nothing is loaded from an
+          ad network, and there are no pop-unders, pop-ups, or scripts that open
+          a new tab on their own.
         </p>
         <p>
-          We do not sell personal information or use document contents to target
-          advertising. Advertising must remain separate from tool controls and
-          must never be mistaken for a download, navigation, or processing action.
+          We do not sell personal information or use document contents for
+          advertising of any kind.
         </p>
       </Block>
 

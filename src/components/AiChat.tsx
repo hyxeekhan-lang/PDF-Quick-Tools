@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { button, cx } from "#/components/ui";
 import { AlertIcon, BotIcon, RefreshIcon, SendIcon } from "#/components/Icons";
+import { AiNotice } from "#/components/AiNotice";
 
 export interface ChatMessage {
   role: "user" | "assistant";
@@ -166,6 +167,7 @@ export function AiChat({
           <SendIcon className="h-4 w-4" />
         </button>
       </form>
+      <AiNotice tone="inline" className="mt-3" />
       <p className="sr-only" aria-live="polite">
         {isLoading ? "AI is preparing an answer." : ""}
       </p>
