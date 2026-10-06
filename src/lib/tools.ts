@@ -34,7 +34,12 @@ export type ToolIconName =
   | "metadata"
   | "text"
   | "blank"
-  | "header";
+  | "header"
+  | "form"
+  | "redact"
+  | "highlight"
+  | "embed"
+  | "bookmark";
 
 export type ToolCategory =
   | "Organize PDF"
@@ -77,7 +82,12 @@ export type ToolHref =
   | "/remove-pdf-metadata"
   | "/extract-pdf-text"
   | "/insert-blank-page"
-  | "/add-header-footer";
+  | "/add-header-footer"
+  | "/fill-pdf-form"
+  | "/redact-pdf"
+  | "/highlight-pdf"
+  | "/embed-file-in-pdf"
+  | "/add-pdf-bookmarks";
 
 export interface Tool {
   href: ToolHref;
@@ -491,6 +501,66 @@ export const TOOLS: Tool[] = [
     description:
       "Add a header or footer line of text to the pages of a PDF. Useful for file names, dates, page references and confidential markings. Free and no signup.",
     popular: true,
+  },
+  {
+    href: "/fill-pdf-form",
+    name: "Fill PDF Form",
+    blurb: "Fill in text fields and check boxes.",
+    subtitle: "Complete the fillable form.",
+    icon: "form",
+    category: "Edit PDF",
+    title: "Fill PDF Form — Fill in PDF Fields Online Free",
+    description:
+      "Fill in text fields, check boxes and radio buttons in a PDF form without installing anything. Changes happen in your browser — no upload. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/redact-pdf",
+    name: "Redact PDF",
+    blurb: "Cover sensitive text with black boxes.",
+    subtitle: "Hide names, accounts and other private details.",
+    icon: "redact",
+    category: "Edit PDF",
+    title: "Redact PDF — Hide Sensitive Text and Images",
+    description:
+      "Cover names, account numbers and any other sensitive content with black boxes, or delete text and images entirely. Works in your browser. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/highlight-pdf",
+    name: "Highlight PDF",
+    blurb: "Mark text in yellow, green, blue or pink.",
+    subtitle: "Highlight text for notes and review.",
+    icon: "highlight",
+    category: "Edit PDF",
+    title: "Highlight PDF — Mark Text in Colours Online Free",
+    description:
+      "Highlight text in your PDF in yellow, green, blue or pink. Keep a document readable while still marking the parts that matter. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/embed-file-in-pdf",
+    name: "Embed File in PDF",
+    blurb: "Pack extra files inside your PDF.",
+    subtitle: "Attach supporting files to the PDF.",
+    icon: "embed",
+    category: "Organize PDF",
+    title: "Embed File in PDF — Attach Documents to Your PDF",
+    description:
+      "Pack a resume, spreadsheet or images inside your PDF so everything travels in one file. Recipients open attachments with one click. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/add-pdf-bookmarks",
+    name: "Add Bookmarks to PDF",
+    blurb: "Add a table of contents to the PDF.",
+    subtitle: "Create a navigable table of contents.",
+    icon: "bookmark",
+    category: "Organize PDF",
+    title: "Add Bookmarks to PDF — Create a Table of Contents",
+    description:
+      "Add bookmarks to the PDF table of contents so readers can jump to sections instead of scrolling. No server, no account. Free and instant.",
+    popular: false,
   },
 ];
 

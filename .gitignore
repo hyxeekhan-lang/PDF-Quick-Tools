@@ -11,3 +11,6 @@ dist-extension/
 
 .vercel
 .env*
+
+# scratch spikes
+.spike/

@@ -599,6 +599,53 @@ export function HeaderIcon(props: IconProps) {
   );
 }
 
+export function EmbedIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 3v12" />
+      <path d="m7 10 5 5 5-5" />
+      <path d="M4 19h16" />
+    </Svg>
+  );
+}
+
+export function FormIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="4" y="3" width="16" height="18" rx="2" />
+      <path d="M8 8h8M8 12h8M8 16h4" />
+    </Svg>
+  );
+}
+
+export function RedactIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="M7 10h10M7 14h6" />
+      <rect x="4" y="12" width="16" height="5" fill="currentColor" stroke="none" />
+    </Svg>
+  );
+}
+
+export function HighlightIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 20h16" />
+      <path d="M6 16 15 7l3 3-9 9H6z" />
+      <path d="M13 9l3 3" />
+    </Svg>
+  );
+}
+
+export function BookmarkIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M6 4h12v16l-6-4-6 4z" />
+    </Svg>
+  );
+}
+
 const TOOL_ICONS: Record<ToolIconName, (props: IconProps) => React.ReactElement> = {
   compress: CompressIcon,
   merge: MergeIcon,
@@ -636,6 +683,11 @@ const TOOL_ICONS: Record<ToolIconName, (props: IconProps) => React.ReactElement>
   text: TextIcon,
   blank: BlankPageIcon,
   header: HeaderIcon,
+  embed: EmbedIcon,
+  form: FormIcon,
+  redact: RedactIcon,
+  highlight: HighlightIcon,
+  bookmark: BookmarkIcon,
 };
 
 export function ToolIcon({

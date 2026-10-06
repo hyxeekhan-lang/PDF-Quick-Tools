@@ -1,8 +1,9 @@
+import { AlertIcon, CheckIcon, DownloadIcon, PdfFileIcon } from "./Icons";
+import { button, cx } from "./ui";
 import { toolEvents } from "#/lib/analytics";
 import { formatBytes, triggerDownload, type ResultFile } from "#/lib/files";
 import type { Progress } from "#/hooks/useToolRun";
-import { AlertIcon, CheckIcon, DownloadIcon, PdfFileIcon } from "./Icons";
-import { button, cx } from "./ui";
+export type { ResultFile };
 
 export function ProgressBar({ progress }: { progress: Progress }) {
   return (

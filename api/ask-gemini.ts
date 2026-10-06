@@ -21,11 +21,6 @@ function getProvider() {
   return null;
 }
 
-function isQuotaOrRateLimitError(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error ?? "");
-  return /(quota|rate limit|RESOURCE_EXHAUSTED|429|exceeded your daily quota|daily quota)/i.test(message);
-}
-
 function extractGroqText(payload: unknown): string | null {
   const content = (payload as {
     choices?: Array<{
@@ -227,10 +222,6 @@ export default {
       } catch (error) {
         lastError = error;
         console.error("[ai] provider request failed:", provider, error);
-
-        if (!isQuotaOrRateLimitError(error)) {
-          break;
-        }
       }
     }
 

@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AddHeaderFooterRouteImport } from './routes/add-header-footer'
 import { Route as AddPageNumbersRouteImport } from './routes/add-page-numbers'
+import { Route as AddPdfBookmarksRouteImport } from './routes/add-pdf-bookmarks'
 import { Route as AiAskPdfRouteImport } from './routes/ai-ask-pdf'
 import { Route as AiChatRouteImport } from './routes/ai-chat'
 import { Route as AiCitationGeneratorRouteImport } from './routes/ai-citation-generator'
@@ -33,16 +34,20 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CropPdfRouteImport } from './routes/crop-pdf'
 import { Route as DeletePdfPagesRouteImport } from './routes/delete-pdf-pages'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
+import { Route as EmbedFileInPdfRouteImport } from './routes/embed-file-in-pdf'
 import { Route as ExtractPdfPagesRouteImport } from './routes/extract-pdf-pages'
 import { Route as ExtractPdfTextRouteImport } from './routes/extract-pdf-text'
+import { Route as FillPdfFormRouteImport } from './routes/fill-pdf-form'
 import { Route as FlattenPdfRouteImport } from './routes/flatten-pdf'
 import { Route as GrayscalePdfRouteImport } from './routes/grayscale-pdf'
+import { Route as HighlightPdfRouteImport } from './routes/highlight-pdf'
 import { Route as InsertBlankPageRouteImport } from './routes/insert-blank-page'
 import { Route as JpgToPdfRouteImport } from './routes/jpg-to-pdf'
 import { Route as MergePdfRouteImport } from './routes/merge-pdf'
 import { Route as PdfToJpgRouteImport } from './routes/pdf-to-jpg'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RearrangePdfPagesRouteImport } from './routes/rearrange-pdf-pages'
+import { Route as RedactPdfRouteImport } from './routes/redact-pdf'
 import { Route as RemovePdfMetadataRouteImport } from './routes/remove-pdf-metadata'
 import { Route as RotatePdfRouteImport } from './routes/rotate-pdf'
 import { Route as SignPdfRouteImport } from './routes/sign-pdf'
@@ -69,6 +74,11 @@ const AddHeaderFooterRoute = AddHeaderFooterRouteImport.update({
 const AddPageNumbersRoute = AddPageNumbersRouteImport.update({
   id: '/add-page-numbers',
   path: '/add-page-numbers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AddPdfBookmarksRoute = AddPdfBookmarksRouteImport.update({
+  id: '/add-pdf-bookmarks',
+  path: '/add-pdf-bookmarks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiAskPdfRoute = AiAskPdfRouteImport.update({
@@ -171,6 +181,11 @@ const DisclaimerRoute = DisclaimerRouteImport.update({
   path: '/disclaimer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmbedFileInPdfRoute = EmbedFileInPdfRouteImport.update({
+  id: '/embed-file-in-pdf',
+  path: '/embed-file-in-pdf',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExtractPdfPagesRoute = ExtractPdfPagesRouteImport.update({
   id: '/extract-pdf-pages',
   path: '/extract-pdf-pages',
@@ -181,6 +196,11 @@ const ExtractPdfTextRoute = ExtractPdfTextRouteImport.update({
   path: '/extract-pdf-text',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FillPdfFormRoute = FillPdfFormRouteImport.update({
+  id: '/fill-pdf-form',
+  path: '/fill-pdf-form',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FlattenPdfRoute = FlattenPdfRouteImport.update({
   id: '/flatten-pdf',
   path: '/flatten-pdf',
@@ -189,6 +209,11 @@ const FlattenPdfRoute = FlattenPdfRouteImport.update({
 const GrayscalePdfRoute = GrayscalePdfRouteImport.update({
   id: '/grayscale-pdf',
   path: '/grayscale-pdf',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HighlightPdfRoute = HighlightPdfRouteImport.update({
+  id: '/highlight-pdf',
+  path: '/highlight-pdf',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InsertBlankPageRoute = InsertBlankPageRouteImport.update({
@@ -219,6 +244,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const RearrangePdfPagesRoute = RearrangePdfPagesRouteImport.update({
   id: '/rearrange-pdf-pages',
   path: '/rearrange-pdf-pages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RedactPdfRoute = RedactPdfRouteImport.update({
+  id: '/redact-pdf',
+  path: '/redact-pdf',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RemovePdfMetadataRoute = RemovePdfMetadataRouteImport.update({
@@ -262,6 +292,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/add-header-footer': typeof AddHeaderFooterRoute
   '/add-page-numbers': typeof AddPageNumbersRoute
+  '/add-pdf-bookmarks': typeof AddPdfBookmarksRoute
   '/ai-ask-pdf': typeof AiAskPdfRoute
   '/ai-chat': typeof AiChatRoute
   '/ai-citation-generator': typeof AiCitationGeneratorRoute
@@ -282,16 +313,20 @@ export interface FileRoutesByFullPath {
   '/crop-pdf': typeof CropPdfRoute
   '/delete-pdf-pages': typeof DeletePdfPagesRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/embed-file-in-pdf': typeof EmbedFileInPdfRoute
   '/extract-pdf-pages': typeof ExtractPdfPagesRoute
   '/extract-pdf-text': typeof ExtractPdfTextRoute
+  '/fill-pdf-form': typeof FillPdfFormRoute
   '/flatten-pdf': typeof FlattenPdfRoute
   '/grayscale-pdf': typeof GrayscalePdfRoute
+  '/highlight-pdf': typeof HighlightPdfRoute
   '/insert-blank-page': typeof InsertBlankPageRoute
   '/jpg-to-pdf': typeof JpgToPdfRoute
   '/merge-pdf': typeof MergePdfRoute
   '/pdf-to-jpg': typeof PdfToJpgRoute
   '/privacy': typeof PrivacyRoute
   '/rearrange-pdf-pages': typeof RearrangePdfPagesRoute
+  '/redact-pdf': typeof RedactPdfRoute
   '/remove-pdf-metadata': typeof RemovePdfMetadataRoute
   '/rotate-pdf': typeof RotatePdfRoute
   '/sign-pdf': typeof SignPdfRoute
@@ -305,6 +340,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/add-header-footer': typeof AddHeaderFooterRoute
   '/add-page-numbers': typeof AddPageNumbersRoute
+  '/add-pdf-bookmarks': typeof AddPdfBookmarksRoute
   '/ai-ask-pdf': typeof AiAskPdfRoute
   '/ai-chat': typeof AiChatRoute
   '/ai-citation-generator': typeof AiCitationGeneratorRoute
@@ -325,16 +361,20 @@ export interface FileRoutesByTo {
   '/crop-pdf': typeof CropPdfRoute
   '/delete-pdf-pages': typeof DeletePdfPagesRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/embed-file-in-pdf': typeof EmbedFileInPdfRoute
   '/extract-pdf-pages': typeof ExtractPdfPagesRoute
   '/extract-pdf-text': typeof ExtractPdfTextRoute
+  '/fill-pdf-form': typeof FillPdfFormRoute
   '/flatten-pdf': typeof FlattenPdfRoute
   '/grayscale-pdf': typeof GrayscalePdfRoute
+  '/highlight-pdf': typeof HighlightPdfRoute
   '/insert-blank-page': typeof InsertBlankPageRoute
   '/jpg-to-pdf': typeof JpgToPdfRoute
   '/merge-pdf': typeof MergePdfRoute
   '/pdf-to-jpg': typeof PdfToJpgRoute
   '/privacy': typeof PrivacyRoute
   '/rearrange-pdf-pages': typeof RearrangePdfPagesRoute
+  '/redact-pdf': typeof RedactPdfRoute
   '/remove-pdf-metadata': typeof RemovePdfMetadataRoute
   '/rotate-pdf': typeof RotatePdfRoute
   '/sign-pdf': typeof SignPdfRoute
@@ -349,6 +389,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/add-header-footer': typeof AddHeaderFooterRoute
   '/add-page-numbers': typeof AddPageNumbersRoute
+  '/add-pdf-bookmarks': typeof AddPdfBookmarksRoute
   '/ai-ask-pdf': typeof AiAskPdfRoute
   '/ai-chat': typeof AiChatRoute
   '/ai-citation-generator': typeof AiCitationGeneratorRoute
@@ -369,16 +410,20 @@ export interface FileRoutesById {
   '/crop-pdf': typeof CropPdfRoute
   '/delete-pdf-pages': typeof DeletePdfPagesRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/embed-file-in-pdf': typeof EmbedFileInPdfRoute
   '/extract-pdf-pages': typeof ExtractPdfPagesRoute
   '/extract-pdf-text': typeof ExtractPdfTextRoute
+  '/fill-pdf-form': typeof FillPdfFormRoute
   '/flatten-pdf': typeof FlattenPdfRoute
   '/grayscale-pdf': typeof GrayscalePdfRoute
+  '/highlight-pdf': typeof HighlightPdfRoute
   '/insert-blank-page': typeof InsertBlankPageRoute
   '/jpg-to-pdf': typeof JpgToPdfRoute
   '/merge-pdf': typeof MergePdfRoute
   '/pdf-to-jpg': typeof PdfToJpgRoute
   '/privacy': typeof PrivacyRoute
   '/rearrange-pdf-pages': typeof RearrangePdfPagesRoute
+  '/redact-pdf': typeof RedactPdfRoute
   '/remove-pdf-metadata': typeof RemovePdfMetadataRoute
   '/rotate-pdf': typeof RotatePdfRoute
   '/sign-pdf': typeof SignPdfRoute
@@ -394,6 +439,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/add-header-footer'
     | '/add-page-numbers'
+    | '/add-pdf-bookmarks'
     | '/ai-ask-pdf'
     | '/ai-chat'
     | '/ai-citation-generator'
@@ -414,16 +460,20 @@ export interface FileRouteTypes {
     | '/crop-pdf'
     | '/delete-pdf-pages'
     | '/disclaimer'
+    | '/embed-file-in-pdf'
     | '/extract-pdf-pages'
     | '/extract-pdf-text'
+    | '/fill-pdf-form'
     | '/flatten-pdf'
     | '/grayscale-pdf'
+    | '/highlight-pdf'
     | '/insert-blank-page'
     | '/jpg-to-pdf'
     | '/merge-pdf'
     | '/pdf-to-jpg'
     | '/privacy'
     | '/rearrange-pdf-pages'
+    | '/redact-pdf'
     | '/remove-pdf-metadata'
     | '/rotate-pdf'
     | '/sign-pdf'
@@ -437,6 +487,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/add-header-footer'
     | '/add-page-numbers'
+    | '/add-pdf-bookmarks'
     | '/ai-ask-pdf'
     | '/ai-chat'
     | '/ai-citation-generator'
@@ -457,16 +508,20 @@ export interface FileRouteTypes {
     | '/crop-pdf'
     | '/delete-pdf-pages'
     | '/disclaimer'
+    | '/embed-file-in-pdf'
     | '/extract-pdf-pages'
     | '/extract-pdf-text'
+    | '/fill-pdf-form'
     | '/flatten-pdf'
     | '/grayscale-pdf'
+    | '/highlight-pdf'
     | '/insert-blank-page'
     | '/jpg-to-pdf'
     | '/merge-pdf'
     | '/pdf-to-jpg'
     | '/privacy'
     | '/rearrange-pdf-pages'
+    | '/redact-pdf'
     | '/remove-pdf-metadata'
     | '/rotate-pdf'
     | '/sign-pdf'
@@ -480,6 +535,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/add-header-footer'
     | '/add-page-numbers'
+    | '/add-pdf-bookmarks'
     | '/ai-ask-pdf'
     | '/ai-chat'
     | '/ai-citation-generator'
@@ -500,16 +556,20 @@ export interface FileRouteTypes {
     | '/crop-pdf'
     | '/delete-pdf-pages'
     | '/disclaimer'
+    | '/embed-file-in-pdf'
     | '/extract-pdf-pages'
     | '/extract-pdf-text'
+    | '/fill-pdf-form'
     | '/flatten-pdf'
     | '/grayscale-pdf'
+    | '/highlight-pdf'
     | '/insert-blank-page'
     | '/jpg-to-pdf'
     | '/merge-pdf'
     | '/pdf-to-jpg'
     | '/privacy'
     | '/rearrange-pdf-pages'
+    | '/redact-pdf'
     | '/remove-pdf-metadata'
     | '/rotate-pdf'
     | '/sign-pdf'
@@ -524,6 +584,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AddHeaderFooterRoute: typeof AddHeaderFooterRoute
   AddPageNumbersRoute: typeof AddPageNumbersRoute
+  AddPdfBookmarksRoute: typeof AddPdfBookmarksRoute
   AiAskPdfRoute: typeof AiAskPdfRoute
   AiChatRoute: typeof AiChatRoute
   AiCitationGeneratorRoute: typeof AiCitationGeneratorRoute
@@ -544,16 +605,20 @@ export interface RootRouteChildren {
   CropPdfRoute: typeof CropPdfRoute
   DeletePdfPagesRoute: typeof DeletePdfPagesRoute
   DisclaimerRoute: typeof DisclaimerRoute
+  EmbedFileInPdfRoute: typeof EmbedFileInPdfRoute
   ExtractPdfPagesRoute: typeof ExtractPdfPagesRoute
   ExtractPdfTextRoute: typeof ExtractPdfTextRoute
+  FillPdfFormRoute: typeof FillPdfFormRoute
   FlattenPdfRoute: typeof FlattenPdfRoute
   GrayscalePdfRoute: typeof GrayscalePdfRoute
+  HighlightPdfRoute: typeof HighlightPdfRoute
   InsertBlankPageRoute: typeof InsertBlankPageRoute
   JpgToPdfRoute: typeof JpgToPdfRoute
   MergePdfRoute: typeof MergePdfRoute
   PdfToJpgRoute: typeof PdfToJpgRoute
   PrivacyRoute: typeof PrivacyRoute
   RearrangePdfPagesRoute: typeof RearrangePdfPagesRoute
+  RedactPdfRoute: typeof RedactPdfRoute
   RemovePdfMetadataRoute: typeof RemovePdfMetadataRoute
   RotatePdfRoute: typeof RotatePdfRoute
   SignPdfRoute: typeof SignPdfRoute
@@ -591,6 +656,13 @@ declare module '@tanstack/react-router' {
       path: '/add-page-numbers'
       fullPath: '/add-page-numbers'
       preLoaderRoute: typeof AddPageNumbersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/add-pdf-bookmarks': {
+      id: '/add-pdf-bookmarks'
+      path: '/add-pdf-bookmarks'
+      fullPath: '/add-pdf-bookmarks'
+      preLoaderRoute: typeof AddPdfBookmarksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai-ask-pdf': {
@@ -733,6 +805,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DisclaimerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/embed-file-in-pdf': {
+      id: '/embed-file-in-pdf'
+      path: '/embed-file-in-pdf'
+      fullPath: '/embed-file-in-pdf'
+      preLoaderRoute: typeof EmbedFileInPdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/extract-pdf-pages': {
       id: '/extract-pdf-pages'
       path: '/extract-pdf-pages'
@@ -747,6 +826,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExtractPdfTextRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/fill-pdf-form': {
+      id: '/fill-pdf-form'
+      path: '/fill-pdf-form'
+      fullPath: '/fill-pdf-form'
+      preLoaderRoute: typeof FillPdfFormRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/flatten-pdf': {
       id: '/flatten-pdf'
       path: '/flatten-pdf'
@@ -759,6 +845,13 @@ declare module '@tanstack/react-router' {
       path: '/grayscale-pdf'
       fullPath: '/grayscale-pdf'
       preLoaderRoute: typeof GrayscalePdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/highlight-pdf': {
+      id: '/highlight-pdf'
+      path: '/highlight-pdf'
+      fullPath: '/highlight-pdf'
+      preLoaderRoute: typeof HighlightPdfRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/insert-blank-page': {
@@ -801,6 +894,13 @@ declare module '@tanstack/react-router' {
       path: '/rearrange-pdf-pages'
       fullPath: '/rearrange-pdf-pages'
       preLoaderRoute: typeof RearrangePdfPagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/redact-pdf': {
+      id: '/redact-pdf'
+      path: '/redact-pdf'
+      fullPath: '/redact-pdf'
+      preLoaderRoute: typeof RedactPdfRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/remove-pdf-metadata': {
@@ -860,6 +960,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AddHeaderFooterRoute: AddHeaderFooterRoute,
   AddPageNumbersRoute: AddPageNumbersRoute,
+  AddPdfBookmarksRoute: AddPdfBookmarksRoute,
   AiAskPdfRoute: AiAskPdfRoute,
   AiChatRoute: AiChatRoute,
   AiCitationGeneratorRoute: AiCitationGeneratorRoute,
@@ -880,16 +981,20 @@ const rootRouteChildren: RootRouteChildren = {
   CropPdfRoute: CropPdfRoute,
   DeletePdfPagesRoute: DeletePdfPagesRoute,
   DisclaimerRoute: DisclaimerRoute,
+  EmbedFileInPdfRoute: EmbedFileInPdfRoute,
   ExtractPdfPagesRoute: ExtractPdfPagesRoute,
   ExtractPdfTextRoute: ExtractPdfTextRoute,
+  FillPdfFormRoute: FillPdfFormRoute,
   FlattenPdfRoute: FlattenPdfRoute,
   GrayscalePdfRoute: GrayscalePdfRoute,
+  HighlightPdfRoute: HighlightPdfRoute,
   InsertBlankPageRoute: InsertBlankPageRoute,
   JpgToPdfRoute: JpgToPdfRoute,
   MergePdfRoute: MergePdfRoute,
   PdfToJpgRoute: PdfToJpgRoute,
   PrivacyRoute: PrivacyRoute,
   RearrangePdfPagesRoute: RearrangePdfPagesRoute,
+  RedactPdfRoute: RedactPdfRoute,
   RemovePdfMetadataRoute: RemovePdfMetadataRoute,
   RotatePdfRoute: RotatePdfRoute,
   SignPdfRoute: SignPdfRoute,
