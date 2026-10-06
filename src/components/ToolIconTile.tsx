@@ -64,6 +64,8 @@ const PALETTE: Record<ToolIconName, Gradient> = {
   compare: ["#14b8a6", "#0ea5e9"],
   editText: ["#8b5cf6", "#ec4899"],
   repair: ["#64748b", "#0ea5e9"],
+lock: ["#dc2626", "#f97316"],
+unlock: ["#10b981", "#84cc16"],
 };
 
 /** Rounded-square radius that reads as a squircle rather than a sharp box. */

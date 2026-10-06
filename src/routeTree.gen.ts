@@ -49,6 +49,7 @@ import { Route as MergePdfRouteImport } from './routes/merge-pdf'
 import { Route as PdfToJpgRouteImport } from './routes/pdf-to-jpg'
 import { Route as PdfToMarkdownRouteImport } from './routes/pdf-to-markdown'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ProtectPdfRouteImport } from './routes/protect-pdf'
 import { Route as RearrangePdfPagesRouteImport } from './routes/rearrange-pdf-pages'
 import { Route as RedactPdfRouteImport } from './routes/redact-pdf'
 import { Route as RemovePdfMetadataRouteImport } from './routes/remove-pdf-metadata'
@@ -58,6 +59,7 @@ import { Route as SignPdfRouteImport } from './routes/sign-pdf'
 import { Route as SplitPdfRouteImport } from './routes/split-pdf'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ToolsRouteImport } from './routes/tools'
+import { Route as UnlockPdfRouteImport } from './routes/unlock-pdf'
 import { Route as WatermarkPdfRouteImport } from './routes/watermark-pdf'
 
 const IndexRoute = IndexRouteImport.update({
@@ -260,6 +262,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProtectPdfRoute = ProtectPdfRouteImport.update({
+  id: '/protect-pdf',
+  path: '/protect-pdf',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RearrangePdfPagesRoute = RearrangePdfPagesRouteImport.update({
   id: '/rearrange-pdf-pages',
   path: '/rearrange-pdf-pages',
@@ -303,6 +310,11 @@ const TermsRoute = TermsRouteImport.update({
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
   path: '/tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnlockPdfRoute = UnlockPdfRouteImport.update({
+  id: '/unlock-pdf',
+  path: '/unlock-pdf',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WatermarkPdfRoute = WatermarkPdfRouteImport.update({
@@ -352,6 +364,7 @@ export interface FileRoutesByFullPath {
   '/pdf-to-jpg': typeof PdfToJpgRoute
   '/pdf-to-markdown': typeof PdfToMarkdownRoute
   '/privacy': typeof PrivacyRoute
+  '/protect-pdf': typeof ProtectPdfRoute
   '/rearrange-pdf-pages': typeof RearrangePdfPagesRoute
   '/redact-pdf': typeof RedactPdfRoute
   '/remove-pdf-metadata': typeof RemovePdfMetadataRoute
@@ -361,6 +374,7 @@ export interface FileRoutesByFullPath {
   '/split-pdf': typeof SplitPdfRoute
   '/terms': typeof TermsRoute
   '/tools': typeof ToolsRoute
+  '/unlock-pdf': typeof UnlockPdfRoute
   '/watermark-pdf': typeof WatermarkPdfRoute
 }
 export interface FileRoutesByTo {
@@ -404,6 +418,7 @@ export interface FileRoutesByTo {
   '/pdf-to-jpg': typeof PdfToJpgRoute
   '/pdf-to-markdown': typeof PdfToMarkdownRoute
   '/privacy': typeof PrivacyRoute
+  '/protect-pdf': typeof ProtectPdfRoute
   '/rearrange-pdf-pages': typeof RearrangePdfPagesRoute
   '/redact-pdf': typeof RedactPdfRoute
   '/remove-pdf-metadata': typeof RemovePdfMetadataRoute
@@ -413,6 +428,7 @@ export interface FileRoutesByTo {
   '/split-pdf': typeof SplitPdfRoute
   '/terms': typeof TermsRoute
   '/tools': typeof ToolsRoute
+  '/unlock-pdf': typeof UnlockPdfRoute
   '/watermark-pdf': typeof WatermarkPdfRoute
 }
 export interface FileRoutesById {
@@ -457,6 +473,7 @@ export interface FileRoutesById {
   '/pdf-to-jpg': typeof PdfToJpgRoute
   '/pdf-to-markdown': typeof PdfToMarkdownRoute
   '/privacy': typeof PrivacyRoute
+  '/protect-pdf': typeof ProtectPdfRoute
   '/rearrange-pdf-pages': typeof RearrangePdfPagesRoute
   '/redact-pdf': typeof RedactPdfRoute
   '/remove-pdf-metadata': typeof RemovePdfMetadataRoute
@@ -466,6 +483,7 @@ export interface FileRoutesById {
   '/split-pdf': typeof SplitPdfRoute
   '/terms': typeof TermsRoute
   '/tools': typeof ToolsRoute
+  '/unlock-pdf': typeof UnlockPdfRoute
   '/watermark-pdf': typeof WatermarkPdfRoute
 }
 export interface FileRouteTypes {
@@ -511,6 +529,7 @@ export interface FileRouteTypes {
     | '/pdf-to-jpg'
     | '/pdf-to-markdown'
     | '/privacy'
+    | '/protect-pdf'
     | '/rearrange-pdf-pages'
     | '/redact-pdf'
     | '/remove-pdf-metadata'
@@ -520,6 +539,7 @@ export interface FileRouteTypes {
     | '/split-pdf'
     | '/terms'
     | '/tools'
+    | '/unlock-pdf'
     | '/watermark-pdf'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -563,6 +583,7 @@ export interface FileRouteTypes {
     | '/pdf-to-jpg'
     | '/pdf-to-markdown'
     | '/privacy'
+    | '/protect-pdf'
     | '/rearrange-pdf-pages'
     | '/redact-pdf'
     | '/remove-pdf-metadata'
@@ -572,6 +593,7 @@ export interface FileRouteTypes {
     | '/split-pdf'
     | '/terms'
     | '/tools'
+    | '/unlock-pdf'
     | '/watermark-pdf'
   id:
     | '__root__'
@@ -615,6 +637,7 @@ export interface FileRouteTypes {
     | '/pdf-to-jpg'
     | '/pdf-to-markdown'
     | '/privacy'
+    | '/protect-pdf'
     | '/rearrange-pdf-pages'
     | '/redact-pdf'
     | '/remove-pdf-metadata'
@@ -624,6 +647,7 @@ export interface FileRouteTypes {
     | '/split-pdf'
     | '/terms'
     | '/tools'
+    | '/unlock-pdf'
     | '/watermark-pdf'
   fileRoutesById: FileRoutesById
 }
@@ -668,6 +692,7 @@ export interface RootRouteChildren {
   PdfToJpgRoute: typeof PdfToJpgRoute
   PdfToMarkdownRoute: typeof PdfToMarkdownRoute
   PrivacyRoute: typeof PrivacyRoute
+  ProtectPdfRoute: typeof ProtectPdfRoute
   RearrangePdfPagesRoute: typeof RearrangePdfPagesRoute
   RedactPdfRoute: typeof RedactPdfRoute
   RemovePdfMetadataRoute: typeof RemovePdfMetadataRoute
@@ -677,6 +702,7 @@ export interface RootRouteChildren {
   SplitPdfRoute: typeof SplitPdfRoute
   TermsRoute: typeof TermsRoute
   ToolsRoute: typeof ToolsRoute
+  UnlockPdfRoute: typeof UnlockPdfRoute
   WatermarkPdfRoute: typeof WatermarkPdfRoute
 }
 
@@ -962,6 +988,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/protect-pdf': {
+      id: '/protect-pdf'
+      path: '/protect-pdf'
+      fullPath: '/protect-pdf'
+      preLoaderRoute: typeof ProtectPdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rearrange-pdf-pages': {
       id: '/rearrange-pdf-pages'
       path: '/rearrange-pdf-pages'
@@ -1025,6 +1058,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/unlock-pdf': {
+      id: '/unlock-pdf'
+      path: '/unlock-pdf'
+      fullPath: '/unlock-pdf'
+      preLoaderRoute: typeof UnlockPdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/watermark-pdf': {
       id: '/watermark-pdf'
       path: '/watermark-pdf'
@@ -1076,6 +1116,7 @@ const rootRouteChildren: RootRouteChildren = {
   PdfToJpgRoute: PdfToJpgRoute,
   PdfToMarkdownRoute: PdfToMarkdownRoute,
   PrivacyRoute: PrivacyRoute,
+  ProtectPdfRoute: ProtectPdfRoute,
   RearrangePdfPagesRoute: RearrangePdfPagesRoute,
   RedactPdfRoute: RedactPdfRoute,
   RemovePdfMetadataRoute: RemovePdfMetadataRoute,
@@ -1085,6 +1126,7 @@ const rootRouteChildren: RootRouteChildren = {
   SplitPdfRoute: SplitPdfRoute,
   TermsRoute: TermsRoute,
   ToolsRoute: ToolsRoute,
+  UnlockPdfRoute: UnlockPdfRoute,
   WatermarkPdfRoute: WatermarkPdfRoute,
 }
 export const routeTree = rootRouteImport

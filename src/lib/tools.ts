@@ -43,13 +43,16 @@ export type ToolIconName =
   | "markdown"
   | "compare"
   | "editText"
-  | "repair";
+  | "repair"
+  | "lock"
+  | "unlock";
 
 export type ToolCategory =
   | "Organize PDF"
   | "Edit PDF"
   | "Convert"
   | "Optimize"
+  | "PDF security"
   | "AI Tools";
 
 export type ToolHref =
@@ -95,7 +98,9 @@ export type ToolHref =
   | "/pdf-to-markdown"
   | "/compare-pdf"
   | "/edit-pdf"
-  | "/repair-pdf";
+  | "/repair-pdf"
+  | "/protect-pdf"
+  | "/unlock-pdf";
 
 export interface Tool {
   href: ToolHref;
@@ -616,6 +621,30 @@ export const TOOLS: Tool[] = [
     title: "Repair PDF — Fix a Broken or Damaged PDF File",
     description:
       "Rebuild the structure of a PDF that will not open or shows errors, and download a working copy. Recovers damaged files, in your browser. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/protect-pdf",
+    name: "Protect PDF",
+    blurb: "Add a password and lock a PDF.",
+    subtitle: "Encrypt and set printing rights.",
+    icon: "lock",
+    category: "PDF security",
+    title: "Protect PDF — Add a Password to a PDF Online Free",
+    description:
+      "Add AES-256 password protection to your PDF and decide whether it can be printed or copied. Runs in your browser, nothing is uploaded. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/unlock-pdf",
+    name: "Unlock PDF",
+    blurb: "Remove a password you know.",
+    subtitle: "Strip a password from a PDF.",
+    icon: "unlock",
+    category: "PDF security",
+    title: "Unlock PDF — Remove a PDF Password Free, No Upload",
+    description:
+      "Remove the password from a PDF you have the password for and download a normal copy that opens anywhere. Works entirely in your browser. Free and no signup.",
     popular: false,
   },
 ];

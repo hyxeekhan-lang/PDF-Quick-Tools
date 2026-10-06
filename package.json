@@ -22,6 +22,7 @@
     "@tanstack/react-start": "^1.168.60",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.3.289",
+    "qpdf-wasm": "^0.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwindcss": "^4.1.18"

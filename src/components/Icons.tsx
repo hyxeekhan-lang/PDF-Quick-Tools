@@ -685,6 +685,15 @@ export function RepairIcon(props: IconProps) {
   );
 }
 
+export function UnlockIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="3" y="11" width="18" height="11" rx="2" />
+      <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+    </Svg>
+  );
+}
+
 const TOOL_ICONS: Record<ToolIconName, (props: IconProps) => React.ReactElement> = {
   compress: CompressIcon,
   merge: MergeIcon,
@@ -731,6 +740,8 @@ const TOOL_ICONS: Record<ToolIconName, (props: IconProps) => React.ReactElement>
   compare: CompareIcon,
   editText: EditTextIcon,
   repair: RepairIcon,
+  lock: LockIcon,
+  unlock: UnlockIcon,
 };
 
 export function ToolIcon({
