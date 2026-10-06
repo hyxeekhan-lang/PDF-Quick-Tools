@@ -46,6 +46,7 @@ import { Route as HighlightPdfRouteImport } from './routes/highlight-pdf'
 import { Route as InsertBlankPageRouteImport } from './routes/insert-blank-page'
 import { Route as JpgToPdfRouteImport } from './routes/jpg-to-pdf'
 import { Route as MergePdfRouteImport } from './routes/merge-pdf'
+import { Route as OcrPdfRouteImport } from './routes/ocr-pdf'
 import { Route as PdfToJpgRouteImport } from './routes/pdf-to-jpg'
 import { Route as PdfToMarkdownRouteImport } from './routes/pdf-to-markdown'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -247,6 +248,11 @@ const MergePdfRoute = MergePdfRouteImport.update({
   path: '/merge-pdf',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OcrPdfRoute = OcrPdfRouteImport.update({
+  id: '/ocr-pdf',
+  path: '/ocr-pdf',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PdfToJpgRoute = PdfToJpgRouteImport.update({
   id: '/pdf-to-jpg',
   path: '/pdf-to-jpg',
@@ -361,6 +367,7 @@ export interface FileRoutesByFullPath {
   '/insert-blank-page': typeof InsertBlankPageRoute
   '/jpg-to-pdf': typeof JpgToPdfRoute
   '/merge-pdf': typeof MergePdfRoute
+  '/ocr-pdf': typeof OcrPdfRoute
   '/pdf-to-jpg': typeof PdfToJpgRoute
   '/pdf-to-markdown': typeof PdfToMarkdownRoute
   '/privacy': typeof PrivacyRoute
@@ -415,6 +422,7 @@ export interface FileRoutesByTo {
   '/insert-blank-page': typeof InsertBlankPageRoute
   '/jpg-to-pdf': typeof JpgToPdfRoute
   '/merge-pdf': typeof MergePdfRoute
+  '/ocr-pdf': typeof OcrPdfRoute
   '/pdf-to-jpg': typeof PdfToJpgRoute
   '/pdf-to-markdown': typeof PdfToMarkdownRoute
   '/privacy': typeof PrivacyRoute
@@ -470,6 +478,7 @@ export interface FileRoutesById {
   '/insert-blank-page': typeof InsertBlankPageRoute
   '/jpg-to-pdf': typeof JpgToPdfRoute
   '/merge-pdf': typeof MergePdfRoute
+  '/ocr-pdf': typeof OcrPdfRoute
   '/pdf-to-jpg': typeof PdfToJpgRoute
   '/pdf-to-markdown': typeof PdfToMarkdownRoute
   '/privacy': typeof PrivacyRoute
@@ -526,6 +535,7 @@ export interface FileRouteTypes {
     | '/insert-blank-page'
     | '/jpg-to-pdf'
     | '/merge-pdf'
+    | '/ocr-pdf'
     | '/pdf-to-jpg'
     | '/pdf-to-markdown'
     | '/privacy'
@@ -580,6 +590,7 @@ export interface FileRouteTypes {
     | '/insert-blank-page'
     | '/jpg-to-pdf'
     | '/merge-pdf'
+    | '/ocr-pdf'
     | '/pdf-to-jpg'
     | '/pdf-to-markdown'
     | '/privacy'
@@ -634,6 +645,7 @@ export interface FileRouteTypes {
     | '/insert-blank-page'
     | '/jpg-to-pdf'
     | '/merge-pdf'
+    | '/ocr-pdf'
     | '/pdf-to-jpg'
     | '/pdf-to-markdown'
     | '/privacy'
@@ -689,6 +701,7 @@ export interface RootRouteChildren {
   InsertBlankPageRoute: typeof InsertBlankPageRoute
   JpgToPdfRoute: typeof JpgToPdfRoute
   MergePdfRoute: typeof MergePdfRoute
+  OcrPdfRoute: typeof OcrPdfRoute
   PdfToJpgRoute: typeof PdfToJpgRoute
   PdfToMarkdownRoute: typeof PdfToMarkdownRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -967,6 +980,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MergePdfRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ocr-pdf': {
+      id: '/ocr-pdf'
+      path: '/ocr-pdf'
+      fullPath: '/ocr-pdf'
+      preLoaderRoute: typeof OcrPdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pdf-to-jpg': {
       id: '/pdf-to-jpg'
       path: '/pdf-to-jpg'
@@ -1113,6 +1133,7 @@ const rootRouteChildren: RootRouteChildren = {
   InsertBlankPageRoute: InsertBlankPageRoute,
   JpgToPdfRoute: JpgToPdfRoute,
   MergePdfRoute: MergePdfRoute,
+  OcrPdfRoute: OcrPdfRoute,
   PdfToJpgRoute: PdfToJpgRoute,
   PdfToMarkdownRoute: PdfToMarkdownRoute,
   PrivacyRoute: PrivacyRoute,

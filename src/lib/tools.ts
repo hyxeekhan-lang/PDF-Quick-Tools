@@ -45,7 +45,8 @@ export type ToolIconName =
   | "editText"
   | "repair"
   | "lock"
-  | "unlock";
+  | "unlock"
+  | "scan";
 
 export type ToolCategory =
   | "Organize PDF"
@@ -100,7 +101,8 @@ export type ToolHref =
   | "/edit-pdf"
   | "/repair-pdf"
   | "/protect-pdf"
-  | "/unlock-pdf";
+  | "/unlock-pdf"
+  | "/ocr-pdf";
 
 export interface Tool {
   href: ToolHref;
@@ -645,6 +647,18 @@ export const TOOLS: Tool[] = [
     title: "Unlock PDF — Remove a PDF Password Free, No Upload",
     description:
       "Remove the password from a PDF you have the password for and download a normal copy that opens anywhere. Works entirely in your browser. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/ocr-pdf",
+    name: "OCR PDF",
+    blurb: "Make scanned PDFs searchable.",
+    subtitle: "Read the text in a scanned document.",
+    icon: "scan",
+    category: "Optimize",
+    title: "OCR PDF — Make a Scanned PDF Searchable Online Free",
+    description:
+      "Read the text in a scanned PDF so you can search, select and copy it. Runs entirely in your browser, nothing is uploaded. Free and no signup.",
     popular: false,
   },
 ];

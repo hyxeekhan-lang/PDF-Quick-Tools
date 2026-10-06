@@ -66,6 +66,7 @@ const PALETTE: Record<ToolIconName, Gradient> = {
   repair: ["#64748b", "#0ea5e9"],
 lock: ["#dc2626", "#f97316"],
 unlock: ["#10b981", "#84cc16"],
+scan: ["#6366f1", "#a855f7"],
 };
 
 /** Rounded-square radius that reads as a squircle rather than a sharp box. */
