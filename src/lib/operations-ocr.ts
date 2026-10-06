@@ -12,7 +12,8 @@
  */
 
 import type { Color, PDFFont, PDFPage } from "pdf-lib";
-import type { PDFDocumentProxy } from "pdfjs-dist";
+import type { PDFDocumentProxy, PDFPageProxy } from "pdfjs-dist";
+import { OPS } from "pdfjs-dist";
 import type { Report } from "#/hooks/useToolRun";
 import { friendly, makeResult, sanitizeFilename, type ResultFile } from "./files";
 import {
@@ -52,6 +53,27 @@ const MIN_LINE_CONFIDENCE = 20;
 
 /** Below this page confidence the first pass is retried at higher resolution. */
 const RETRY_BELOW = 75;
+
+/**
+ * How much of a page the largest drawn picture has to cover before the page
+ * counts as a scan rather than typeset text.
+ *
+ * A real scan covers essentially the whole sheet. Letters, logos and rules sit
+ * far below this, so anything under it is decoration next to genuine text.
+ */
+const SCAN_COVERAGE = 0.5;
+
+/**
+ * Every operator that paints a bitmap, so a picture can be spotted in the
+ * drawing list whatever form it was embedded in.
+ */
+const IMAGE_OPS: ReadonlySet<number> = new Set([
+  OPS.paintImageXObject,
+  OPS.paintImageXObjectRepeat,
+  OPS.paintInlineImageXObjectGroup,
+  OPS.paintImageMaskXObjectRepeat,
+  OPS.paintSolidColorImageMask,
+]);
 
 export interface OcrOutcome {
   pageCount: number;
@@ -117,11 +139,11 @@ export async function ocrPdf(
         `Reading page ${pageNumber} of ${pageCount}`,
       );
 
-      // A page that already has a text layer does not need recognising, and
-      // running OCR over it would only risk degrading text that is already
-      // correct. This is what makes the tool usable on a mixed document where
-      // some pages were typed and some were scanned.
-      if (await pageHasText(source, pageNumber)) {
+      // A genuinely typeset page does not need recognising, and running OCR
+      // over it would only risk degrading text that is already correct. This
+      // is what makes the tool usable on a mixed document where some pages were
+      // typed and some were scanned.
+      if (await pageIsTyped(source, pageNumber)) {
         skipped += 1;
         onProgress?.(order + 1, wanted.length, pageNumber);
         continue;
@@ -273,24 +295,98 @@ async function loadTesseract() {
   return tesseractPromise;
 }
 
-/** Whether a page already contains real, selectable text. */
-async function pageHasText(
+/**
+ * Whether a page is genuinely typed rather than a picture of text.
+ *
+ * Counting characters is the obvious test and it is the wrong one. A scan
+ * carrying nothing but a scanner's footer, a page number or a faint watermark
+ * clears any character count, and the page gets skipped — which is how a
+ * scanned document came back saying it "already had selectable text" while
+ * none of it could be searched.
+ *
+ * What separates the two is the picture. A scanned page is one large image
+ * covering nearly the whole sheet; a typed page has no such image at all. So
+ * this measures how much of the page the largest drawn image covers and lets
+ * a page through to the recogniser unless it is clearly typeset. When a page
+ * has both a real text layer and a big image, it is a scan with an OCR layer
+ * someone already ran over it — running again would only stack a second,
+ * worse layer on top, so that combination is still passed through.
+ */
+async function pageIsTyped(
   doc: PDFDocumentProxy,
   pageNumber: number,
 ): Promise<boolean> {
   const page = await doc.getPage(pageNumber);
   try {
-    const content = await page.getTextContent();
-    const length = content.items.reduce(
+    const [viewport, content, list] = await Promise.all([
+      page.getViewport({ scale: 1 }),
+      page.getTextContent(),
+      page.getOperatorList(),
+    ]);
+
+    const chars = content.items.reduce(
       (total, item) => total + ("str" in item ? item.str.trim().length : 0),
       0,
     );
-    // A stray header or page number can sit on an otherwise image-only page,
-    // so the bar sits well above that kind of noise.
-    return length > 10;
+    const pageArea = Math.abs(viewport.width * viewport.height);
+    const coverage = pageArea > 0 ? imageCoverage(list, OPS, pageArea) : 0;
+
+    return chars > 10 && coverage < SCAN_COVERAGE;
   } finally {
     page.cleanup();
   }
+}
+
+/**
+ * Fraction of the page covered by the largest picture drawn on it.
+ *
+ * pdf.js hands over a flat list of drawing operators, and the size of an image
+ * is not one of them — it lives in the transformation matrix in force at the
+ * moment the image is painted. So the matrix has to be carried along the whole
+ * operator list the way a graphics stack does, multiplying each `transform`
+ * onto the one already in effect and resetting on `save`/`restore`, because
+ * that is exactly what those operators do to the real stack.
+ *
+ * Taking only the most recent transform instead — which is the easy mistake —
+ * reports every page as empty, because the matrix is reset immediately before
+ * the image is painted.
+ */
+function imageCoverage(
+  list: Awaited<ReturnType<PDFPageProxy["getOperatorList"]>>,
+  ops: typeof OPS,
+  pageArea: number,
+): number {
+  let largest = 0;
+  // The identity matrix, as pdf.js reports transforms: [a, b, c, d, e, f].
+  let ctm: readonly number[] = [1, 0, 0, 1, 0, 0];
+
+  const multiply = (m: readonly number[], n: readonly number[]): number[] => [
+    m[0] * n[0] + m[2] * n[1],
+    m[1] * n[0] + m[3] * n[1],
+    m[0] * n[2] + m[2] * n[3],
+    m[1] * n[2] + m[3] * n[3],
+    m[0] * n[4] + m[2] * n[5] + m[4],
+    m[1] * n[4] + m[3] * n[5] + m[5],
+  ];
+  const apply = (m: readonly number[], x: number, y: number): number[] => [
+    m[0] * x + m[2] * y + m[4],
+    m[1] * x + m[3] * y + m[5],
+  ];
+
+  for (let i = 0; i < list.fnArray.length; i += 1) {
+    const fn = list.fnArray[i];
+    if (fn === ops.save || fn === ops.restore) {
+      ctm = [1, 0, 0, 1, 0, 0];
+    } else if (fn === ops.transform) {
+      ctm = multiply(ctm, list.argsArray[i]);
+    } else if (IMAGE_OPS.has(fn)) {
+      const [x0, y0] = apply(ctm, 0, 0);
+      const [x1, y1] = apply(ctm, 1, 1);
+      largest = Math.max(largest, Math.abs(x1 - x0) * Math.abs(y1 - y0));
+    }
+  }
+
+  return pageArea > 0 ? largest / pageArea : 0;
 }
 
 /**
