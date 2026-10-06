@@ -3,6 +3,10 @@ import { MAX_FILE_BYTES, MAX_FILE_LABEL } from "./site";
 export const PDF_ACCEPT = "application/pdf,.pdf";
 export const IMAGE_ACCEPT = "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp";
 
+/** The modern Word format. The old .doc is a different container entirely. */
+export const DOCX_ACCEPT =
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document,.docx";
+
 const PDF_MAGIC = [0x25, 0x50, 0x44, 0x46]; // "%PDF"
 
 export function formatBytes(bytes: number): string {
@@ -52,10 +56,15 @@ function nextId(): string {
   return `f${counter}_${Date.now().toString(36)}`;
 }
 
-export type FileKind = "pdf" | "image";
+export type FileKind = "pdf" | "image" | "document";
 
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const IMAGE_EXTS = new Set(["jpg", "jpeg", "png", "webp"]);
+const DOCX_TYPES = new Set([
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  // Some systems hand a .docx over with the generic zip type attached.
+  "application/zip",
+]);
 
 function extensionOf(name: string): string {
   const match = /\.([^.]+)$/.exec(name);
@@ -73,6 +82,11 @@ export function validateFile(file: File, kind: FileKind): string | null {
     const typeOk = file.type === "application/pdf" || file.type === "";
     if (!typeOk || ext !== "pdf") {
       return `"${file.name}" is not a PDF. Please choose a file ending in .pdf.`;
+    }
+  } else if (kind === "document") {
+    const typeOk = DOCX_TYPES.has(file.type) || file.type === "";
+    if (!typeOk || ext !== "docx") {
+      return `"${file.name}" is not a Word document. Please choose a file ending in .docx. If it ends in .doc, open it in Word and use Save As to make a .docx first.`;
     }
   } else {
     const typeOk = IMAGE_TYPES.has(file.type) || file.type === "";

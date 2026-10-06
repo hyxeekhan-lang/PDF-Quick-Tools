@@ -102,7 +102,8 @@ export type ToolHref =
   | "/repair-pdf"
   | "/protect-pdf"
   | "/unlock-pdf"
-  | "/ocr-pdf";
+  | "/ocr-pdf"
+  | "/word-to-pdf";
 
 export interface Tool {
   href: ToolHref;
@@ -659,6 +660,18 @@ export const TOOLS: Tool[] = [
     title: "OCR PDF — Make a Scanned PDF Searchable Online Free",
     description:
       "Read the text in a scanned PDF so you can search, select and copy it. Runs entirely in your browser, nothing is uploaded. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/word-to-pdf",
+    name: "Word to PDF",
+    blurb: "Turn a Word document into a PDF.",
+    subtitle: "Turn your Word document into a PDF.",
+    icon: "toPdf",
+    category: "Convert",
+    title: "Word to PDF — Convert DOCX to PDF Online Free",
+    description:
+      "Convert a Word .docx document to PDF in your browser. Headings, lists, tables and images are kept. Nothing is uploaded. Free and no signup.",
     popular: false,
   },
 ];

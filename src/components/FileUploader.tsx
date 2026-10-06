@@ -1,6 +1,7 @@
 import { useCallback, useId, useMemo, useRef, useState } from "react";
 import { toolEvents } from "#/lib/analytics";
 import {
+  DOCX_ACCEPT,
   IMAGE_ACCEPT,
   PDF_ACCEPT,
   sanitizeFilename,
@@ -42,8 +43,9 @@ export function FileUploader({
   const inputId = useId();
   const hintId = useId();
 
-  const noun = kind === "pdf" ? "PDF" : kind === "image" ? "image" : "PDF or image";
-  const acceptedKind = kind === "document" ? undefined : kind;
+  const noun =
+    kind === "pdf" ? "PDF" : kind === "image" ? "image" : kind === "document" ? "document" : "PDF or image";
+  const acceptedKind: FileKind | undefined = kind === "document" ? "document" : kind;
   const sourceUrl = useMemo(() => {
     if (kind !== "pdf" && kind !== "document") return null;
     const value = new URLSearchParams(window.location.search).get("sourceUrl");
@@ -118,7 +120,15 @@ export function FileUploader({
         id={inputId}
         type="file"
         className="peer sr-only"
-        accept={kind === "pdf" ? PDF_ACCEPT : kind === "image" ? IMAGE_ACCEPT : `${PDF_ACCEPT},${IMAGE_ACCEPT}`}
+        accept={
+          kind === "pdf"
+            ? PDF_ACCEPT
+            : kind === "image"
+              ? IMAGE_ACCEPT
+              : kind === "document"
+                ? DOCX_ACCEPT
+                : `${PDF_ACCEPT},${IMAGE_ACCEPT}`
+        }
         multiple={multiple}
         aria-describedby={hintId}
         onChange={(event) => {

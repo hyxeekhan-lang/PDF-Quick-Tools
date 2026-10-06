@@ -1,10 +1,10 @@
 import { formatBytes, type AcceptedFile } from "#/lib/files";
-import { CloseIcon, ImageFileIcon, PdfFileIcon } from "./Icons";
+import { CloseIcon, DocumentFileIcon, ImageFileIcon, PdfFileIcon } from "./Icons";
 import { cx } from "./ui";
 
 interface FileListProps {
   files: AcceptedFile[];
-  kind: "pdf" | "image";
+  kind: "pdf" | "image" | "document";
   onRemove?: (id: string) => void;
   onMove?: (id: string, direction: -1 | 1) => void;
   status?: string;
@@ -35,7 +35,13 @@ export function FileList({
             </span>
           )}
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-600/15 dark:text-brand-300">
-            {kind === "pdf" ? <PdfFileIcon className="h-5 w-5" /> : <ImageFileIcon className="h-5 w-5" />}
+            {kind === "pdf" ? (
+              <PdfFileIcon className="h-5 w-5" />
+            ) : kind === "document" ? (
+              <DocumentFileIcon className="h-5 w-5" />
+            ) : (
+              <ImageFileIcon className="h-5 w-5" />
+            )}
           </span>
 
           <span className="min-w-0 flex-1">

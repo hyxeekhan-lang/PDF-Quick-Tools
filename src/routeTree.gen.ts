@@ -62,6 +62,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as UnlockPdfRouteImport } from './routes/unlock-pdf'
 import { Route as WatermarkPdfRouteImport } from './routes/watermark-pdf'
+import { Route as WordToPdfRouteImport } from './routes/word-to-pdf'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -328,6 +329,11 @@ const WatermarkPdfRoute = WatermarkPdfRouteImport.update({
   path: '/watermark-pdf',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WordToPdfRoute = WordToPdfRouteImport.update({
+  id: '/word-to-pdf',
+  path: '/word-to-pdf',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -383,6 +389,7 @@ export interface FileRoutesByFullPath {
   '/tools': typeof ToolsRoute
   '/unlock-pdf': typeof UnlockPdfRoute
   '/watermark-pdf': typeof WatermarkPdfRoute
+  '/word-to-pdf': typeof WordToPdfRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -438,6 +445,7 @@ export interface FileRoutesByTo {
   '/tools': typeof ToolsRoute
   '/unlock-pdf': typeof UnlockPdfRoute
   '/watermark-pdf': typeof WatermarkPdfRoute
+  '/word-to-pdf': typeof WordToPdfRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -494,6 +502,7 @@ export interface FileRoutesById {
   '/tools': typeof ToolsRoute
   '/unlock-pdf': typeof UnlockPdfRoute
   '/watermark-pdf': typeof WatermarkPdfRoute
+  '/word-to-pdf': typeof WordToPdfRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -551,6 +560,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/unlock-pdf'
     | '/watermark-pdf'
+    | '/word-to-pdf'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -606,6 +616,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/unlock-pdf'
     | '/watermark-pdf'
+    | '/word-to-pdf'
   id:
     | '__root__'
     | '/'
@@ -661,6 +672,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/unlock-pdf'
     | '/watermark-pdf'
+    | '/word-to-pdf'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -717,6 +729,7 @@ export interface RootRouteChildren {
   ToolsRoute: typeof ToolsRoute
   UnlockPdfRoute: typeof UnlockPdfRoute
   WatermarkPdfRoute: typeof WatermarkPdfRoute
+  WordToPdfRoute: typeof WordToPdfRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1092,6 +1105,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WatermarkPdfRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/word-to-pdf': {
+      id: '/word-to-pdf'
+      path: '/word-to-pdf'
+      fullPath: '/word-to-pdf'
+      preLoaderRoute: typeof WordToPdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1149,6 +1169,7 @@ const rootRouteChildren: RootRouteChildren = {
   ToolsRoute: ToolsRoute,
   UnlockPdfRoute: UnlockPdfRoute,
   WatermarkPdfRoute: WatermarkPdfRoute,
+  WordToPdfRoute: WordToPdfRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
