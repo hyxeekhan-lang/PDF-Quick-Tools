@@ -646,6 +646,45 @@ export function BookmarkIcon(props: IconProps) {
   );
 }
 
+export function MarkdownIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <path d="M6 15v-6l2.5 3L11 9v6" />
+      <path d="M15 9v6M13 13.5 15 15.5 17 13.5" />
+    </Svg>
+  );
+}
+
+export function CompareIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 3v18" />
+      <path d="M7 7 3 12l4 5" />
+      <path d="m17 7 4 5-4 5" />
+    </Svg>
+  );
+}
+
+export function EditTextIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 20h16" />
+      <path d="M6 16 15 7l3 3-9 9H6z" />
+      <path d="M14 5h6v6" />
+    </Svg>
+  );
+}
+
+export function RepairIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M14.7 6.3a4 4 0 0 0 5 5L21 21H3l9.7-9.7a4 4 0 0 1 2-5z" />
+      <path d="m16 8 2 2" />
+    </Svg>
+  );
+}
+
 const TOOL_ICONS: Record<ToolIconName, (props: IconProps) => React.ReactElement> = {
   compress: CompressIcon,
   merge: MergeIcon,
@@ -688,6 +727,10 @@ const TOOL_ICONS: Record<ToolIconName, (props: IconProps) => React.ReactElement>
   redact: RedactIcon,
   highlight: HighlightIcon,
   bookmark: BookmarkIcon,
+  markdown: MarkdownIcon,
+  compare: CompareIcon,
+  editText: EditTextIcon,
+  repair: RepairIcon,
 };
 
 export function ToolIcon({

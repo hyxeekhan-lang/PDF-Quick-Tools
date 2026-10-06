@@ -39,7 +39,11 @@ export type ToolIconName =
   | "redact"
   | "highlight"
   | "embed"
-  | "bookmark";
+  | "bookmark"
+  | "markdown"
+  | "compare"
+  | "editText"
+  | "repair";
 
 export type ToolCategory =
   | "Organize PDF"
@@ -87,7 +91,11 @@ export type ToolHref =
   | "/redact-pdf"
   | "/highlight-pdf"
   | "/embed-file-in-pdf"
-  | "/add-pdf-bookmarks";
+  | "/add-pdf-bookmarks"
+  | "/pdf-to-markdown"
+  | "/compare-pdf"
+  | "/edit-pdf"
+  | "/repair-pdf";
 
 export interface Tool {
   href: ToolHref;
@@ -560,6 +568,54 @@ export const TOOLS: Tool[] = [
     title: "Add Bookmarks to PDF — Create a Table of Contents",
     description:
       "Add bookmarks to the PDF table of contents so readers can jump to sections instead of scrolling. No server, no account. Free and instant.",
+    popular: false,
+  },
+  {
+    href: "/pdf-to-markdown",
+    name: "PDF to Markdown",
+    blurb: "Turn a PDF's text into clean Markdown.",
+    subtitle: "Convert PDF text to Markdown for editing.",
+    icon: "markdown",
+    category: "Convert",
+    title: "PDF to Markdown — Convert Your PDF to Markdown Online",
+    description:
+      "Convert the text of your PDF into Markdown you can paste into any editor. Headings, lists and paragraphs are kept. Works in your browser, free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/compare-pdf",
+    name: "Compare PDF",
+    blurb: "See exactly what changed between two PDFs.",
+    subtitle: "Find the differences between two documents.",
+    icon: "compare",
+    category: "Edit PDF",
+    title: "Compare PDF — Find What Changed Between Two PDFs",
+    description:
+      "Compare two PDFs side by side and see every line that was added, removed or left unchanged. Useful for contracts and drafts. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/edit-pdf",
+    name: "Edit PDF",
+    blurb: "Add your own text onto a PDF page.",
+    subtitle: "Write and stamp text onto a PDF.",
+    icon: "editText",
+    category: "Edit PDF",
+    title: "Edit PDF — Add Text to a PDF Online Free",
+    description:
+      "Add a note, a label or a correction to any page of your PDF by typing text at an exact position. Everything happens in your browser. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/repair-pdf",
+    name: "Repair PDF",
+    blurb: "Rebuild a damaged or broken PDF.",
+    subtitle: "Recover PDFs that will not open.",
+    icon: "repair",
+    category: "Optimize",
+    title: "Repair PDF — Fix a Broken or Damaged PDF File",
+    description:
+      "Rebuild the structure of a PDF that will not open or shows errors, and download a working copy. Recovers damaged files, in your browser. Free and no signup.",
     popular: false,
   },
 ];

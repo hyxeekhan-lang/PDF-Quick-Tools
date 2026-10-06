@@ -60,6 +60,10 @@ const PALETTE: Record<ToolIconName, Gradient> = {
   highlight: ["#facc15", "#fb923c"],
   embed: ["#8b5cf6", "#6366f1"],
   bookmark: ["#f59e0b", "#eab308"],
+  markdown: ["#0ea5e9", "#6366f1"],
+  compare: ["#14b8a6", "#0ea5e9"],
+  editText: ["#8b5cf6", "#ec4899"],
+  repair: ["#64748b", "#0ea5e9"],
 };
 
 /** Rounded-square radius that reads as a squircle rather than a sharp box. */
