@@ -12,7 +12,7 @@
  * a route that is added and deployed is automatically in the sitemap.
  */
 
-import { readdirSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -70,15 +70,32 @@ function changefreqFor(route) {
  * __root.tsx is the document shell rather than a page, and files whose name
  * starts with an underscore are route fragments, so both are skipped.
  */
+/**
+ * A route file that renders the placeholder rather than the tool.
+ *
+ * A route has to exist for its path to typecheck before its tool is built, so
+ * an unwritten tool leaves a stub behind — and a stub is still a route, which
+ * means this generator would happily list an empty page for a crawler to find.
+ * The stub says so in one place, and this reads it, so a half-built tool never
+ * reaches the sitemap.
+ */
+const PLACEHOLDER = /<ToolShell[^>]*>\s*x\s*<\/ToolShell>/;
+
 function routes() {
   const files = readdirSync(ROUTES).filter(
     (name) => name.endsWith(".tsx") && !name.startsWith("_"),
   );
 
-  const paths = files.map((name) => {
+  const paths = [];
+  for (const name of files) {
     const slug = name.slice(0, -".tsx".length);
-    return slug === "index" ? "/" : `/${slug}`;
-  });
+    const source = readFileSync(path.join(ROUTES, name), "utf8");
+    if (PLACEHOLDER.test(source)) {
+      console.log(`sitemap.xml — skipping ${slug}, still a placeholder`);
+      continue;
+    }
+    paths.push(slug === "index" ? "/" : `/${slug}`);
+  }
 
   return [...new Set(paths)].sort((a, b) => {
     if (a === "/") return -1;

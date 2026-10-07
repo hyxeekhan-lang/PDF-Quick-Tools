@@ -141,6 +141,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pdfpilot.site/excel-to-pdf</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pdfpilot.site/extract-pdf-pages</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -171,6 +176,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pdfpilot.site/image-to-text</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pdfpilot.site/insert-blank-page</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -191,12 +201,22 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pdfpilot.site/pdf-to-excel</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pdfpilot.site/pdf-to-jpg</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://pdfpilot.site/pdf-to-markdown</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pdfpilot.site/pdf-to-png</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

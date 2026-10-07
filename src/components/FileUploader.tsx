@@ -4,6 +4,7 @@ import {
   DOCX_ACCEPT,
   IMAGE_ACCEPT,
   PDF_ACCEPT,
+  XLSX_ACCEPT,
   sanitizeFilename,
   toAcceptedFile,
   validateFile,
@@ -15,7 +16,7 @@ import { ImageFileIcon, PdfFileIcon, UploadIcon } from "./Icons";
 import { button, cx } from "./ui";
 
 interface FileUploaderProps {
-  kind: FileKind | "document";
+  kind: FileKind | "either";
   multiple?: boolean;
   toolName: string;
   onFiles: (files: AcceptedFile[]) => void;
@@ -44,8 +45,18 @@ export function FileUploader({
   const hintId = useId();
 
   const noun =
-    kind === "pdf" ? "PDF" : kind === "image" ? "image" : kind === "document" ? "document" : "PDF or image";
-  const acceptedKind: FileKind | undefined = kind === "document" ? "document" : kind;
+    kind === "pdf"
+      ? "PDF"
+      : kind === "image"
+        ? "image"
+        : kind === "document"
+          ? "document"
+          : kind === "spreadsheet"
+            ? "Excel workbook"
+            : "PDF or image";
+  // "either" accepts both shapes without validating either one, which is why
+  // it falls through to the hand-written check in `accept` below.
+  const acceptedKind: FileKind | undefined = kind === "either" ? undefined : kind;
   const sourceUrl = useMemo(() => {
     if (kind !== "pdf" && kind !== "document") return null;
     const value = new URLSearchParams(window.location.search).get("sourceUrl");
@@ -127,7 +138,9 @@ export function FileUploader({
               ? IMAGE_ACCEPT
               : kind === "document"
                 ? DOCX_ACCEPT
-                : `${PDF_ACCEPT},${IMAGE_ACCEPT}`
+                : kind === "spreadsheet"
+                  ? XLSX_ACCEPT
+                  : `${PDF_ACCEPT},${IMAGE_ACCEPT}`
         }
         multiple={multiple}
         aria-describedby={hintId}

@@ -266,14 +266,14 @@ interface TesseractBlock {
   paragraphs: Array<{ lines: TesseractLine[] }>;
 }
 
-interface TesseractData {
+export interface TesseractData {
   text: string;
   confidence: number;
   blocks: TesseractBlock[] | null;
 }
 
 /** The worker tesseract.js hands back, with the two output fields we read. */
-type TesseractWorker = {
+export type TesseractWorker = {
   recognize(
     image: unknown,
     opts?: unknown,
@@ -290,7 +290,7 @@ let tesseractPromise: Promise<typeof import("tesseract.js").createWorker> | null
  * A dynamic import keeps the several megabytes of model code off every other
  * page on the site — it is only fetched when someone opens this tool.
  */
-async function loadTesseract() {
+export async function loadTesseract() {
   tesseractPromise ??= import("tesseract.js").then((mod) => mod.createWorker);
   return tesseractPromise;
 }

@@ -7,6 +7,10 @@ export const IMAGE_ACCEPT = "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.we
 export const DOCX_ACCEPT =
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document,.docx";
 
+/** The modern Excel format. .xls is a different container entirely. */
+export const XLSX_ACCEPT =
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx";
+
 const PDF_MAGIC = [0x25, 0x50, 0x44, 0x46]; // "%PDF"
 
 export function formatBytes(bytes: number): string {
@@ -56,13 +60,17 @@ function nextId(): string {
   return `f${counter}_${Date.now().toString(36)}`;
 }
 
-export type FileKind = "pdf" | "image" | "document";
+export type FileKind = "pdf" | "image" | "document" | "spreadsheet";
 
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const IMAGE_EXTS = new Set(["jpg", "jpeg", "png", "webp"]);
 const DOCX_TYPES = new Set([
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   // Some systems hand a .docx over with the generic zip type attached.
+  "application/zip",
+]);
+const XLSX_TYPES = new Set([
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   "application/zip",
 ]);
 
@@ -87,6 +95,11 @@ export function validateFile(file: File, kind: FileKind): string | null {
     const typeOk = DOCX_TYPES.has(file.type) || file.type === "";
     if (!typeOk || ext !== "docx") {
       return `"${file.name}" is not a Word document. Please choose a file ending in .docx. If it ends in .doc, open it in Word and use Save As to make a .docx first.`;
+    }
+  } else if (kind === "spreadsheet") {
+    const typeOk = XLSX_TYPES.has(file.type) || file.type === "";
+    if (!typeOk || ext !== "xlsx") {
+      return `"${file.name}" is not an Excel workbook. Please choose a file ending in .xlsx. If it ends in .xls or .csv, open it in Excel and use Save As to make a .xlsx first.`;
     }
   } else {
     const typeOk = IMAGE_TYPES.has(file.type) || file.type === "";

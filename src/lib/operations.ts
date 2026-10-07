@@ -556,6 +556,78 @@ export async function pdfToJpg(
   return results;
 }
 
+/* ---------------------------------------------------------------- pdf to png */
+
+/**
+ * PNG rather than JPG, on the same renderer.
+ *
+ * Kept beside the JPG version rather than folded into it as a format option,
+ * because the two are genuinely different jobs: JPG throws away detail to get
+ * small, PNG keeps every pixel and is the right choice for a page you are
+ * going to crop, print or read small print from. PNG files are much larger,
+ * so the scales here are lower than the JPG ones — a lossless image does not
+ * benefit from being rendered at 2.5×.
+ */
+const PNG_SCALES: Record<ImageQuality, number> = {
+  high: 2,
+  medium: 1.4,
+  small: 1,
+};
+
+export async function pdfToPng(
+  file: File,
+  indexes: number[],
+  quality: ImageQuality,
+  asZip: boolean,
+  report: Report,
+): Promise<ResultFile[]> {
+  if (indexes.length === 0) {
+    return friendly("Select at least one page to convert.");
+  }
+
+  const scale = PNG_SCALES[quality];
+  const name = sanitizeFilename(file.name, "page");
+  const doc = await openForRender(file);
+  const entries: ZipEntry[] = [];
+  const results: ResultFile[] = [];
+
+  try {
+    for (const [position, index] of indexes.entries()) {
+      const pageNumber = index + 1;
+      if (pageNumber < 1 || pageNumber > doc.numPages) continue;
+
+      report(
+        (position / indexes.length) * 92,
+        `Converting page ${pageNumber} of ${doc.numPages}`,
+      );
+
+      const canvas = await renderPage(doc, pageNumber, { scale, maxWidth: 3000 });
+      // PNG's encode quality is not a dial: it is lossless, so the only choice
+      // is the format itself and the call takes no quality argument.
+      const blob = await canvasToBlob(canvas, "image/png");
+      canvas.width = 0;
+      canvas.height = 0;
+
+      const filename = `${name}-page-${pageNumber}.png`;
+      if (asZip) entries.push({ name: filename, data: await blobBytes(blob) });
+      else results.push(makeResult(blob, filename, "image/png"));
+    }
+  } finally {
+    await closeRender(doc);
+  }
+
+  if (asZip) {
+    report(96, "Packing the images");
+    const zip = createZip(entries);
+    return [makeResult(zip, `${name}-images.zip`, "application/zip")];
+  }
+
+  if (results.length === 0) {
+    return friendly("None of the pages you picked could be converted.");
+  }
+  return results;
+}
+
 /* ---------------------------------------------------------------- jpg to pdf */
 
 export type PageSize = "fit" | "a4" | "letter";

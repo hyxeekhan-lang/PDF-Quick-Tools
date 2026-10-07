@@ -149,10 +149,17 @@ export async function closeRender(doc: PDFDocumentProxy): Promise<void> {
   await doc.loadingTask.destroy();
 }
 
+/**
+ * Encodes a canvas.
+ *
+ * `quality` is optional because not every format has one: a lossy encoder takes
+ * a 0–1 dial and a lossless one ignores it entirely, so requiring it would mean
+ * passing a meaningless number at every PNG call site.
+ */
 export function canvasToBlob(
   canvas: HTMLCanvasElement,
   type: string,
-  quality: number,
+  quality?: number,
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
