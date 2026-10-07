@@ -763,6 +763,7 @@ const TOOL_ICONS: Record<ToolIconName, (props: IconProps) => React.ReactElement>
   lock: LockIcon,
   unlock: UnlockIcon,
   scan: ScanIcon,
+  grid: GridIcon,
 };
 
 export function ToolIcon({

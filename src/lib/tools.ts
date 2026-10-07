@@ -46,7 +46,8 @@ export type ToolIconName =
   | "repair"
   | "lock"
   | "unlock"
-  | "scan";
+  | "scan"
+  | "grid";
 
 export type ToolCategory =
   | "Organize PDF"
@@ -104,7 +105,11 @@ export type ToolHref =
   | "/unlock-pdf"
   | "/ocr-pdf"
   | "/word-to-pdf"
-  | "/pdf-to-word";
+  | "/pdf-to-word"
+  | "/pdf-to-excel"
+  | "/excel-to-pdf"
+  | "/pdf-to-png"
+  | "/image-to-text";
 
 export interface Tool {
   href: ToolHref;
@@ -685,6 +690,54 @@ export const TOOLS: Tool[] = [
     title: "PDF to Word — Convert PDF to DOCX Online Free",
     description:
       "Turn a PDF into an editable .docx. Headings and paragraphs are rebuilt from the page layout. Runs in your browser, nothing is uploaded. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/pdf-to-excel",
+    name: "PDF to Excel",
+    blurb: "Pull tables out of a PDF into a spreadsheet.",
+    subtitle: "Turn tables in a PDF into an editable spreadsheet.",
+    icon: "grid",
+    category: "Convert",
+    title: "PDF to Excel — Convert PDF Tables to XLSX Online Free",
+    description:
+      "Extract tables from a PDF into an editable .xlsx. Columns are found from the page layout and numbers stay numbers. Runs in your browser, nothing is uploaded. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/excel-to-pdf",
+    name: "Excel to PDF",
+    blurb: "Turn a spreadsheet into a PDF.",
+    subtitle: "Turn an .xlsx into a PDF document.",
+    icon: "toPdf",
+    category: "Convert",
+    title: "Excel to PDF — Convert XLSX to PDF Online Free",
+    description:
+      "Convert an .xlsx spreadsheet into a PDF. Each sheet is laid out as a table that fits the page. Runs in your browser, nothing is uploaded. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/pdf-to-png",
+    name: "PDF to PNG",
+    blurb: "Save PDF pages as lossless PNG images.",
+    subtitle: "Save PDF pages as PNG images.",
+    icon: "toJpg",
+    category: "Convert",
+    title: "PDF to PNG — Convert PDF Pages to PNG Online Free",
+    description:
+      "Convert PDF pages to PNG images with no quality loss. Choose the pages and the resolution, then download them. Runs in your browser, nothing is uploaded. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/image-to-text",
+    name: "Image to Text",
+    blurb: "Read the text out of a photo or scan.",
+    subtitle: "Pull the text out of an image with OCR.",
+    icon: "scan",
+    category: "Convert",
+    title: "Image to Text — OCR Image to Text Online Free",
+    description:
+      "Extract text from a JPG, PNG or WebP image using OCR in your browser. Copy the result or download it as a text file. Nothing is uploaded. Free and no signup.",
     popular: false,
   },
 ];

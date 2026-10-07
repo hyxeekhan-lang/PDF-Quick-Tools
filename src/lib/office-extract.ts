@@ -39,6 +39,16 @@ export interface ExtractedLine {
   y: number;
   width: number;
   size: number;
+  /**
+   * The words, kept separately with their own positions.
+   *
+   * The joined `text` is what reading order needs, but a table converter needs
+   * the gaps between words — a cell boundary is a wide gap, and once the words
+   * have been welded into one string with spaces there is no way to tell a
+   * real gap from an inserted one. Keeping both costs nothing at extraction
+   * time and saves the table converter from having to re-read the PDF.
+   */
+  words: ExtractedWord[];
 }
 
 /** Everything found on one page. */
@@ -49,6 +59,18 @@ export interface ExtractedPage {
   lines: ExtractedLine[];
   /** Total characters, used to spot a page with no usable text. */
   characters: number;
+  /**
+   * Every word on the page, in the order they were drawn.
+   *
+   * `lines` is the page after reading order has been imposed on it, and for
+   * prose that is exactly what a reader wants. A table is the case where it
+   * is not: a row of figures looks to the column splitter like a two column
+   * article, so it is cut in half and two of the four columns are lost before
+   * the table converter ever sees the page. Nothing downstream of a column
+   * split can recover that, so the raw words are handed over as well and the
+   * table converter works from those.
+   */
+  rawWords: ExtractedWord[];
 }
 
 interface TextItem {
@@ -100,6 +122,7 @@ export async function extractPage(
       height: viewport.height,
       lines,
       characters: lines.reduce((total, line) => total + line.text.length, 0),
+      rawWords: words,
     };
   } finally {
     page.cleanup();
@@ -169,6 +192,7 @@ function groupIntoLines(words: ExtractedWord[]): ExtractedLine[] {
       y: first.y,
       width: Math.max(0, last.x + last.width - first.x),
       size: ordered.reduce((max, w) => Math.max(max, w.size), 0),
+      words: ordered,
     };
   });
 }

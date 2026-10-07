@@ -37,18 +37,22 @@ import { Route as DeletePdfPagesRouteImport } from './routes/delete-pdf-pages'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as EditPdfRouteImport } from './routes/edit-pdf'
 import { Route as EmbedFileInPdfRouteImport } from './routes/embed-file-in-pdf'
+import { Route as ExcelToPdfRouteImport } from './routes/excel-to-pdf'
 import { Route as ExtractPdfPagesRouteImport } from './routes/extract-pdf-pages'
 import { Route as ExtractPdfTextRouteImport } from './routes/extract-pdf-text'
 import { Route as FillPdfFormRouteImport } from './routes/fill-pdf-form'
 import { Route as FlattenPdfRouteImport } from './routes/flatten-pdf'
 import { Route as GrayscalePdfRouteImport } from './routes/grayscale-pdf'
 import { Route as HighlightPdfRouteImport } from './routes/highlight-pdf'
+import { Route as ImageToTextRouteImport } from './routes/image-to-text'
 import { Route as InsertBlankPageRouteImport } from './routes/insert-blank-page'
 import { Route as JpgToPdfRouteImport } from './routes/jpg-to-pdf'
 import { Route as MergePdfRouteImport } from './routes/merge-pdf'
 import { Route as OcrPdfRouteImport } from './routes/ocr-pdf'
+import { Route as PdfToExcelRouteImport } from './routes/pdf-to-excel'
 import { Route as PdfToJpgRouteImport } from './routes/pdf-to-jpg'
 import { Route as PdfToMarkdownRouteImport } from './routes/pdf-to-markdown'
+import { Route as PdfToPngRouteImport } from './routes/pdf-to-png'
 import { Route as PdfToWordRouteImport } from './routes/pdf-to-word'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProtectPdfRouteImport } from './routes/protect-pdf'
@@ -205,6 +209,11 @@ const EmbedFileInPdfRoute = EmbedFileInPdfRouteImport.update({
   path: '/embed-file-in-pdf',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExcelToPdfRoute = ExcelToPdfRouteImport.update({
+  id: '/excel-to-pdf',
+  path: '/excel-to-pdf',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExtractPdfPagesRoute = ExtractPdfPagesRouteImport.update({
   id: '/extract-pdf-pages',
   path: '/extract-pdf-pages',
@@ -235,6 +244,11 @@ const HighlightPdfRoute = HighlightPdfRouteImport.update({
   path: '/highlight-pdf',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ImageToTextRoute = ImageToTextRouteImport.update({
+  id: '/image-to-text',
+  path: '/image-to-text',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InsertBlankPageRoute = InsertBlankPageRouteImport.update({
   id: '/insert-blank-page',
   path: '/insert-blank-page',
@@ -255,6 +269,11 @@ const OcrPdfRoute = OcrPdfRouteImport.update({
   path: '/ocr-pdf',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PdfToExcelRoute = PdfToExcelRouteImport.update({
+  id: '/pdf-to-excel',
+  path: '/pdf-to-excel',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PdfToJpgRoute = PdfToJpgRouteImport.update({
   id: '/pdf-to-jpg',
   path: '/pdf-to-jpg',
@@ -263,6 +282,11 @@ const PdfToJpgRoute = PdfToJpgRouteImport.update({
 const PdfToMarkdownRoute = PdfToMarkdownRouteImport.update({
   id: '/pdf-to-markdown',
   path: '/pdf-to-markdown',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PdfToPngRoute = PdfToPngRouteImport.update({
+  id: '/pdf-to-png',
+  path: '/pdf-to-png',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PdfToWordRoute = PdfToWordRouteImport.update({
@@ -370,18 +394,22 @@ export interface FileRoutesByFullPath {
   '/disclaimer': typeof DisclaimerRoute
   '/edit-pdf': typeof EditPdfRoute
   '/embed-file-in-pdf': typeof EmbedFileInPdfRoute
+  '/excel-to-pdf': typeof ExcelToPdfRoute
   '/extract-pdf-pages': typeof ExtractPdfPagesRoute
   '/extract-pdf-text': typeof ExtractPdfTextRoute
   '/fill-pdf-form': typeof FillPdfFormRoute
   '/flatten-pdf': typeof FlattenPdfRoute
   '/grayscale-pdf': typeof GrayscalePdfRoute
   '/highlight-pdf': typeof HighlightPdfRoute
+  '/image-to-text': typeof ImageToTextRoute
   '/insert-blank-page': typeof InsertBlankPageRoute
   '/jpg-to-pdf': typeof JpgToPdfRoute
   '/merge-pdf': typeof MergePdfRoute
   '/ocr-pdf': typeof OcrPdfRoute
+  '/pdf-to-excel': typeof PdfToExcelRoute
   '/pdf-to-jpg': typeof PdfToJpgRoute
   '/pdf-to-markdown': typeof PdfToMarkdownRoute
+  '/pdf-to-png': typeof PdfToPngRoute
   '/pdf-to-word': typeof PdfToWordRoute
   '/privacy': typeof PrivacyRoute
   '/protect-pdf': typeof ProtectPdfRoute
@@ -427,18 +455,22 @@ export interface FileRoutesByTo {
   '/disclaimer': typeof DisclaimerRoute
   '/edit-pdf': typeof EditPdfRoute
   '/embed-file-in-pdf': typeof EmbedFileInPdfRoute
+  '/excel-to-pdf': typeof ExcelToPdfRoute
   '/extract-pdf-pages': typeof ExtractPdfPagesRoute
   '/extract-pdf-text': typeof ExtractPdfTextRoute
   '/fill-pdf-form': typeof FillPdfFormRoute
   '/flatten-pdf': typeof FlattenPdfRoute
   '/grayscale-pdf': typeof GrayscalePdfRoute
   '/highlight-pdf': typeof HighlightPdfRoute
+  '/image-to-text': typeof ImageToTextRoute
   '/insert-blank-page': typeof InsertBlankPageRoute
   '/jpg-to-pdf': typeof JpgToPdfRoute
   '/merge-pdf': typeof MergePdfRoute
   '/ocr-pdf': typeof OcrPdfRoute
+  '/pdf-to-excel': typeof PdfToExcelRoute
   '/pdf-to-jpg': typeof PdfToJpgRoute
   '/pdf-to-markdown': typeof PdfToMarkdownRoute
+  '/pdf-to-png': typeof PdfToPngRoute
   '/pdf-to-word': typeof PdfToWordRoute
   '/privacy': typeof PrivacyRoute
   '/protect-pdf': typeof ProtectPdfRoute
@@ -485,18 +517,22 @@ export interface FileRoutesById {
   '/disclaimer': typeof DisclaimerRoute
   '/edit-pdf': typeof EditPdfRoute
   '/embed-file-in-pdf': typeof EmbedFileInPdfRoute
+  '/excel-to-pdf': typeof ExcelToPdfRoute
   '/extract-pdf-pages': typeof ExtractPdfPagesRoute
   '/extract-pdf-text': typeof ExtractPdfTextRoute
   '/fill-pdf-form': typeof FillPdfFormRoute
   '/flatten-pdf': typeof FlattenPdfRoute
   '/grayscale-pdf': typeof GrayscalePdfRoute
   '/highlight-pdf': typeof HighlightPdfRoute
+  '/image-to-text': typeof ImageToTextRoute
   '/insert-blank-page': typeof InsertBlankPageRoute
   '/jpg-to-pdf': typeof JpgToPdfRoute
   '/merge-pdf': typeof MergePdfRoute
   '/ocr-pdf': typeof OcrPdfRoute
+  '/pdf-to-excel': typeof PdfToExcelRoute
   '/pdf-to-jpg': typeof PdfToJpgRoute
   '/pdf-to-markdown': typeof PdfToMarkdownRoute
+  '/pdf-to-png': typeof PdfToPngRoute
   '/pdf-to-word': typeof PdfToWordRoute
   '/privacy': typeof PrivacyRoute
   '/protect-pdf': typeof ProtectPdfRoute
@@ -544,18 +580,22 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/edit-pdf'
     | '/embed-file-in-pdf'
+    | '/excel-to-pdf'
     | '/extract-pdf-pages'
     | '/extract-pdf-text'
     | '/fill-pdf-form'
     | '/flatten-pdf'
     | '/grayscale-pdf'
     | '/highlight-pdf'
+    | '/image-to-text'
     | '/insert-blank-page'
     | '/jpg-to-pdf'
     | '/merge-pdf'
     | '/ocr-pdf'
+    | '/pdf-to-excel'
     | '/pdf-to-jpg'
     | '/pdf-to-markdown'
+    | '/pdf-to-png'
     | '/pdf-to-word'
     | '/privacy'
     | '/protect-pdf'
@@ -601,18 +641,22 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/edit-pdf'
     | '/embed-file-in-pdf'
+    | '/excel-to-pdf'
     | '/extract-pdf-pages'
     | '/extract-pdf-text'
     | '/fill-pdf-form'
     | '/flatten-pdf'
     | '/grayscale-pdf'
     | '/highlight-pdf'
+    | '/image-to-text'
     | '/insert-blank-page'
     | '/jpg-to-pdf'
     | '/merge-pdf'
     | '/ocr-pdf'
+    | '/pdf-to-excel'
     | '/pdf-to-jpg'
     | '/pdf-to-markdown'
+    | '/pdf-to-png'
     | '/pdf-to-word'
     | '/privacy'
     | '/protect-pdf'
@@ -658,18 +702,22 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/edit-pdf'
     | '/embed-file-in-pdf'
+    | '/excel-to-pdf'
     | '/extract-pdf-pages'
     | '/extract-pdf-text'
     | '/fill-pdf-form'
     | '/flatten-pdf'
     | '/grayscale-pdf'
     | '/highlight-pdf'
+    | '/image-to-text'
     | '/insert-blank-page'
     | '/jpg-to-pdf'
     | '/merge-pdf'
     | '/ocr-pdf'
+    | '/pdf-to-excel'
     | '/pdf-to-jpg'
     | '/pdf-to-markdown'
+    | '/pdf-to-png'
     | '/pdf-to-word'
     | '/privacy'
     | '/protect-pdf'
@@ -716,18 +764,22 @@ export interface RootRouteChildren {
   DisclaimerRoute: typeof DisclaimerRoute
   EditPdfRoute: typeof EditPdfRoute
   EmbedFileInPdfRoute: typeof EmbedFileInPdfRoute
+  ExcelToPdfRoute: typeof ExcelToPdfRoute
   ExtractPdfPagesRoute: typeof ExtractPdfPagesRoute
   ExtractPdfTextRoute: typeof ExtractPdfTextRoute
   FillPdfFormRoute: typeof FillPdfFormRoute
   FlattenPdfRoute: typeof FlattenPdfRoute
   GrayscalePdfRoute: typeof GrayscalePdfRoute
   HighlightPdfRoute: typeof HighlightPdfRoute
+  ImageToTextRoute: typeof ImageToTextRoute
   InsertBlankPageRoute: typeof InsertBlankPageRoute
   JpgToPdfRoute: typeof JpgToPdfRoute
   MergePdfRoute: typeof MergePdfRoute
   OcrPdfRoute: typeof OcrPdfRoute
+  PdfToExcelRoute: typeof PdfToExcelRoute
   PdfToJpgRoute: typeof PdfToJpgRoute
   PdfToMarkdownRoute: typeof PdfToMarkdownRoute
+  PdfToPngRoute: typeof PdfToPngRoute
   PdfToWordRoute: typeof PdfToWordRoute
   PrivacyRoute: typeof PrivacyRoute
   ProtectPdfRoute: typeof ProtectPdfRoute
@@ -943,6 +995,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmbedFileInPdfRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/excel-to-pdf': {
+      id: '/excel-to-pdf'
+      path: '/excel-to-pdf'
+      fullPath: '/excel-to-pdf'
+      preLoaderRoute: typeof ExcelToPdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/extract-pdf-pages': {
       id: '/extract-pdf-pages'
       path: '/extract-pdf-pages'
@@ -985,6 +1044,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HighlightPdfRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/image-to-text': {
+      id: '/image-to-text'
+      path: '/image-to-text'
+      fullPath: '/image-to-text'
+      preLoaderRoute: typeof ImageToTextRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/insert-blank-page': {
       id: '/insert-blank-page'
       path: '/insert-blank-page'
@@ -1013,6 +1079,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OcrPdfRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pdf-to-excel': {
+      id: '/pdf-to-excel'
+      path: '/pdf-to-excel'
+      fullPath: '/pdf-to-excel'
+      preLoaderRoute: typeof PdfToExcelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pdf-to-jpg': {
       id: '/pdf-to-jpg'
       path: '/pdf-to-jpg'
@@ -1025,6 +1098,13 @@ declare module '@tanstack/react-router' {
       path: '/pdf-to-markdown'
       fullPath: '/pdf-to-markdown'
       preLoaderRoute: typeof PdfToMarkdownRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pdf-to-png': {
+      id: '/pdf-to-png'
+      path: '/pdf-to-png'
+      fullPath: '/pdf-to-png'
+      preLoaderRoute: typeof PdfToPngRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pdf-to-word': {
@@ -1164,18 +1244,22 @@ const rootRouteChildren: RootRouteChildren = {
   DisclaimerRoute: DisclaimerRoute,
   EditPdfRoute: EditPdfRoute,
   EmbedFileInPdfRoute: EmbedFileInPdfRoute,
+  ExcelToPdfRoute: ExcelToPdfRoute,
   ExtractPdfPagesRoute: ExtractPdfPagesRoute,
   ExtractPdfTextRoute: ExtractPdfTextRoute,
   FillPdfFormRoute: FillPdfFormRoute,
   FlattenPdfRoute: FlattenPdfRoute,
   GrayscalePdfRoute: GrayscalePdfRoute,
   HighlightPdfRoute: HighlightPdfRoute,
+  ImageToTextRoute: ImageToTextRoute,
   InsertBlankPageRoute: InsertBlankPageRoute,
   JpgToPdfRoute: JpgToPdfRoute,
   MergePdfRoute: MergePdfRoute,
   OcrPdfRoute: OcrPdfRoute,
+  PdfToExcelRoute: PdfToExcelRoute,
   PdfToJpgRoute: PdfToJpgRoute,
   PdfToMarkdownRoute: PdfToMarkdownRoute,
+  PdfToPngRoute: PdfToPngRoute,
   PdfToWordRoute: PdfToWordRoute,
   PrivacyRoute: PrivacyRoute,
   ProtectPdfRoute: ProtectPdfRoute,
