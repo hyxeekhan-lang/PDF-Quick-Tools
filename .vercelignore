@@ -1,0 +1,20 @@
+# Nothing here needs to reach Vercel: the build happens on their side from the
+# source, so shipping local build output and scratch files only makes the
+# upload larger and slower, and a stale dist/ can shadow a fresh build.
+
+node_modules
+dist
+dist-extension
+.wrangler
+.tanstack
+.vercel
+
+# End-to-end test scratch: generated PDFs, DOCX fixtures and probe scripts.
+.spike
+
+# Extension build output; the browser extension is not part of the website.
+extension/dist
+
+.git
+.env
+.env.*
