@@ -8,7 +8,7 @@ export const SITE_NAME = "PDF Quick Tools";
  * safe to run this way before the account is approved. Paste the real value
  * here once AdSense gives it to you and the slots go live on their own.
  */
-export const ADSENSE_PUBLISHER_ID = "";
+export const ADSENSE_PUBLISHER_ID = "ca-pub-7335602358317571";
 export const SITE_TAGLINE = "Simple online tools for working with PDF files.";
 export const SITE_URL = "https://pdfpilot.site";
 export const GITHUB_RELEASE_URL = "https://github.com/jutthamid148-svg/PDF-Tools/releases/tag/v1.0.0";
