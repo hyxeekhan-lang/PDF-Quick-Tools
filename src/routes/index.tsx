@@ -6,16 +6,23 @@ import {
   BoltIcon,
   BrainIcon,
   CheckIcon,
+  CompressIcon,
   DownloadIcon,
   FolderIcon,
   KeyIcon,
   LeafIcon,
   LightbulbIcon,
   LockIcon,
+  MergeIcon,
   NotesIcon,
   PdfFileIcon,
+  RotateIcon,
+  SearchIcon,
+  SignIcon,
   SparkIcon,
+  SplitIcon,
   TargetIcon,
+  ToPdfIcon,
 } from "#/components/Icons";
 import { AdSlot } from "#/components/AdSlot";
 import { ToolCard } from "#/components/ToolCard";
@@ -533,9 +540,143 @@ function Hero() {
               </svg>
             </div>
           </div>
+
+          {/* ── Mobile only — a phone, because that is the device in hand ── */}
+          <div className="animate-slide-in-right lg:hidden">
+            <MobileHeroPreview />
+          </div>
         </div>
       </div>
     </section>
+  );
+}
+
+/**
+ * The hero's phone version.
+ *
+ * The laptop mockup is deliberately desktop-only: at a phone's width its
+ * sidebar and its six tool tiles shrink past the point of being readable, and
+ * it would be claiming a screen nobody is holding. So below `lg` a different
+ * mockup takes its place — the same app, drawn as a phone, which is the one
+ * honest thing to show someone reading this on a phone.
+ */
+function MobileHeroPreview() {
+  // Six tiles in two columns of three, which is the shape that fits a phone:
+  // wide enough for an icon and a word, narrow enough to be a target a thumb
+  // can hit without the row wrapping.
+  const tiles = [
+    { label: "Compress", Icon: CompressIcon, tint: "from-teal-400 to-teal-500", shadow: "shadow-teal-500/25" },
+    { label: "Merge", Icon: MergeIcon, tint: "from-purple-400 to-purple-500", shadow: "shadow-purple-500/25" },
+    { label: "Split", Icon: SplitIcon, tint: "from-blue-400 to-blue-500", shadow: "shadow-blue-500/25" },
+    { label: "Convert", Icon: ToPdfIcon, tint: "from-orange-400 to-orange-500", shadow: "shadow-orange-500/25" },
+    { label: "Sign", Icon: SignIcon, tint: "from-pink-400 to-rose-500", shadow: "shadow-pink-500/25" },
+    { label: "Rotate", Icon: RotateIcon, tint: "from-cyan-400 to-sky-500", shadow: "shadow-cyan-500/25" },
+  ];
+
+  return (
+    <div className="relative mx-auto w-full max-w-[19rem] animate-slide-in-right">
+      {/* Ambient glow, matching the laptop's */}
+      <div className="absolute -inset-6 rounded-3xl bg-gradient-to-br from-brand-500/10 via-purple-500/5 to-cyan-500/10 blur-2xl" />
+
+      <div className="relative rounded-[2rem] bg-gradient-to-br from-[#12121e] via-[#161625] to-[#1a1a2e] p-3 ring-1 ring-white/[0.06] shadow-2xl shadow-black/40">
+        {/* Phone body */}
+        <div className="relative overflow-hidden rounded-[1.6rem] bg-[#0c0c18] ring-1 ring-white/[0.06]">
+          {/* Notch */}
+          <div className="relative z-10 flex justify-center pt-2">
+            <div className="h-1.5 w-16 rounded-full bg-ink-700/70" />
+          </div>
+
+          {/* Status bar */}
+          <div className="flex items-center justify-between px-5 py-2 text-[7px] font-semibold text-ink-400">
+            <span>9:41</span>
+            <span className="flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              Private
+            </span>
+          </div>
+
+          {/* App header — brand mark, then the screen's own heading */}
+          <div className="flex items-center gap-2 px-4 pt-1 pb-3">
+            <div className="h-5 w-5 rounded-md bg-gradient-to-br from-brand-500 to-brand-600" />
+            <div className="h-1.5 w-14 rounded-full bg-brand-300/70" />
+          </div>
+
+          {/* Heading. It is the mockup's own heading, not a duplicate of the
+              hero's — this is a picture of the app, and the app opens on this.
+              The colours are fixed rather than theme-aware: the phone's screen is
+              dark in both themes, so a heading that followed the site theme would
+              be white-on-white in one of them. */}
+          <p className="px-4 text-[15px] leading-tight font-extrabold tracking-tight text-white">
+            Powerful PDF Tools
+          </p>
+
+          {/* Two primary actions, stacked: on a phone the full width is the
+              only comfortable target. */}
+          <div className="mt-2.5 space-y-1.5 px-4">
+            <div className="flex items-center justify-center gap-1 rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 py-2 text-[10px] font-bold text-white shadow-lg shadow-brand-500/30">
+              Explore PDF Tools
+              <ArrowRightIcon className="h-3 w-3" />
+            </div>
+            <div className="flex items-center justify-center gap-1 rounded-xl bg-white/[0.06] py-2 text-[10px] font-bold text-ink-100 ring-1 ring-white/10">
+              <CompressIcon className="h-3 w-3 text-brand-300" />
+              Compress a PDF
+            </div>
+          </div>
+
+          {/* 2×3 grid of the six tools a phone opens on. Each card carries the
+              tool's real icon rather than a placeholder square. */}
+          <div className="mt-3 grid grid-cols-2 gap-2 px-4">
+            {tiles.map((tool) => (
+              <div
+                key={tool.label}
+                className={`flex items-center gap-1.5 rounded-xl bg-gradient-to-br ${tool.tint} p-2.5 shadow-md ${tool.shadow} ring-1 ring-white/20`}
+              >
+                <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-lg bg-white/25 shadow-inner">
+                  <tool.Icon className="h-3 w-3 text-white" />
+                </span>
+                <span className="text-[9px] font-bold text-white">{tool.label}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Search — below the tools, because on a phone you reach for a
+              specific tool first and only fall back to searching. */}
+          <div className="mt-3 mx-4 flex items-center gap-1.5 rounded-xl bg-white/[0.05] px-2.5 py-2 ring-1 ring-white/10">
+            <SearchIcon className="h-3 w-3 flex-shrink-0 text-brand-300" />
+            <span className="text-[9px] text-ink-400">AI-Powered Search</span>
+          </div>
+
+          {/* Dropzone last, at the thumb's rest position at the bottom of the
+              screen, and compact: enough to tap, not enough to push the page. */}
+          <div className="mx-4 mt-2.5 mb-4 flex items-center justify-center gap-1.5 rounded-xl border-[1.5px] border-dashed border-brand-300/60 bg-brand-500/[0.07] py-3">
+            <PdfFileIcon className="h-3.5 w-3.5 text-brand-300" />
+            <span className="text-[9px] font-bold text-brand-200">Drop PDF here</span>
+          </div>
+        </div>
+
+        {/* Floating badges, kept but scaled down and pulled in so they do not
+            hang off the edge of a narrow screen. */}
+        <div className="absolute -top-3 -left-4 animate-float">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-xl shadow-red-500/25 ring-1 ring-red-400/20">
+            <span className="text-xs font-extrabold tracking-tight">PDF</span>
+          </div>
+        </div>
+        <div className="absolute top-1/3 -right-4 animate-float" style={{ animationDelay: "0.6s" }}>
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-xl shadow-purple-500/25 ring-1 ring-purple-400/20">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 004.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+          </div>
+        </div>
+        <div className="absolute -bottom-3 left-2 animate-float" style={{ animationDelay: "1.2s" }}>
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-500 text-white shadow-xl shadow-teal-500/25 ring-1 ring-teal-400/20">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
