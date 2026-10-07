@@ -49,6 +49,7 @@ import { Route as MergePdfRouteImport } from './routes/merge-pdf'
 import { Route as OcrPdfRouteImport } from './routes/ocr-pdf'
 import { Route as PdfToJpgRouteImport } from './routes/pdf-to-jpg'
 import { Route as PdfToMarkdownRouteImport } from './routes/pdf-to-markdown'
+import { Route as PdfToWordRouteImport } from './routes/pdf-to-word'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProtectPdfRouteImport } from './routes/protect-pdf'
 import { Route as RearrangePdfPagesRouteImport } from './routes/rearrange-pdf-pages'
@@ -264,6 +265,11 @@ const PdfToMarkdownRoute = PdfToMarkdownRouteImport.update({
   path: '/pdf-to-markdown',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PdfToWordRoute = PdfToWordRouteImport.update({
+  id: '/pdf-to-word',
+  path: '/pdf-to-word',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -376,6 +382,7 @@ export interface FileRoutesByFullPath {
   '/ocr-pdf': typeof OcrPdfRoute
   '/pdf-to-jpg': typeof PdfToJpgRoute
   '/pdf-to-markdown': typeof PdfToMarkdownRoute
+  '/pdf-to-word': typeof PdfToWordRoute
   '/privacy': typeof PrivacyRoute
   '/protect-pdf': typeof ProtectPdfRoute
   '/rearrange-pdf-pages': typeof RearrangePdfPagesRoute
@@ -432,6 +439,7 @@ export interface FileRoutesByTo {
   '/ocr-pdf': typeof OcrPdfRoute
   '/pdf-to-jpg': typeof PdfToJpgRoute
   '/pdf-to-markdown': typeof PdfToMarkdownRoute
+  '/pdf-to-word': typeof PdfToWordRoute
   '/privacy': typeof PrivacyRoute
   '/protect-pdf': typeof ProtectPdfRoute
   '/rearrange-pdf-pages': typeof RearrangePdfPagesRoute
@@ -489,6 +497,7 @@ export interface FileRoutesById {
   '/ocr-pdf': typeof OcrPdfRoute
   '/pdf-to-jpg': typeof PdfToJpgRoute
   '/pdf-to-markdown': typeof PdfToMarkdownRoute
+  '/pdf-to-word': typeof PdfToWordRoute
   '/privacy': typeof PrivacyRoute
   '/protect-pdf': typeof ProtectPdfRoute
   '/rearrange-pdf-pages': typeof RearrangePdfPagesRoute
@@ -547,6 +556,7 @@ export interface FileRouteTypes {
     | '/ocr-pdf'
     | '/pdf-to-jpg'
     | '/pdf-to-markdown'
+    | '/pdf-to-word'
     | '/privacy'
     | '/protect-pdf'
     | '/rearrange-pdf-pages'
@@ -603,6 +613,7 @@ export interface FileRouteTypes {
     | '/ocr-pdf'
     | '/pdf-to-jpg'
     | '/pdf-to-markdown'
+    | '/pdf-to-word'
     | '/privacy'
     | '/protect-pdf'
     | '/rearrange-pdf-pages'
@@ -659,6 +670,7 @@ export interface FileRouteTypes {
     | '/ocr-pdf'
     | '/pdf-to-jpg'
     | '/pdf-to-markdown'
+    | '/pdf-to-word'
     | '/privacy'
     | '/protect-pdf'
     | '/rearrange-pdf-pages'
@@ -716,6 +728,7 @@ export interface RootRouteChildren {
   OcrPdfRoute: typeof OcrPdfRoute
   PdfToJpgRoute: typeof PdfToJpgRoute
   PdfToMarkdownRoute: typeof PdfToMarkdownRoute
+  PdfToWordRoute: typeof PdfToWordRoute
   PrivacyRoute: typeof PrivacyRoute
   ProtectPdfRoute: typeof ProtectPdfRoute
   RearrangePdfPagesRoute: typeof RearrangePdfPagesRoute
@@ -1014,6 +1027,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PdfToMarkdownRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pdf-to-word': {
+      id: '/pdf-to-word'
+      path: '/pdf-to-word'
+      fullPath: '/pdf-to-word'
+      preLoaderRoute: typeof PdfToWordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -1156,6 +1176,7 @@ const rootRouteChildren: RootRouteChildren = {
   OcrPdfRoute: OcrPdfRoute,
   PdfToJpgRoute: PdfToJpgRoute,
   PdfToMarkdownRoute: PdfToMarkdownRoute,
+  PdfToWordRoute: PdfToWordRoute,
   PrivacyRoute: PrivacyRoute,
   ProtectPdfRoute: ProtectPdfRoute,
   RearrangePdfPagesRoute: RearrangePdfPagesRoute,

@@ -103,7 +103,8 @@ export type ToolHref =
   | "/protect-pdf"
   | "/unlock-pdf"
   | "/ocr-pdf"
-  | "/word-to-pdf";
+  | "/word-to-pdf"
+  | "/pdf-to-word";
 
 export interface Tool {
   href: ToolHref;
@@ -672,6 +673,18 @@ export const TOOLS: Tool[] = [
     title: "Word to PDF — Convert DOCX to PDF Online Free",
     description:
       "Convert a Word .docx document to PDF in your browser. Headings, lists, tables and images are kept. Nothing is uploaded. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/pdf-to-word",
+    name: "PDF to Word",
+    blurb: "Make a PDF editable in Word.",
+    subtitle: "Turn a PDF back into an editable Word document.",
+    icon: "text",
+    category: "Convert",
+    title: "PDF to Word — Convert PDF to DOCX Online Free",
+    description:
+      "Turn a PDF into an editable .docx. Headings and paragraphs are rebuilt from the page layout. Runs in your browser, nothing is uploaded. Free and no signup.",
     popular: false,
   },
 ];
