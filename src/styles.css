@@ -46,6 +46,7 @@ html {
   scrollbar-width: thin;
   scrollbar-color: var(--color-ink-300) transparent;
   -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
   /* The card animations overshoot past 100% scale, which on a phone briefly
      widens the page and lets the reader drag it sideways. Nothing should ever
      scroll sideways, so that stray overflow is clipped instead of exposed. */

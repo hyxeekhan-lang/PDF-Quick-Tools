@@ -1,4 +1,5 @@
 import { loadPdfJs } from "./pdf";
+import { FriendlyError } from "./files";
 
 /**
  * Extract text content from a PDF file using pdfjs-dist.
@@ -98,6 +99,223 @@ export async function callGemini(
     );
   }
   return payload.text;
+}
+
+const AI_DOCUMENT_CHUNK_CHARS = 12_000;
+const MAX_AI_DOCUMENT_CHUNKS = 14;
+const MAX_AI_MERGE_PROMPT_CHARS = 33_000;
+const MAX_AI_PROMPT_CHARS = 36_000;
+
+export function splitAiDocumentText(
+  text: string,
+  maxChars = AI_DOCUMENT_CHUNK_CHARS,
+): string[] {
+  if (!text) return [];
+  if (!Number.isInteger(maxChars) || maxChars < 1) {
+    throw new Error("The AI document chunk size must be a positive integer.");
+  }
+
+  const chunks: string[] = [];
+  let start = 0;
+  while (start < text.length) {
+    let end = Math.min(start + maxChars, text.length);
+    if (end < text.length) {
+      const boundary = Math.max(
+        text.lastIndexOf("\n\n", end),
+        text.lastIndexOf("\n", end),
+        text.lastIndexOf(" ", end),
+      );
+      if (boundary > start + Math.floor(maxChars * 0.8)) end = boundary;
+    }
+    chunks.push(text.slice(start, end));
+    start = end;
+  }
+  return chunks;
+}
+
+/**
+ * Processes the entire extracted document in bounded requests and combines
+ * partial results without silently dropping later pages.
+ */
+export async function processAiDocument(
+  text: string,
+  makeChunkPrompt: (chunk: string, index: number, total: number) => string,
+  makeMergePrompt: (parts: string[]) => string,
+  report?: (progress: number, message: string) => void,
+  mergeWithoutAi?: (parts: string[]) => string,
+): Promise<string> {
+  const chunks = splitAiDocumentText(text);
+  if (chunks.length === 0) {
+    throw new FriendlyError("The PDF did not contain any text to process.");
+  }
+  if (chunks.length > MAX_AI_DOCUMENT_CHUNKS) {
+    throw new FriendlyError(
+      `This document is too long for one AI run. Please split it into smaller PDFs (up to ${MAX_AI_DOCUMENT_CHUNKS} text parts per run).`,
+    );
+  }
+
+  let completed = 0;
+  const parts: string[] = [];
+  for (let index = 0; index < chunks.length; index += 1) {
+    const prompt = makeChunkPrompt(chunks[index]!, index, chunks.length);
+    if (prompt.length > MAX_AI_PROMPT_CHARS) {
+      throw new FriendlyError("This AI request is too long. Please shorten the extra instructions and try again.");
+    }
+    parts.push(await callGemini(prompt));
+    completed += 1;
+    report?.(
+      15 + Math.round((completed / chunks.length) * 45),
+      chunks.length > 1
+        ? `Analyzed document part ${completed} of ${chunks.length}...`
+        : "Analyzed document...",
+    );
+  }
+
+  if (mergeWithoutAi) return mergeWithoutAi(parts);
+  if (parts.length === 1) return parts[0]!;
+
+  let pending = parts;
+  while (pending.length > 1) {
+    const groups: string[][] = [];
+    let group: string[] = [];
+    for (const part of pending) {
+      const candidate = [...group, part];
+      if (
+        group.length > 0 &&
+        makeMergePrompt(candidate).length > MAX_AI_MERGE_PROMPT_CHARS
+      ) {
+        groups.push(group);
+        group = [part];
+      } else {
+        group = candidate;
+      }
+    }
+    if (group.length > 0) groups.push(group);
+    if (groups.length === pending.length) {
+      throw new FriendlyError("The AI returned too much text to safely combine. Please split the PDF and try again.");
+    }
+
+    const next: string[] = [];
+    for (const current of groups) {
+      if (current.length === 1) {
+        next.push(current[0]!);
+        continue;
+      }
+      const prompt = makeMergePrompt(current);
+      if (prompt.length > MAX_AI_PROMPT_CHARS) {
+        throw new FriendlyError("The AI results are too large to combine safely. Please split the PDF and try again.");
+      }
+      next.push(await callGemini(prompt));
+      completed += 1;
+      report?.(60 + Math.min(38, completed - chunks.length), "Combining results from all document parts...");
+    }
+    pending = next;
+  }
+
+  return pending[0]!;
+}
+
+export function mergeAiPartialsPrompt(
+  toolName: string,
+  parts: string[],
+  instructions: string,
+  outputShape: string,
+): string {
+  return `You are combining results from consecutive parts of one PDF for the ${toolName} tool.
+The partial results below are already completed work, not source text. Combine all of them in their original order. Do not ignore later parts, invent details, or repeat the same point. Follow the merge instructions and return valid JSON only.
+
+Merge instructions: ${instructions}
+
+Required output shape:
+${outputShape}
+
+Partial results:
+${JSON.stringify(parts)}`;
+}
+
+export function mergeAiDocumentPrompt(
+  task: AiDocumentTask,
+  parts: string[],
+  options: AiDocumentOptions = {},
+): string {
+  const instructions: Record<AiDocumentTask, string> = {
+    translator:
+      "Concatenate translatedText values in source order without translating them again. Keep the detected source and target languages.",
+    rewriter:
+      "Concatenate rewrittenText values in source order without rewriting them again. Keep the selected mode and combine notes briefly.",
+    presentation:
+      "Combine slides in source order, remove duplicate slides, and retain the document title.",
+    flashcards:
+      `Combine distinct cards from all parts and return up to ${options.cardCount ?? 10} cards. Select across the entire document, not only the first parts.`,
+    citations:
+      "Combine detected metadata without guessing. Prefer a detected value over a missing value and include all missing field names.",
+    grammar:
+      "Combine all distinct issues and add the grammar, spelling, and clarity counts across parts.",
+    analyzer:
+      "Combine all distinct dates, entities, statistics, sections, keywords, and key points. Write one concise whole-document summary.",
+    resume:
+      "Combine all distinct skills, experience, education, missing sections, keyword coverage, improvements, and job-match strengths and gaps. Keep scalar fields concise.",
+    questions:
+      `Combine distinct questions from all parts and return up to ${options.questionCount ?? 10} questions. Select across the entire document, not only the first parts.`,
+  };
+  const outputShapes: Record<AiDocumentTask, string> = {
+    translator: '{"sourceLanguage":"...","targetLanguage":"...","translatedText":"..."}',
+    rewriter: '{"mode":"...","rewrittenText":"...","notes":"..."}',
+    presentation: '{"title":"...","slides":[{"title":"...","content":["..."],"keyPoints":["..."],"speakerNotes":"..."}]}',
+    flashcards: '{"cards":[{"question":"...","answer":"...","topic":"..."}]}',
+    citations: '{"style":"...","fullCitation":"...","inTextCitation":"...","detectedFields":{"author":"...","title":"...","date":"...","publisher":"..."},"missingFields":["..."]}',
+    grammar: '{"summary":{"grammar":0,"spelling":0,"clarity":0},"issues":[{"category":"...","original":"...","suggestion":"...","explanation":"..."}]}',
+    analyzer: '{"documentType":"...","mainTopic":"...","summary":"...","keyPoints":[],"importantDates":[],"entities":[],"statistics":[],"sections":[],"keywords":[]}',
+    resume: '{"structure":"...","skills":[],"experience":[],"education":[],"missingSections":[],"keywordCoverage":[],"clarity":"...","readability":"...","improvements":[],"jobMatch":{"strengths":[],"gaps":[]}}',
+    questions: '{"questions":[{"type":"...","question":"...","options":["..."],"answer":"...","explanation":"..."}]}',
+  };
+  return mergeAiPartialsPrompt(
+    `AI PDF ${task}`,
+    parts,
+    instructions[task],
+    outputShapes[task],
+  );
+}
+
+export function mergeSummaryPrompt(parts: string[]): string {
+  return mergeAiPartialsPrompt(
+    "AI PDF Summarizer",
+    parts,
+    "Combine all partial summaries into one concise summary of the entire PDF. Preserve the most important points and topics from every part. Estimate reading time from the full document if possible.",
+    '{"summary":"...","keyPoints":["..."],"topics":["..."],"readingTime":"X min read"}',
+  );
+}
+
+export function mergeNotesPrompt(parts: string[]): string {
+  return mergeAiPartialsPrompt(
+    "AI PDF Notes",
+    parts,
+    "Combine sections from every part in source order, remove duplicate points, and write one whole-document overview and conclusion.",
+    '{"title":"...","overview":"...","sections":[{"heading":"...","points":["..."],"details":"..."}],"summary":"..."}',
+  );
+}
+
+export function mergeQuizPrompt(parts: string[]): string {
+  return mergeAiPartialsPrompt(
+    "AI PDF Quiz",
+    parts,
+    "Combine questions from all parts, remove duplicates, select a balanced set of 8-10 questions covering the whole document, and preserve correct answers and explanations.",
+    '{"questions":[{"type":"mcq|true-false|short-answer","question":"...","options":["..."],"correct":0,"explanation":"..."}]}',
+  );
+}
+
+export function mergeChatPrompt(parts: string[], question: string, history = ""): string {
+  return `Answer the user's question using only the evidence in these partial answers from consecutive sections of the same PDF. Combine relevant evidence from all sections, avoid repeating points, and say clearly if the document does not provide the answer. Do not add outside knowledge.
+
+Conversation so far:
+${history || "(No earlier messages.)"}
+
+User question: ${question}
+
+Partial answers in document order:
+${JSON.stringify(parts)}
+
+Give one clear, concise answer.`;
 }
 
 /**

@@ -1,7 +1,10 @@
-const CACHE_NAME = 'pdf-tools-v3';
+const CACHE_NAME = 'pdf-tools-v4';
 const STATIC_ASSETS = [
   '/',
+  '/tools',
   '/favicon.svg',
+  '/favicon.ico',
+  '/apple-touch-icon.png',
   '/manifest.json',
   '/robots.txt',
 ];

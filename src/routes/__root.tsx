@@ -3,10 +3,12 @@ import {
   Link,
   Scripts,
   createRootRoute,
+  type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { SiteFooter } from "#/components/SiteFooter";
 import { SiteHeader } from "#/components/SiteHeader";
 import { CookieConsent } from "#/components/CookieConsent";
+import { ScrollToTop } from "#/components/ScrollToTop";
 import { themeBootScript } from "#/components/ThemeToggle";
 import { button } from "#/components/ui";
 import { pageHead } from "#/lib/seo";
@@ -43,6 +45,7 @@ export const Route = createRootRoute({
   }),
   shellComponent: RootDocument,
   notFoundComponent: NotFound,
+  errorComponent: RouteError,
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -78,9 +81,38 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <SiteFooter />
         </div>
         <CookieConsent />
+        <ScrollToTop />
         <Scripts />
       </body>
     </html>
+  );
+}
+
+function RouteError(props: ErrorComponentProps) {
+  const { error, reset } = props;
+  console.error("[route] render failed:", error);
+
+  return (
+    <div className="mx-auto flex w-full max-w-2xl flex-col items-center px-4 py-24 text-center sm:px-6">
+      <p className="text-sm font-bold uppercase tracking-widest text-red-600 dark:text-red-400">
+        Error
+      </p>
+      <h1 className="mt-3 text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl dark:text-white">
+        This page could not be loaded
+      </h1>
+      <p className="mt-4 text-lg text-ink-600 dark:text-ink-400">
+        Something went wrong on our side, not with your file. Reloading usually
+        fixes it. All of the PDF tools are still one click away.
+      </p>
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <button type="button" onClick={reset} className={button("primary", "lg")}>
+          Reload this page
+        </button>
+        <Link to="/tools" className={button("secondary", "lg")}>
+          Browse All Tools
+        </Link>
+      </div>
+    </div>
   );
 }
 

@@ -29,7 +29,12 @@ import { ToolCard } from "#/components/ToolCard";
 import { ExtensionBanner } from "#/components/ExtensionBanner";
 import { AiNotice } from "#/components/AiNotice";
 import { button, heading, muted, sectionWrap } from "#/components/ui";
-import { callGemini, extractPdfText, type AiAttachment } from "#/lib/ai";
+import {
+  callGemini,
+  extractPdfText,
+  processAiDocument,
+  type AiAttachment,
+} from "#/lib/ai";
 import { faqJsonLd, pageHead, softwareJsonLd, type FaqItem } from "#/lib/seo";
 import { MAX_FILE_LABEL, SITE_NAME } from "#/lib/site";
 import { TOOLS } from "#/lib/tools";
@@ -715,22 +720,40 @@ function AiDemo() {
     ]);
     setLoading(true);
     try {
-      let context = "";
       let image: AiAttachment | undefined;
+      let reply: string;
       if (file?.type === "application/pdf") {
-        context = `\n\nUploaded PDF content:\n${(await extractPdfText(file)).slice(0, 28000)}`;
+        const text = await extractPdfText(file);
+        if (!text.trim()) throw new Error("Could not extract text from this PDF.");
+        reply = await processAiDocument(
+          text,
+          (chunk) =>
+            `You are a friendly AI assistant for PDF Quick Tools (a free browser-based PDF utility). Keep answers short (2-4 sentences max), helpful, and casual. User asked: ${question}\n\nPDF section:\n${chunk}`,
+          (parts) =>
+            `Combine the answers from consecutive parts of the uploaded PDF. Answer only from their evidence, avoid repetition, and say if the document does not provide the answer. Keep the response short (2-4 sentences), helpful, and casual.\n\nUser asked: ${question}\n\nPartial answers:\n${JSON.stringify(parts)}`,
+        );
       } else if (file?.type.startsWith("image/")) {
         image = { mimeType: file.type, data: (await readFileAsDataUrl(file)).split(",")[1] ?? "" };
+        reply = await callGemini(
+          `You are a friendly AI assistant for PDF Quick Tools (a free browser-based PDF utility). Keep answers short (2-4 sentences max), helpful, and casual. User asked: ${question}`,
+          image,
+        );
+      } else {
+        reply = await callGemini(
+          `You are a friendly AI assistant for PDF Quick Tools (a free browser-based PDF utility). Keep answers short (2-4 sentences max), helpful, and casual. User asked: ${question}`,
+        );
       }
-      const reply = await callGemini(
-        `You are a friendly AI assistant for PDF Quick Tools (a free browser-based PDF utility). Keep answers short (2-4 sentences max), helpful, and casual. User asked: ${question}${context}`,
-        image,
-      );
       setMessages((prev) => [...prev, { role: "ai", text: reply }]);
-    } catch {
+    } catch (error) {
       setMessages((prev) => [
         ...prev,
-        { role: "ai", text: "AI is unavailable right now. Try again in a moment!" },
+        {
+          role: "ai",
+          text:
+            error instanceof Error && error.message
+              ? error.message
+              : "AI is unavailable right now. Try again in a moment!",
+        },
       ]);
     } finally {
       setLoading(false);

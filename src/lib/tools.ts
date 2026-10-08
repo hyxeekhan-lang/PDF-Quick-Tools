@@ -641,7 +641,7 @@ export const TOOLS: Tool[] = [
     category: "PDF security",
     title: "Protect PDF — Add a Password to a PDF Online Free",
     description:
-      "Add AES-256 password protection to your PDF and decide whether it can be printed or copied. Runs in your browser, nothing is uploaded. Free and no signup.",
+      "Add AES-256 password protection to your PDF and decide whether it can be printed or copied. Runs in your browser, nothing is uploaded.",
     popular: false,
   },
   {
@@ -665,7 +665,7 @@ export const TOOLS: Tool[] = [
     category: "Optimize",
     title: "OCR PDF — Make a Scanned PDF Searchable Online Free",
     description:
-      "Read the text in a scanned PDF so you can search, select and copy it. Runs entirely in your browser, nothing is uploaded. Free and no signup.",
+      "Read the text in a scanned PDF so you can search, select and copy it. Runs entirely in your browser, nothing is uploaded.",
     popular: false,
   },
   {
@@ -689,7 +689,7 @@ export const TOOLS: Tool[] = [
     category: "Convert",
     title: "PDF to Word — Convert PDF to DOCX Online Free",
     description:
-      "Turn a PDF into an editable .docx. Headings and paragraphs are rebuilt from the page layout. Runs in your browser, nothing is uploaded. Free and no signup.",
+      "Turn a PDF into an editable .docx. Headings and paragraphs are rebuilt from the page layout. Runs in your browser, nothing is uploaded.",
     popular: false,
   },
   {
@@ -701,7 +701,7 @@ export const TOOLS: Tool[] = [
     category: "Convert",
     title: "PDF to Excel — Convert PDF Tables to XLSX Online Free",
     description:
-      "Extract tables from a PDF into an editable .xlsx. Columns are found from the page layout and numbers stay numbers. Runs in your browser, nothing is uploaded. Free and no signup.",
+      "Extract tables from a PDF into an editable .xlsx. Columns are found from the page layout and numbers stay numbers. Runs in your browser, nothing is uploaded.",
     popular: false,
   },
   {
@@ -713,7 +713,7 @@ export const TOOLS: Tool[] = [
     category: "Convert",
     title: "Excel to PDF — Convert XLSX to PDF Online Free",
     description:
-      "Convert an .xlsx spreadsheet into a PDF. Each sheet is laid out as a table that fits the page. Runs in your browser, nothing is uploaded. Free and no signup.",
+      "Convert an .xlsx spreadsheet into a PDF. Each sheet is laid out as a table that fits the page. Runs in your browser, nothing is uploaded.",
     popular: false,
   },
   {
@@ -725,7 +725,7 @@ export const TOOLS: Tool[] = [
     category: "Convert",
     title: "PDF to PNG — Convert PDF Pages to PNG Online Free",
     description:
-      "Convert PDF pages to PNG images with no quality loss. Choose the pages and the resolution, then download them. Runs in your browser, nothing is uploaded. Free and no signup.",
+      "Convert PDF pages to PNG images with no quality loss. Choose the pages and the resolution, then download them. Runs in your browser, nothing is uploaded.",
     popular: false,
   },
   {
@@ -748,6 +748,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
   "Organize PDF",
   "Convert",
   "Optimize",
+  "PDF security",
 ];
 
 export function toolByHref(href: ToolHref): Tool {

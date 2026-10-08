@@ -9,11 +9,12 @@ import { button } from "./ui";
 import { useToolRun } from "#/hooks/useToolRun";
 import { type AcceptedFile, FriendlyError, makeResult, triggerDownload } from "#/lib/files";
 import {
-  callGemini,
   chatPrompt,
   documentPrompt,
   extractPdfText,
+  mergeAiDocumentPrompt,
   parseAiJson,
+  processAiDocument,
   type AiDocumentOptions,
   type AiDocumentTask,
 } from "#/lib/ai";
@@ -42,7 +43,7 @@ const faqByTask: Record<AiDocumentTask | "ask", { question: string; answer: stri
   ],
   rewriter: [
     { question: "Will rewriting change the meaning?", answer: "The tool is asked to keep the original meaning and only adjust style, tone, or length. Because the output is generated, check that no important detail was dropped or altered." },
-    { question: "How much text is sent to the AI service?", answer: "Extracted text is truncated to a fixed length before it is sent, so very long documents are analysed in part. Shorten your selection or split the document if you need every sentence rewritten." },
+    { question: "How much text is sent to the AI service?", answer: "The extracted text is processed in consecutive parts so long PDFs can be analyzed beyond the first pages. Very long documents may need to be split into smaller PDFs." },
     { question: "Can I get the original text back?", answer: "Yes. The result panel shows the original extracted text alongside the rewritten version so you can compare them line by line." },
   ],
   presentation: [
@@ -68,7 +69,7 @@ const faqByTask: Record<AiDocumentTask | "ask", { question: string; answer: stri
   analyzer: [
     { question: "What does the analysis include?", answer: "The tool produces a structured report covering topics, key themes, tone, structure, and notable details found in your document." },
     { question: "Is this a plagiarism check?", answer: "No. It summarises and describes your own document. It does not compare your text against other sources and cannot detect copied content." },
-    { question: "How long can my document be?", answer: "Extracted text is truncated to a fixed length before analysis, so very long documents are only partly covered." },
+    { question: "How long can my document be?", answer: "The AI analyzes the extracted text in consecutive parts, rather than stopping after the first section. Extremely long documents may need to be split into smaller PDFs." },
   ],
   resume: [
     { question: "Does this predict whether I will get a job?", answer: "No. It reviews your resume's content and structure and, if you paste a job description, compares wording and skills. It does not score or predict hiring outcomes." },
@@ -83,7 +84,7 @@ const faqByTask: Record<AiDocumentTask | "ask", { question: string; answer: stri
   ask: [
     { question: "What can this chat do?", answer: "It answers questions about the PDF you loaded. It is instructed to rely only on that document's text and to say so plainly when an answer is not in the file." },
     { question: "Does it use outside knowledge?", answer: "No. If the answer is not in your document, the chat is asked to say that instead of answering from general knowledge." },
-    { question: "How much of my document is available to it?", answer: "The extracted text is truncated to a fixed length before the chat starts, so questions about content beyond that point may not be answered." },
+    { question: "How much of my document is available to it?", answer: "The AI reads the extracted text in consecutive parts, so it can answer questions about content throughout a long PDF. Extremely long documents may need to be split into smaller PDFs." },
   ],
 };
 
@@ -113,6 +114,22 @@ interface Flashcard {
 interface ChatState {
   messages: ChatMessage[];
   question: string;
+}
+
+function mergeFullTextResults(task: "translator" | "rewriter", parts: string[]): string {
+  const results = parts.map((part) => parseAiJson<Record<string, unknown>>(part));
+  if (task === "translator") {
+    return JSON.stringify({
+      sourceLanguage: results.find((part) => part.sourceLanguage)?.sourceLanguage ?? "Not detected",
+      targetLanguage: results.find((part) => part.targetLanguage)?.targetLanguage ?? "Not detected",
+      translatedText: results.map((part) => String(part.translatedText ?? "")).filter(Boolean).join("\n\n"),
+    });
+  }
+  return JSON.stringify({
+    mode: results.find((part) => part.mode)?.mode ?? "Rewrite",
+    rewrittenText: results.map((part) => String(part.rewrittenText ?? "")).filter(Boolean).join("\n\n"),
+    notes: results.map((part) => String(part.notes ?? "")).filter(Boolean).join("\n"),
+  });
 }
 
 function displayValue(value: unknown): React.ReactNode {
@@ -187,8 +204,32 @@ export function AiDocumentToolPage({ href }: AiDocumentToolProps) {
       report(15, "Extracting text from PDF...");
       const text = await extractPdfText(file.file);
       if (!text.trim()) throw new FriendlyError("Could not extract text from this PDF. It may be scanned or image-only.");
-      report(45, "Preparing your document analysis...");
-      const response = await callGemini(documentPrompt(task, text, options));
+      const response = await processAiDocument(
+        text,
+        (chunk, _index, total) => {
+          const requestedCount =
+            task === "flashcards"
+              ? options.cardCount
+              : task === "questions"
+                ? options.questionCount
+                : undefined;
+          const chunkOptions =
+            requestedCount === undefined
+              ? options
+              : {
+                  ...options,
+                  ...(task === "flashcards"
+                    ? { cardCount: Math.max(1, Math.ceil(requestedCount / total)) }
+                    : { questionCount: Math.max(1, Math.ceil(requestedCount / total)) }),
+                };
+          return documentPrompt(task, chunk, chunkOptions);
+        },
+        (parts) => mergeAiDocumentPrompt(task, parts, options),
+        report,
+        task === "translator" || task === "rewriter"
+          ? (parts) => mergeFullTextResults(task, parts)
+          : undefined,
+      );
       report(85, "Formatting the result...");
       try {
         const parsed = parseAiJson<Record<string, unknown>>(response);
@@ -212,7 +253,11 @@ export function AiDocumentToolPage({ href }: AiDocumentToolProps) {
     setChatError(null); setIsSending(true);
     try {
       const history = chat.messages.map((message) => `${message.role}: ${message.content}`).join("\n");
-      const response = await callGemini(`${chatPrompt(pdfText, question)}\n\nConversation so far:\n${history}\n\nDo not use outside knowledge. If the answer is not in the PDF, say that clearly.`);
+      const response = await processAiDocument(
+        pdfText,
+        (chunk) => `${chatPrompt(chunk, question)}\n\nConversation so far:\n${history}\n\nDo not use outside knowledge. If the answer is not in the PDF, say that clearly.`,
+        (parts) => `Answer the user's question using only these answers from consecutive sections of the PDF. Combine relevant evidence, avoid repetition, and say clearly if the answer is not in the document. Do not use outside knowledge.\n\nQuestion: ${question}\nConversation so far:\n${history || "(No earlier messages.)"}\n\nPartial answers:\n${JSON.stringify(parts)}\n\nGive one clear, concise answer.`,
+      );
       setChat((current) => ({ ...current, messages: [...current.messages, { role: "assistant", content: response, timestamp: Date.now() }] }));
     } catch (error) { setChatError(error instanceof Error ? error.message : "The AI could not answer. Please try again."); } finally { setIsSending(false); }
   }, [chat.messages, isSending, pdfText]);

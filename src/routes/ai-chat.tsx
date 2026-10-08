@@ -9,7 +9,14 @@ import { useToolRun } from "#/hooks/useToolRun";
 import { type AcceptedFile, FriendlyError } from "#/lib/files";
 import { pageHead } from "#/lib/seo";
 import { toolByHref } from "#/lib/tools";
-import { extractPdfText, callGemini, chatPrompt, type AiAttachment } from "#/lib/ai";
+import {
+  extractPdfText,
+  callGemini,
+  chatPrompt,
+  mergeChatPrompt,
+  processAiDocument,
+  type AiAttachment,
+} from "#/lib/ai";
 import { AiChat, type ChatMessage } from "#/components/AiChat";
 
 const tool = toolByHref("/ai-chat");
@@ -136,10 +143,19 @@ function AiChatPage() {
       setIsSending(true);
 
       try {
-        const prompt = imageAttachment
-          ? `You are a helpful AI assistant. Answer the user's question about the uploaded image clearly and concisely. User question: ${question}`
-          : chatPrompt(pdfText, question);
-        const response = await callGemini(prompt, imageAttachment ?? undefined);
+        const history = messages
+          .map((message) => `${message.role}: ${message.content}`)
+          .join("\n");
+        const response = imageAttachment
+          ? await callGemini(
+              `You are a helpful AI assistant. Answer the user's question about the uploaded image clearly and concisely. User question: ${question}`,
+              imageAttachment,
+            )
+          : await processAiDocument(
+              pdfText,
+              (chunk) => chatPrompt(chunk, question),
+              (parts) => mergeChatPrompt(parts, question, history),
+            );
 
         const assistantMsg: ChatMessage = {
           role: "assistant",
@@ -157,7 +173,7 @@ function AiChatPage() {
         setIsSending(false);
       }
     },
-    [imageAttachment, isSending, pdfText],
+    [imageAttachment, isSending, messages, pdfText],
   );
 
   return (

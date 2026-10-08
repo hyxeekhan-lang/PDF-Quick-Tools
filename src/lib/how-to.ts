@@ -1,4 +1,6 @@
 import type { ToolHref } from "./tools";
+import { HOW_TO_BATCH_A } from "./how-to-batch-a";
+import { HOW_TO_BATCH_B } from "./how-to-batch-b";
 
 /**
  * The numbered walkthrough shown on each tool page, keyed by the tool's path.
@@ -446,5 +448,5 @@ export const HOW_TO: Partial<Record<ToolHref, { title: string; body: string }[]>
 
 /** Steps for a tool, or an empty list when a tool has none written yet. */
 export function howToFor(href: ToolHref): { title: string; body: string }[] {
-  return HOW_TO[href] ?? [];
+  return HOW_TO[href] ?? HOW_TO_BATCH_A[href] ?? HOW_TO_BATCH_B[href] ?? [];
 }

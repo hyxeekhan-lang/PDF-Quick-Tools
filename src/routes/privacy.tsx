@@ -53,11 +53,13 @@ function Privacy() {
           requested.
         </p>
         <p>
-          Only part of a long document is sent. Depending on the tool, extracted
-          text is truncated to roughly 12,000&ndash;32,000 characters, and the
-          rest is marked as truncated. If a PDF has no extractable text and
-          looks scanned, the first few pages are rendered to an image in your
-          browser and that image is sent instead of text.
+          AI tools process extracted text in consecutive parts so they can work
+          with long text-based PDFs, then combine the results. A single AI run
+          supports up to 14 parts; exceptionally long documents may need to be
+          split into smaller PDFs.
+          If a PDF has no extractable text and looks
+          scanned, only the first few pages are currently rendered to images
+          and sent instead of text.
         </p>
         <p>
           AI responses can be incomplete or incorrect. We do not use uploaded

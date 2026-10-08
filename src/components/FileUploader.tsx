@@ -1,4 +1,4 @@
-import { useCallback, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { toolEvents } from "#/lib/analytics";
 import {
   DOCX_ACCEPT,
@@ -57,17 +57,32 @@ export function FileUploader({
   // "either" accepts both shapes without validating either one, which is why
   // it falls through to the hand-written check in `accept` below.
   const acceptedKind: FileKind | undefined = kind === "either" ? undefined : kind;
-  const sourceUrl = useMemo(() => {
-    if (kind !== "pdf" && kind !== "document") return null;
+  // The query string only exists in a browser, but this component also renders
+  // on the server and during hydration. Reading it during render threw
+  // `window is not defined` on the server and would have disagreed with the
+  // first client render, so it is read after mount instead. The first paint
+  // simply shows no prefetched document — which is what every visitor without
+  // the Chrome extension sees anyway.
+  const acceptsPrefetch = kind === "pdf" || kind === "document";
+  const [sourceUrl, setSourceUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!acceptsPrefetch) {
+      setSourceUrl(null);
+      return;
+    }
     const value = new URLSearchParams(window.location.search).get("sourceUrl");
-    if (!value) return null;
+    if (!value) {
+      setSourceUrl(null);
+      return;
+    }
     try {
       const url = new URL(value);
-      return url.protocol === "http:" || url.protocol === "https:" ? url.toString() : null;
+      setSourceUrl(url.protocol === "http:" || url.protocol === "https:" ? url.toString() : null);
     } catch {
-      return null;
+      setSourceUrl(null);
     }
-  }, [kind]);
+  }, [acceptsPrefetch]);
 
   const accept = useCallback(
     (list: FileList | null) => {

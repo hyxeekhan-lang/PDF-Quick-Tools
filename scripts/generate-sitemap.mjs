@@ -12,7 +12,8 @@
  * a route that is added and deployed is automatically in the sitemap.
  */
 
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -49,9 +50,65 @@ const LOW_PRIORITY = new Set([
   "/ai-summarizer",
 ]);
 
+/**
+ * Category hub pages, one per ToolCategory. Each targets a broad head term
+ * ("organize pdf", "convert pdf", "pdf security") that no single tool page can
+ * compete for.
+ *
+ * Listed by hand only to set their priority: each one is also a real route
+ * file, so the sitemap picks them up from disk like every other page. `/pdf-editor`
+ * rather than `/edit-pdf`, because that path is already the Edit PDF tool.
+ */
+const HUB_ROUTES = [
+  "/organize-pdf",
+  "/pdf-editor",
+  "/convert-pdf",
+  "/optimize-pdf",
+  "/pdf-security",
+  "/ai-pdf-tools",
+];
+
+/**
+ * The date a route file last changed, as YYYY-MM-DD.
+ *
+ * `<lastmod>` is the one sitemap field Google actually uses as a recency
+ * signal — it ignores `changefreq` and `priority`. A page carrying a truthful
+ * date tells the crawler when to re-crawl it; a page carrying a guessed one
+ * trains the crawler to distrust the whole file.
+ *
+ * Read from git's own history so the date cannot drift from the content. Falls
+ * back to the file's mtime where there is no git record (a fresh clone, a CI
+ * checkout without history), and to no tag at all if even that is unavailable.
+ */
+function lastModifiedFor(file) {
+  let date;
+  try {
+    const iso = execFileSync(
+      "git",
+      ["log", "-1", "--format=%cI", "--", file],
+      { cwd: ROOT, stdio: ["ignore", "pipe", "ignore"] },
+    )
+      .toString()
+      .trim();
+    if (iso) date = new Date(iso);
+  } catch {
+    // No git available or no history for this path — fall through.
+  }
+  if (!date || Number.isNaN(date.getTime())) {
+    try {
+      date = statSync(path.join(ROUTES, file)).mtime;
+    } catch {
+      return null;
+    }
+  }
+  return date.toISOString().slice(0, 10);
+}
+
 function priorityFor(route) {
   if (route === "/") return "1.0";
-  if (route === "/tools") return "0.9";
+  // Category hubs target the broad head terms ("organize pdf", "convert pdf"),
+  // so they sit alongside the all-tools page rather than below single tools.
+  if (route === "/tools" || HUB_ROUTES.includes(route)) return "0.9";
   if (STANDALONE.has(route)) return "0.6";
   if (LOW_PRIORITY.has(route)) return "0.5";
   // Everything else is a tool page, and the ones people search for by name.
@@ -97,7 +154,7 @@ function routes() {
     paths.push(slug === "index" ? "/" : `/${slug}`);
   }
 
-  return [...new Set(paths)].sort((a, b) => {
+  return paths.sort((a, b) => {
     if (a === "/") return -1;
     if (b === "/") return 1;
     return a.localeCompare(b);
@@ -106,16 +163,18 @@ function routes() {
 
 const entries = routes().map((route) => {
   const loc = `${SITE_URL}${route === "/" ? "/" : route}`;
+  const slug = route === "/" ? "index.tsx" : `${route.slice(1)}.tsx`;
+  const lastmod = lastModifiedFor(slug);
   return [
     "  <url>",
     `    <loc>${loc}</loc>`,
-    // No <lastmod> on purpose: these pages change when the site is released,
-    // not on a schedule, and a date that is only a guess is worse for a
-    // crawler than no date at all.
+    lastmod ? `    <lastmod>${lastmod}</lastmod>` : null,
     `    <changefreq>${changefreqFor(route)}</changefreq>`,
     `    <priority>${priorityFor(route)}</priority>`,
     "  </url>",
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 });
 
 const xml = [

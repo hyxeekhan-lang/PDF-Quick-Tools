@@ -117,7 +117,7 @@ For Chrome Web Store publishing, upload the ZIP through the Chrome Developer Das
 - Tailwind CSS v4
 - `pdf-lib`
 - `pdfjs-dist`
-- Gemini API through a server-side endpoint
+- Groq API through a server-side endpoint
 - Vercel deployment
 
 ## Local Development
@@ -136,15 +136,11 @@ cd PDF-Tools
 npm install
 ```
 
-Create `.env.local` with either Groq or Gemini:
+Create `.env.local` and add your Groq API key:
 
 ```env
-# Preferred for this project
 GROQ_API_KEY=your_groq_api_key_here
 GROQ_MODEL=openai/gpt-oss-120b
-
-# Optional fallback if you want Gemini instead
-# GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 Start the development server:
@@ -164,7 +160,7 @@ GROQ_API_KEY=your_groq_api_key_here
 GROQ_MODEL=openai/gpt-oss-120b
 ```
 
-The app will automatically prefer Groq first and fall back to Gemini if Groq is not set.
+Set `GROQ_API_KEY` for Production, Preview, and Development as needed. The key is read only by the server and must not be added to client-side variables such as `VITE_*`.
 
 ### Validation and builds
 
@@ -184,7 +180,7 @@ src/
 ├── hooks/            Shared processing state machines
 ├── lib/              PDF, AI, analytics, SEO, site, and tool services
 ├── routes/           Website pages and individual tool routes
-└── server/           Server-side Gemini integration
+└── server/           Server-side Groq integration
 
 api/                  Vercel server endpoint for AI requests
 extension/            Manifest V3 Chrome extension source

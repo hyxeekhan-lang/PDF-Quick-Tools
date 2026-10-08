@@ -39,11 +39,22 @@ export default defineConfig(({ isSsrBuild }) => ({
     devtools(),
     tailwindcss(),
     tanstackStart({
-      spa: {
+      // Every route here is a static path, so each one is rendered to real HTML
+      // at build time. Without this the Vercel rewrite would hand the same SPA
+      // shell to every URL, so crawlers would see one empty page for all of
+      // them. `crawlLinks` walks the app's own links from the home page, which
+      // means a new tool route is picked up here with no list to maintain.
+      //
+      // The sitemap itself stays with `scripts/generate-sitemap.mjs`, which
+      // already derives it from the route directory and assigns per-page
+      // priorities that TanStack's generator does not know about.
+      prerender: {
         enabled: true,
-        prerender: {
-          outputPath: '/index.html',
-        },
+        autoStaticPathsDiscovery: true,
+        crawlLinks: true,
+        concurrency: 8,
+        retryCount: 2,
+        failOnError: true,
       },
     }),
     viteReact(),

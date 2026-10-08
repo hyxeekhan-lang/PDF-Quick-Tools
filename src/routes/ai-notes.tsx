@@ -9,7 +9,7 @@ import { useToolRun } from "#/hooks/useToolRun";
 import { type AcceptedFile, FriendlyError } from "#/lib/files";
 import { pageHead } from "#/lib/seo";
 import { toolByHref } from "#/lib/tools";
-import { extractPdfText, callGemini, notesPrompt } from "#/lib/ai";
+import { extractPdfText, mergeNotesPrompt, notesPrompt, processAiDocument } from "#/lib/ai";
 import { AiNotesPanel, type AiNotes } from "#/components/AiNotesPanel";
 
 const tool = toolByHref("/ai-notes");
@@ -75,11 +75,12 @@ function AiNotesPage() {
         throw new FriendlyError("Could not extract text from this PDF. It may be a scanned document.");
       }
 
-      report(40, "Generating notes...");
-      const prompt = notesPrompt(text);
-
-      report(60, "AI is organizing content...");
-      const response = await callGemini(prompt);
+      const response = await processAiDocument(
+        text,
+        (chunk) => notesPrompt(chunk),
+        mergeNotesPrompt,
+        report,
+      );
 
       report(90, "Finalizing...");
       try {

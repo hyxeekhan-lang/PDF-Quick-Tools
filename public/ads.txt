@@ -1,1 +1,7 @@
+# ads.txt — Authorized Digital Sellers
+# https://iabtechlab.com/ads-txt/
+#
+# PDF Quick Tools (pdfpilot.site)
+# Google AdSense publisher ID: pub-7335602358317571
+#
 google.com, pub-7335602358317571, DIRECT, f08c47fec0942fa0

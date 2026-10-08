@@ -1,24 +1,24 @@
-const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+import { clientIp, rateLimitHeaders, takeRateLimit } from "./_rate-limit.js";
 
-function getGeminiModel() {
-  return process.env.GEMINI_MODEL ?? "gemini-3.5-flash-lite";
-}
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 const MAX_PROMPT_LENGTH = 36_000;
 const MAX_ATTACHMENT_LENGTH = 10_000_000;
 
-function json(body: unknown, status = 200) {
+/**
+ * Per-IP allowance. Generous enough that one person working normally through a
+ * long document never hits it, tight enough that a loop cannot drain the key.
+ * Image attachments cost real money per call, so they get their own, smaller
+ * budget on top of the general one.
+ */
+const RATE_LIMIT = { limit: 30, windowMs: 60 * 60 * 1000 } as const;
+const IMAGE_RATE_LIMIT = { limit: 10, windowMs: 60 * 60 * 1000 } as const;
+
+function json(body: unknown, status = 200, extraHeaders: Record<string, string> = {}) {
   return Response.json(body, {
     status,
-    headers: { "Cache-Control": "no-store" },
+    headers: { "Cache-Control": "no-store", ...extraHeaders },
   });
-}
-
-function getProvider() {
-  if (process.env.GEMINI_API_KEY) return "gemini";
-  if (process.env.GROQ_API_KEY) return "groq";
-  return null;
 }
 
 function extractGroqText(payload: unknown): string | null {
@@ -101,56 +101,12 @@ async function callGroq(prompt: string, attachment: { mimeType: string; data: st
   return text;
 }
 
-async function callGemini(prompt: string, attachmentPart: { inline_data: { mime_type: string; data: string } } | null) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error("Missing GEMINI_API_KEY");
-  }
-
-  const model = getGeminiModel();
-  const upstream = await fetch(`${GEMINI_API_BASE}/${model}:generateContent`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-goog-api-key": apiKey,
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [
-            { text: prompt },
-            ...(attachmentPart ? [attachmentPart] : []),
-          ],
-        },
-      ],
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 4096,
-      },
-    }),
-  });
-
-  if (!upstream.ok) {
-    throw new Error(`Gemini API error: ${upstream.status}`);
-  }
-
-  const payload = (await upstream.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: unknown }> } }>;
-  };
-  const text = payload.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (typeof text !== "string" || text.trim().length === 0) {
-    throw new Error("Gemini API returned an empty response.");
-  }
-
-  return text;
-}
-
 /**
  * Keeps the AI credential on Vercel rather than exposing it in the browser
  * bundle. The UI only ever sends the prepared prompt to this same-origin route.
  */
 export default {
-  async fetch(request: Request) {
+  async fetch(request: Request): Promise<Response> {
     if (request.method !== "POST") {
       return json({ error: "Method not allowed." }, 405);
     }
@@ -178,7 +134,7 @@ export default {
       return json({ error: "That document is too large for one AI request." }, 413);
     }
 
-    let attachmentPart: { inline_data: { mime_type: string; data: string } } | null = null;
+    let groqAttachment: { mimeType: string; data: string } | null = null;
     if (attachment !== undefined) {
       if (!attachment || typeof attachment !== "object") {
         return json({ error: "The uploaded file could not be read." }, 400);
@@ -192,44 +148,37 @@ export default {
       ) {
         return json({ error: "Please upload an image smaller than 7 MB." }, 413);
       }
-      attachmentPart = {
-        inline_data: { mime_type: candidate.mimeType, data: candidate.data },
-      };
+      groqAttachment = { mimeType: candidate.mimeType, data: candidate.data };
     }
 
-    const preferredProvider = getProvider();
-    if (!preferredProvider) {
-      return json({ error: "AI is not configured yet. Add GROQ_API_KEY or GEMINI_API_KEY in Vercel." }, 503);
+    // Counted only once the request is well-formed, so a malformed probe
+    // cannot burn a real visitor's allowance, and only before any provider call,
+    // so a blocked caller never spends money.
+    const limit = groqAttachment ? IMAGE_RATE_LIMIT : RATE_LIMIT;
+    const limitKey = `${clientIp(request)}:${groqAttachment ? "image" : "text"}`;
+    const limitResult = takeRateLimit(limitKey, limit);
+    if (!limitResult.ok) {
+      return json(
+        { error: "You have reached the hourly AI limit. Please try again later." },
+        429,
+        rateLimitHeaders(limitResult, limit.limit),
+      );
     }
 
-    const providerOrder = preferredProvider === "gemini" ? ["gemini", "groq"] : ["groq", "gemini"];
-    const providerNames = providerOrder.filter((name) => {
-      if (name === "gemini") return Boolean(process.env.GEMINI_API_KEY);
-      if (name === "groq") return Boolean(process.env.GROQ_API_KEY);
-      return false;
-    });
-
-    let lastError: unknown = null;
-
-    for (const provider of providerNames) {
-      try {
-        const text =
-          provider === "groq"
-            ? await callGroq(prompt, attachmentPart ? { mimeType: attachmentPart.inline_data.mime_type, data: attachmentPart.inline_data.data } : null)
-            : await callGemini(prompt, attachmentPart);
-
-        return json({ text });
-      } catch (error) {
-        lastError = error;
-        console.error("[ai] provider request failed:", provider, error);
-      }
+    if (!process.env.GROQ_API_KEY) {
+      return json({ error: "AI is not configured yet. Add GROQ_API_KEY in Vercel." }, 503);
     }
 
-    const message =
-      lastError instanceof Error && lastError.message
-        ? lastError.message
-        : "The AI service could not be reached. Please try again.";
-
-    return json({ error: message }, 502);
+    try {
+      const text = await callGroq(prompt, groqAttachment);
+      return json({ text }, 200, rateLimitHeaders(limitResult, limit.limit));
+    } catch (error) {
+      console.error("[ai] Groq request failed:", error);
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : "The AI service could not be reached. Please try again.";
+      return json({ error: message }, 502);
+    }
   },
 };

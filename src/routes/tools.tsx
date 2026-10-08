@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useId, useMemo, useState } from "react";
 import { CloseIcon, SearchIcon } from "#/components/Icons";
 import { ToolCard } from "#/components/ToolCard";
@@ -26,6 +26,20 @@ const CATEGORY_BLURBS: Record<string, string> = {
   "Edit PDF": "Sign, watermark, crop, resize and lock the pages of a document.",
   Convert: "Move between PDF, image and plain text formats.",
   Optimize: "Make a file smaller or cleaner without leaving the browser.",
+  "PDF security": "Protect documents with passwords and remove known locks.",
+};
+
+/**
+ * Each category's own landing page. `/pdf-editor` rather than `/edit-pdf`,
+ * because that path is already the Edit PDF text tool.
+ */
+const CATEGORY_HUB_PATHS: Partial<Record<ToolCategory, string>> = {
+  "Organize PDF": "/organize-pdf",
+  "Edit PDF": "/pdf-editor",
+  Convert: "/convert-pdf",
+  Optimize: "/optimize-pdf",
+  "PDF security": "/pdf-security",
+  "AI Tools": "/ai-pdf-tools",
 };
 
 function AllTools() {
@@ -119,7 +133,19 @@ function AllTools() {
             className="mt-12 first:mt-14"
           >
             <h2 id={`cat-${index}`} className={heading.h2}>
-              {currentCategory}
+              {CATEGORY_HUB_PATHS[currentCategory] ? (
+                /* Each category heading links to that category's own page, so
+                   the head term ("organize pdf", "convert pdf") has a landing
+                   page rather than depending on this index for its ranking. */
+                <Link
+                  to={CATEGORY_HUB_PATHS[currentCategory]}
+                  className="hover:text-brand-700 dark:hover:text-brand-300"
+                >
+                  {currentCategory}
+                </Link>
+              ) : (
+                currentCategory
+              )}
             </h2>
             <p className={`mt-1.5 ${muted}`}>{CATEGORY_BLURBS[currentCategory]}</p>
             <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 stagger-bounce">

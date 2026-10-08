@@ -21,6 +21,22 @@ const MORE_LINKS = [
   { to: "/tools", label: "All Tools" },
 ] as const;
 
+/**
+ * Category hubs, linked site-wide from the footer.
+ *
+ * These target the broad head terms rather than individual tools, so the footer
+ * is where they get the internal links they need to rank. Every tool page, every
+ * legal page and the homepage carries this column.
+ */
+const CATEGORY_LINKS = [
+  { to: "/organize-pdf", label: "Organize PDF" },
+  { to: "/pdf-editor", label: "Edit PDF" },
+  { to: "/convert-pdf", label: "Convert PDF" },
+  { to: "/optimize-pdf", label: "Optimize PDF" },
+  { to: "/pdf-security", label: "PDF Security" },
+  { to: "/ai-pdf-tools", label: "AI PDF Tools" },
+] as const;
+
 const SITE_LINKS = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About" },
@@ -64,7 +80,7 @@ export function SiteFooter() {
       <AdSlot format="fluid" className="mx-auto max-w-6xl" />
       <footer className="mt-20 border-t border-ink-200 bg-ink-50 dark:border-ink-800 dark:bg-ink-900/40">
       <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
           <div>
             <div className="flex items-center gap-2 text-ink-900 dark:text-white">
               <BrandMark compact />
@@ -75,6 +91,7 @@ export function SiteFooter() {
               extracted text only when you start an AI action.
             </p>
           </div>
+          <Column title="Categories" links={CATEGORY_LINKS} />
           <Column title="Popular tools" links={TOOL_LINKS} />
           <Column title="More tools" links={MORE_LINKS} />
           <Column title="Site" links={SITE_LINKS} />

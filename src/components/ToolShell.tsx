@@ -3,11 +3,13 @@ import { useEffect } from "react";
 import { toolEvents } from "#/lib/analytics";
 import { breadcrumbJsonLd, faqJsonLd, howToJsonLd, softwareJsonLd, type FaqItem } from "#/lib/seo";
 import { howToFor } from "#/lib/how-to";
+import { toolSectionsFor } from "#/lib/tool-sections";
 import { relatedTools, type Tool } from "#/lib/tools";
 import { AdSlot } from "./AdSlot";
 import { Faq } from "./Faq";
 import { HowTo } from "./HowTo";
 import { ArrowRightIcon, LockIcon } from "./Icons";
+import { ToolErrorBoundary } from "./ToolErrorBoundary";
 import { ToolIconTile } from "./ToolIconTile";
 import { heading, muted } from "./ui";
 
@@ -24,6 +26,7 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
   // Looked up by path rather than passed in, so adding a tool gets its walkthrough
   // without touching that route. A tool with no entry yet simply shows nothing.
   const howTo = howToFor(tool.href);
+  const sections = toolSectionsFor(tool.href);
   useEffect(() => {
     toolEvents.opened(tool.name);
   }, [tool.name]);
@@ -62,7 +65,9 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
       </header>
 
       <div className="mt-8 min-w-0">
-        <div className="animate-blur-in" style={{ animationDelay: "0.1s" }}>{children}</div>
+        <div className="animate-blur-in" style={{ animationDelay: "0.1s" }}>
+          <ToolErrorBoundary toolName={tool.name}>{children}</ToolErrorBoundary>
+        </div>
 
         <p className="mt-5 flex items-center justify-center gap-2 text-center text-sm text-ink-500 dark:text-ink-500">
           <LockIcon className="h-4 w-4 shrink-0" />
@@ -86,7 +91,27 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
 
         <HowTo toolName={tool.name} steps={howTo} />
 
-        <Faq items={faq} />
+        {sections.length > 0 && (
+          <section aria-labelledby="details-heading" className="mt-12">
+            <h2 id="details-heading" className={heading.h2}>
+              {tool.name} details and limits
+            </h2>
+            <div className="mt-5 space-y-7">
+              {sections.map((section) => (
+                <div key={section.heading} className="min-w-0">
+                  <h3 className="text-[15px] font-semibold text-ink-900 dark:text-white">
+                    {section.heading}
+                  </h3>
+                  <p className="mt-1.5 text-[15px] leading-relaxed text-ink-600 dark:text-ink-400">
+                    {section.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <Faq items={faq} title={`${tool.name} questions`} />
 
         <section aria-labelledby="related-heading" className="mt-16">
           <h2 id="related-heading" className={heading.h2}>

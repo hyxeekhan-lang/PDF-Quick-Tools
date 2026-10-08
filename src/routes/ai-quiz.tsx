@@ -10,7 +10,7 @@ import { useToolRun } from "#/hooks/useToolRun";
 import { type AcceptedFile, FriendlyError } from "#/lib/files";
 import { pageHead } from "#/lib/seo";
 import { toolByHref } from "#/lib/tools";
-import { extractPdfText, callGemini, quizPrompt } from "#/lib/ai";
+import { extractPdfText, mergeQuizPrompt, processAiDocument, quizPrompt } from "#/lib/ai";
 import { AiQuizPanel, type QuizQuestion } from "#/components/AiQuizPanel";
 
 const tool = toolByHref("/ai-quiz");
@@ -74,11 +74,12 @@ function AiQuizPage() {
       if (!text.trim()) {
         throw new FriendlyError("Could not extract text from this PDF. It may be a scanned document.");
       }
-      report(40, "Generating quiz questions...");
-      const prompt = quizPrompt(text);
-
-      report(60, "AI is creating questions...");
-      const response = await callGemini(prompt);
+      const response = await processAiDocument(
+        text,
+        (chunk) => quizPrompt(chunk),
+        mergeQuizPrompt,
+        report,
+      );
 
       report(90, "Finalizing...");
       try {

@@ -9,7 +9,12 @@ import { useToolRun } from "#/hooks/useToolRun";
 import { type AcceptedFile, FriendlyError } from "#/lib/files";
 import { pageHead } from "#/lib/seo";
 import { toolByHref } from "#/lib/tools";
-import { extractPdfText, callGemini, summarizePrompt } from "#/lib/ai";
+import {
+  extractPdfText,
+  mergeSummaryPrompt,
+  processAiDocument,
+  summarizePrompt,
+} from "#/lib/ai";
 import { AiSummaryPanel, type AiSummary } from "#/components/AiSummaryPanel";
 
 const tool = toolByHref("/ai-summarizer");
@@ -43,7 +48,7 @@ const FAQ = [
   {
     question: "Is there a file size limit?",
     answer:
-      "Yes, the maximum file size is 50 MB. For very large documents, the text may be truncated for AI processing.",
+      "PDFs up to 50 MB can be uploaded. The AI reads extracted text in consecutive parts; exceptionally long documents may need to be split into smaller PDFs.",
   },
   {
     question: "Do I need an account?",
@@ -80,17 +85,19 @@ function AiSummarizerPage() {
         throw new FriendlyError("Could not extract text from this PDF. It may be a scanned document.");
       }
 
-      report(40, "Analyzing content with AI...");
-      const prompt = summarizePrompt(text);
-
-      report(60, "Generating summary...");
-      const response = await callGemini(prompt);
+      const response = await processAiDocument(
+        text,
+        (chunk) => summarizePrompt(chunk),
+        mergeSummaryPrompt,
+        report,
+      );
 
       report(90, "Finalizing...");
       // Parse the JSON response
       try {
         const cleaned = response.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
         const parsed = JSON.parse(cleaned) as AiSummary;
+        parsed.readingTime = `${Math.ceil(text.split(/\s+/).filter(Boolean).length / 200)} min read`;
         setSummary(parsed);
       } catch {
         // If JSON parsing fails, create a basic summary from the text
