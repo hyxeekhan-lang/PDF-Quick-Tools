@@ -18,17 +18,23 @@ PDF Quick Tools is a browser-based PDF workspace for compressing, merging, split
 
 ## Screenshots
 
+Fresh screenshots of the live site, captured in October 2026.
+
 ### Homepage
 
-![PDF Quick Tools homepage](public/screenshots/home-desktop.png)
+![PDF Quick Tools homepage](public/screenshots/website-home-2026.png)
 
-### Mobile experience
+### All PDF tools
 
-![PDF Quick Tools mobile homepage](public/screenshots/home-mobile.png)
+![All PDF tools directory](public/screenshots/all-tools-2026.png)
 
-### AI tools drawer
+### AI Summarizer
 
-![PDF Quick Tools AI tools drawer](public/screenshots/ai-tools-drawer.png)
+![AI Summarizer desktop upload page](public/screenshots/ai-summarizer-2026.png)
+
+### Mobile AI Summarizer
+
+![AI Summarizer on a mobile screen](public/screenshots/ai-summarizer-mobile-2026.png)
 
 ## What It Includes
 
