@@ -8,54 +8,78 @@ import { FriendlyError } from "./files";
 export async function extractPdfText(file: File): Promise<string> {
   const pdfjsLib = await loadPdfJs();
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+  const pdf = await loadingTask.promise;
 
-  const textParts: string[] = [];
+  // Every exit from this function has to release the document: pdf.js keeps a
+  // worker alive behind it and holds the whole ArrayBuffer, and every AI tool
+  // calls this. Without this, a handful of runs on a large PDF is enough for
+  // the browser to start killing the tab.
+  try {
+    const textParts: string[] = [];
 
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    const pageText = content.items
-      .filter((item) => "str" in item)
-      .map((item) => (item as { str: string }).str)
-      .join(" ");
-    if (pageText.trim()) {
-      textParts.push(`[Page ${i}]\n${pageText.trim()}`);
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      try {
+        const content = await page.getTextContent();
+        const pageText = content.items
+          .filter((item) => "str" in item)
+          .map((item) => (item as { str: string }).str)
+          .join(" ");
+        if (pageText.trim()) {
+          textParts.push(`[Page ${i}]\n${pageText.trim()}`);
+        }
+      } finally {
+        page.cleanup();
+      }
     }
-  }
 
-  if (textParts.length > 0) {
+    if (textParts.length > 0) {
+      return textParts.join("\n\n");
+    }
+
+    const maxOcrPages = Math.min(pdf.numPages, 4);
+    for (let i = 1; i <= maxOcrPages; i++) {
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale: 1.5 });
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.floor(viewport.width));
+      canvas.height = Math.max(1, Math.floor(viewport.height));
+      const context = canvas.getContext("2d", { alpha: false });
+      if (!context) {
+        page.cleanup();
+        continue;
+      }
+
+      try {
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        await page.render({ canvas, canvasContext: context, viewport }).promise;
+
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+        const imageData = dataUrl.split(",")[1] ?? "";
+        const response = await callGemini(
+          "Extract all visible text from this scanned page. Preserve headings, paragraphs, and lists. If no text is visible, return exactly: NO_TEXT",
+          { mimeType: "image/jpeg", data: imageData },
+        );
+
+        const cleaned = response.replace(/\s*NO_TEXT\s*/i, "").trim();
+        if (cleaned) {
+          textParts.push(`[Page ${i}]\n${cleaned}`);
+        }
+      } finally {
+        // A canvas this size is tens of megabytes; dropping its dimensions is
+        // what actually hands that memory back.
+        canvas.width = 0;
+        canvas.height = 0;
+        page.cleanup();
+      }
+    }
+
     return textParts.join("\n\n");
+  } finally {
+    await loadingTask.destroy();
   }
-
-  const maxOcrPages = Math.min(pdf.numPages, 4);
-  for (let i = 1; i <= maxOcrPages; i++) {
-    const page = await pdf.getPage(i);
-    const viewport = page.getViewport({ scale: 1.5 });
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1, Math.floor(viewport.width));
-    canvas.height = Math.max(1, Math.floor(viewport.height));
-    const context = canvas.getContext("2d", { alpha: false });
-    if (!context) continue;
-
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    await page.render({ canvas, canvasContext: context, viewport }).promise;
-
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
-    const imageData = dataUrl.split(",")[1] ?? "";
-    const response = await callGemini(
-      "Extract all visible text from this scanned page. Preserve headings, paragraphs, and lists. If no text is visible, return exactly: NO_TEXT",
-      { mimeType: "image/jpeg", data: imageData },
-    );
-
-    const cleaned = response.replace(/\s*NO_TEXT\s*/i, "").trim();
-    if (cleaned) {
-      textParts.push(`[Page ${i}]\n${cleaned}`);
-    }
-  }
-
-  return textParts.join("\n\n");
 }
 
 /**

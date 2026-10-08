@@ -81,7 +81,9 @@ export function MarkEditor<Mark extends PageMark>({
 
   // The canvas is sized to the page image's natural pixels. It is scaled down
   // with CSS to fit the column, and every mouse coordinate is divided by that
-  // CSS scale so a drag lands exactly where the user pointed.
+  // CSS scale so a drag lands exactly where the user pointed. The numbers that
+  // come out of that are preview pixels; the operation converts them to PDF
+  // points, which is why each mark carries the preview size it was drawn on.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !activePage) return;
@@ -103,15 +105,26 @@ export function MarkEditor<Mark extends PageMark>({
     const canvas = canvasRef.current;
     if (!canvas || busy) return;
 
-    function down(e: MouseEvent) {
+    function down(e: PointerEvent) {
       const point = toPagePixel(e.clientX, e.clientY);
       if (!point) return;
       e.preventDefault();
       setDrawing(true);
-      setMark({ page: pageIndex, x: point.x, y: point.y, width: 0, height: 0 } as Mark);
+      setMark({
+        page: pageIndex,
+        x: point.x,
+        y: point.y,
+        width: 0,
+        height: 0,
+        // Stamped once here and carried through the drag, so every mark is
+        // converted against the preview it was actually drawn on even if the
+        // visitor changes page size mid-drag.
+        previewWidth: activePage.width,
+        previewHeight: activePage.height,
+      } as Mark);
     }
 
-    function move(e: MouseEvent) {
+    function move(e: PointerEvent) {
       if (!drawing) return;
       const point = toPagePixel(e.clientX, e.clientY);
       if (!point) return;
@@ -145,17 +158,21 @@ export function MarkEditor<Mark extends PageMark>({
       });
     }
 
-    canvas.addEventListener("mousedown", down);
-    canvas.addEventListener("mousemove", move);
-    canvas.addEventListener("mouseup", up);
-    canvas.addEventListener("mouseleave", up);
+    // Pointer events, not mouse events: a mouse-only binding never fires on a
+    // phone or tablet, so the tool would be silently undrawable on touch. A
+    // finger dragging outside the canvas still ends the mark, which is why
+    // pointercancel is handled too.
+    canvas.addEventListener("pointerdown", down);
+    canvas.addEventListener("pointermove", move);
+    canvas.addEventListener("pointerup", up);
+    canvas.addEventListener("pointercancel", up);
     return () => {
-      canvas.removeEventListener("mousedown", down);
-      canvas.removeEventListener("mousemove", move);
-      canvas.removeEventListener("mouseup", up);
-      canvas.removeEventListener("mouseleave", up);
+      canvas.removeEventListener("pointerdown", down);
+      canvas.removeEventListener("pointermove", move);
+      canvas.removeEventListener("pointerup", up);
+      canvas.removeEventListener("pointercancel", up);
     };
-  }, [drawing, busy, pageIndex, toPagePixel]);
+  }, [drawing, busy, pageIndex, toPagePixel, activePage]);
 
   // Repaint whenever the page or the marks change: the page image first, then
   // every box already placed on this page, then the one being dragged.
@@ -309,7 +326,7 @@ export function MarkEditor<Mark extends PageMark>({
             </div>
           )}
 
-          {busy && <ProgressBar progress={run.progress} />}
+          {busy && <ProgressBar progress={run.progress} onCancel={run.cancel} />}
 
           {run.status === "error" && run.error && (
             <ErrorMessage

@@ -273,7 +273,7 @@ export function AiDocumentToolPage({ href }: AiDocumentToolProps) {
       {file && !showingResult && <div className="space-y-5">
         <div className="flex items-center justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-semibold text-ink-900 dark:text-white">{file.name}</p><p className="text-xs text-ink-500">{(file.size / 1024 / 1024).toFixed(1)} MB</p></div><button type="button" onClick={reset} className={button("ghost", "sm")}>Change file</button></div>
         {!isAsk && <Options task={task} options={options} setOptions={setOptions} />}
-        {busy && <ProgressBar progress={run.progress} />}
+        {busy && <ProgressBar progress={run.progress} onCancel={run.cancel} />}
         {run.status === "error" && run.error && <ErrorMessage message={run.error} onRetry={isAsk ? loadForChat : generate} onStartOver={reset} />}
         {!busy && run.status !== "error" && <button type="button" onClick={isAsk ? loadForChat : generate} className={button("primary", "lg", "gap-2.5")}><SparkIcon />{isAsk ? "Prepare document chat" : "Generate with AI"}</button>}
       </div>}

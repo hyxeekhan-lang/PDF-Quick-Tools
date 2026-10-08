@@ -14,9 +14,14 @@ import { loadPdfLib, openForEdit, save, toBlobPart } from "./pdf";
 const PDF_MIME = "application/pdf";
 
 /**
- * A rectangle drawn over part of a page, in PDF points from the bottom-left.
- * Used by both the redaction and the highlight tool, which differ only in the
- * colour and transparency they fill it with.
+ * A rectangle drawn over part of a page.
+ *
+ * `x`, `y`, `width` and `height` are in the pixels of the page preview image,
+ * measured from its top-left — that is what the pointer gives us, and it is the
+ * only coordinate space the editor has. `previewWidth` and `previewHeight` carry
+ * that image's size so the rectangle can be converted to the page's real
+ * geometry. `toPdfRect` is what does the conversion; nothing downstream may
+ * pass these numbers to pdf-lib unconverted.
  */
 export interface PageMark {
   page: number;
@@ -24,6 +29,34 @@ export interface PageMark {
   y: number;
   width: number;
   height: number;
+  previewWidth: number;
+  previewHeight: number;
+}
+
+/**
+ * Converts a preview-pixel rectangle into the PDF's own coordinate space: PDF
+ * points, measured from the bottom-left.
+ *
+ * Skipping either half of this puts the mark somewhere the visitor never
+ * pointed. For redaction that is worse than a cosmetic error — the text stays
+ * readable while the tool reports success.
+ */
+function toPdfRect(mark: PageMark, page: { getSize: () => { width: number; height: number } }) {
+  const { width: pageWidth, height: pageHeight } = page.getSize();
+  const scaleX = pageWidth / mark.previewWidth;
+  const scaleY = pageHeight / mark.previewHeight;
+  const left = mark.x * scaleX;
+  const right = (mark.x + mark.width) * scaleX;
+  const top = mark.y * scaleY;
+  const bottom = (mark.y + mark.height) * scaleY;
+  return {
+    x: left,
+    // PDF y grows upward from the bottom of the page; the preview's grows
+    // downward from its top.
+    y: pageHeight - bottom,
+    width: right - left,
+    height: bottom - top,
+  };
 }
 
 /* ------------------------------------------------------------ fill a form */
@@ -153,10 +186,7 @@ export async function redactPdf(
     const page = doc.getPage(index);
     for (const mark of marks.filter((m) => m.page === index)) {
       page.drawRectangle({
-        x: mark.x,
-        y: mark.y,
-        width: mark.width,
-        height: mark.height,
+        ...toPdfRect(mark, page),
         color: rgb(0, 0, 0),
       });
     }
@@ -214,10 +244,7 @@ export async function highlightPdf(
     const page = doc.getPage(index);
     for (const mark of marks.filter((m) => m.page === index)) {
       page.drawRectangle({
-        x: mark.x,
-        y: mark.y,
-        width: mark.width,
-        height: mark.height,
+        ...toPdfRect(mark, page),
         color: rgb(r, g, b),
         opacity: 0.45,
       });

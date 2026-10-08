@@ -3,6 +3,7 @@ import { ArrowRightIcon } from "./Icons";
 
 export function ScrollToTop() {
   const [visible, setVisible] = useState(false);
+  const [bannerOpen, setBannerOpen] = useState(false);
 
   useEffect(() => {
     function onScroll() {
@@ -10,6 +11,24 @@ export function ScrollToTop() {
     }
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // The cookie banner is fixed to the bottom-right too, and it outranks this
+  // button's z-index — so while it is up, this button sits inside it and
+  // cannot be clicked. It steps above the banner instead.
+  useEffect(() => {
+    const onChange = () => {
+      let open = false;
+      try {
+        open = !localStorage.getItem("pqt-cookie-consent");
+      } catch {
+        open = true;
+      }
+      setBannerOpen(open);
+    };
+    onChange();
+    window.addEventListener("pqt-cookie-consent-changed", onChange);
+    return () => window.removeEventListener("pqt-cookie-consent-changed", onChange);
   }, []);
 
   function scrollToTop() {
@@ -23,7 +42,9 @@ export function ScrollToTop() {
       type="button"
       onClick={scrollToTop}
       aria-label="Scroll to top of page"
-      className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-lg shadow-brand-600/30 transition-all duration-200 hover:-translate-y-1 hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-600/40 active:translate-y-0 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 dark:bg-brand-500 dark:hover:bg-brand-600"
+      className={`fixed right-6 z-40 flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-lg shadow-brand-600/30 transition-all duration-200 hover:-translate-y-1 hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-600/40 active:translate-y-0 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 dark:bg-brand-500 dark:hover:bg-brand-600 ${
+        bannerOpen ? "bottom-64" : "bottom-6"
+      }`}
     >
       <ArrowRightIcon className="h-5 w-5 -rotate-90" />
     </button>

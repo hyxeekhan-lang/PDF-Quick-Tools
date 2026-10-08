@@ -3,6 +3,7 @@ import { button, cx } from "./ui";
 import { toolEvents } from "#/lib/analytics";
 import { formatBytes, triggerDownload, type ResultFile } from "#/lib/files";
 import type { Progress } from "#/hooks/useToolRun";
+import { PanelFocus } from "./PanelFocus";
 export type { ResultFile };
 
 export function ProgressBar({
@@ -13,18 +14,28 @@ export function ProgressBar({
   /** Shown as a Cancel button when supplied, so a long job is never a dead end. */
   onCancel?: () => void;
 }) {
+  // Announced in coarse steps, not per percent. Operations report once per
+  // page, so a live region on the raw value interrupts whatever the visitor is
+  // reading with a few dozen "32 percent" announcements. The bar itself is
+  // still read on demand through its valuetext, which carries the useful part.
+  const announcedPercent = Math.round(progress.percent / 25) * 25;
   return (
-    <div
-      className="rounded-2xl bg-brand-50 px-5 py-5 ring-1 ring-brand-100 dark:bg-brand-600/10 dark:ring-brand-600/25"
-      role="status"
-      aria-live="polite"
-    >
-      <div className="flex items-center justify-between gap-3">
+    <div className="rounded-2xl bg-brand-50 px-5 py-5 ring-1 ring-brand-100 dark:bg-brand-600/10 dark:ring-brand-600/25">
+      <div
+        className="flex items-center justify-between gap-3"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         <p className="text-sm font-semibold text-brand-800 dark:text-brand-200">
           {progress.label || "Processing your PDF..."}
         </p>
+        {/* Visually exact, but only the quarter-steps reach the live region. */}
         <p className="text-sm font-semibold text-brand-700 tabular-nums dark:text-brand-300">
           {progress.percent}%
+          {/* Hidden from sighted users, but this is what the live region reads,
+              so it ticks in quarter-steps instead of on every page. */}
+          <span className="sr-only">, about {announcedPercent} percent complete</span>
         </p>
       </div>
       <div
@@ -33,7 +44,9 @@ export function ProgressBar({
         aria-valuenow={progress.percent}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label="Processing progress"
+        // Without this a screen reader says only "progress bar, 32 percent"
+        // and never the step it is actually on.
+        aria-valuetext={`${progress.label || "Processing your PDF..."}, ${announcedPercent} percent complete`}
       >
         <div
           className="progress-fill h-full rounded-full bg-brand-600 transition-[width] duration-500 ease-out dark:bg-brand-400"
@@ -69,10 +82,11 @@ export function ErrorMessage({
   retryLabel?: string;
 }) {
   return (
-    <div
-      className="animate-shake rounded-2xl bg-red-50 px-5 py-5 ring-1 ring-red-200 dark:bg-red-950/30 dark:ring-red-900/60"
-      role="alert"
-    >
+    <PanelFocus>
+      <div
+        className="animate-shake rounded-2xl bg-red-50 px-5 py-5 ring-1 ring-red-200 dark:bg-red-950/30 dark:ring-red-900/60"
+        role="alert"
+      >
       <div className="flex gap-3">
         <span className="mt-0.5 shrink-0 text-red-600 dark:text-red-400">
           <AlertIcon className="h-5 w-5" />
@@ -102,7 +116,8 @@ export function ErrorMessage({
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </PanelFocus>
   );
 }
 
@@ -158,19 +173,20 @@ export function SuccessPanel({
   }
 
   return (
-    <div
-      className="animate-bounce-in rounded-2xl bg-emerald-50 px-5 py-5 ring-1 ring-emerald-200 dark:bg-emerald-950/25 dark:ring-emerald-900/60"
-      role="status"
-      aria-live="polite"
-    >
-      <div className="flex items-center gap-2.5">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white animate-scale-in">
-          <CheckIcon className="h-4.5 w-4.5 success-check" />
-        </span>
-        <p className="text-base font-semibold text-emerald-900 dark:text-emerald-100">
-          {title}
-        </p>
-      </div>
+    <PanelFocus>
+      <div
+        className="animate-bounce-in rounded-2xl bg-emerald-50 px-5 py-5 ring-1 ring-emerald-200 dark:bg-emerald-950/25 dark:ring-emerald-900/60"
+        role="status"
+        aria-live="polite"
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white animate-scale-in">
+            <CheckIcon className="h-4.5 w-4.5 success-check" />
+          </span>
+          <p className="text-base font-semibold text-emerald-900 dark:text-emerald-100">
+            {title}
+          </p>
+        </div>
 
       {stats && stats.length > 0 && (
         <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -248,6 +264,7 @@ export function SuccessPanel({
           {startOverLabel}
         </button>
       </div>
-    </div>
+      </div>
+    </PanelFocus>
   );
 }

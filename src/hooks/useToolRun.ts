@@ -22,7 +22,14 @@ const GENERIC_ERROR =
  */
 export class CancelledError extends Error {}
 
-/** Rethrows if the current run has been cancelled. */
+/**
+ * Rethrows if this run has been cancelled.
+ *
+ * Takes the ref rather than reading a shared one, because a cancelled run keeps
+ * unwinding in the background while the visitor starts the next one. A single
+ * shared flag would be reset by the new run, and the abandoned job would carry
+ * on to the end — spending real CPU and, on an AI tool, real API calls.
+ */
 export function assertNotCancelled(cancelled: { current: boolean }): void {
   if (cancelled.current) throw new CancelledError();
 }
@@ -38,14 +45,26 @@ export function useToolRun(toolName: string) {
   const [results, setResults] = useState<ResultFile[]>([]);
   const resultsRef = useRef<ResultFile[]>([]);
   const running = useRef(false);
-  const cancelled = useRef(false);
+  // The cancel flag of the run in flight. Per-run, not shared: an abandoned job
+  // must stay cancelled even after the visitor starts the next one.
+  const cancelled = useRef<{ current: boolean }>({ current: false });
+  // Every run takes a number. A cancelled run keeps unwinding in the
+  // background, so a second run can start while the first is still in flight;
+  // the generation is what stops the old one from touching current state.
+  const generation = useRef(0);
+  const alive = useRef(true);
 
   resultsRef.current = results;
 
   // Object URLs are the only thing this site holds on to. Release them when
-  // the page goes away.
+  // the page goes away — and also when a run finishes after the page has gone,
+  // because that run still minted URLs nobody is left to hand to anyone.
   useEffect(() => {
-    return () => revokeResults(resultsRef.current);
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      revokeResults(resultsRef.current);
+    };
   }, []);
 
   const clearResults = useCallback(() => {
@@ -68,7 +87,12 @@ export function useToolRun(toolName: string) {
    */
   const cancel = useCallback(() => {
     if (!running.current) return;
-    cancelled.current = true;
+    cancelled.current.current = true;
+    // Released straight away rather than when the job finally unwinds: the
+    // panel is back to idle and the file is still in the uploader, so the
+    // visitor can press the button again immediately. The job that is still
+    // running stops at its next report and touches nothing.
+    running.current = false;
     setStatus("idle");
     setProgress({ percent: 0, label: "" });
   }, []);
@@ -86,7 +110,10 @@ export function useToolRun(toolName: string) {
     async (job: (report: Report) => Promise<ResultFile[]>) => {
       if (running.current) return;
       running.current = true;
-      cancelled.current = false;
+      const mine = generation.current + 1;
+      generation.current = mine;
+      const stop = { current: false };
+      cancelled.current = stop;
       clearResults();
       setError(null);
       setProgress({ percent: 0, label: "Getting started" });
@@ -96,8 +123,9 @@ export function useToolRun(toolName: string) {
 
       const report: Report = (percent, label) => {
         // Every operation reports per page or per step, so this is where a
-        // cancelled run notices and stops.
-        assertNotCancelled(cancelled);
+        // cancelled or superseded run notices and stops.
+        assertNotCancelled(stop);
+        if (generation.current !== mine) return;
         setProgress((current) => ({
           percent: Math.max(0, Math.min(100, Math.round(percent))),
           label: label ?? current.label,
@@ -107,9 +135,17 @@ export function useToolRun(toolName: string) {
       try {
         // Let the browser paint the working state before the main thread gets busy.
         await new Promise((resolve) => setTimeout(resolve, 16));
-        assertNotCancelled(cancelled);
+        assertNotCancelled(stop);
         const produced = await job(report);
-        assertNotCancelled(cancelled);
+        // An older run that finished after a newer one started must not
+        // overwrite the newer run's results with its own. The same goes for a
+        // run whose page has since been navigated away from: there is nobody
+        // left to hand the file to, so its URLs are released rather than kept
+        // in a ref nothing will ever read.
+        if (generation.current !== mine || !alive.current) {
+          revokeResults(produced);
+          return;
+        }
         resultsRef.current = produced;
         setResults(produced);
         setProgress({ percent: 100, label: "Finished" });
@@ -118,8 +154,12 @@ export function useToolRun(toolName: string) {
       } catch (caught) {
         // Cancelling already reset the panel, and it is not a failure — the
         // visitor asked for it, so it must not reach the error box or analytics.
+        // A superseded run's failure belongs to a run the visitor no longer
+        // sees, so it is dropped too.
         if (caught instanceof CancelledError) {
           if (import.meta.env.DEV) console.info(`[${toolName}] cancelled`);
+        } else if (generation.current !== mine) {
+          if (import.meta.env.DEV) console.error(caught);
         } else if (caught instanceof FriendlyError) {
           fail(caught.message);
         } else if (caught instanceof Error && import.meta.env.DEV) {
@@ -130,8 +170,13 @@ export function useToolRun(toolName: string) {
           fail(GENERIC_ERROR);
         }
       } finally {
-        running.current = false;
-        cancelled.current = false;
+        // Only the newest run may clear the flag. A cancelled run that is
+        // still unwinding would otherwise unlock the button while the next
+        // run is in flight.
+        if (generation.current === mine) {
+          running.current = false;
+          stop.current = false;
+        }
       }
     },
     [clearResults, fail, toolName],

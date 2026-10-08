@@ -550,10 +550,11 @@ export async function insertBlankPages(
 
   report(35, "Adding blank pages");
   if (position === "start") {
-    // `insertPage` counts from the end, so 0 is the last page. Inserting at the
-    // end of a shrinking document puts each new page at the front in turn.
+    // `insertPage` takes a zero-based index from the front, and the loop
+    // count is captured up front — reading `getPageCount()` inside the loop
+    // would never terminate, since each insertion makes the document bigger.
     for (let i = 0; i < pageCount; i += 1) {
-      doc.insertPage(doc.getPageCount(), [595.28, 841.89]);
+      doc.insertPage(0, [595.28, 841.89]);
     }
   } else if (position === "end") {
     const pages = doc.getPages();
