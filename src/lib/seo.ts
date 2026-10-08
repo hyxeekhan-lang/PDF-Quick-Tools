@@ -1,4 +1,4 @@
-import { SITE_CARD, SITE_NAME, SITE_URL } from "./site";
+import { CONTACT_EMAIL, SITE_CARD, SITE_NAME, SITE_URL } from "./site";
 
 interface HeadInput {
   title: string;
@@ -37,6 +37,42 @@ export function pageHead({ title, description, path, image }: HeadInput) {
 export interface FaqItem {
   question: string;
   answer: string;
+}
+
+/**
+ * Organization structured data, emitted once in the root document.
+ *
+ * The site previously declared only a bare `WebSite` node with a name and a
+ * URL, which tells a search engine almost nothing about who publishes it. An
+ * `Organization` node is what backs the logo and the brand knowledge panel,
+ * and `sameAs` is what ties this site to the accounts a visitor can verify it
+ * from — without it the site's identity rests entirely on self-asserted text.
+ *
+ * `logo` is declared as `ImageObject` rather than a bare URL because Google's
+ * rich-result validator accepts both, but only the object form reliably
+ * produces the logo in search results.
+ */
+export function organizationJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}/favicon-32.png`,
+      width: 32,
+      height: 32,
+    },
+    description:
+      "Free browser-based PDF tools and a suite of AI document tools. Most regular PDF tools process files entirely on the visitor's device.",
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      email: CONTACT_EMAIL,
+      url: `${SITE_URL}/contact`,
+    },
+  };
 }
 
 /** FAQPage structured data for a tool or landing page. */

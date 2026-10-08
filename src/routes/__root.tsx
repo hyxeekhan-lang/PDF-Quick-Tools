@@ -11,8 +11,8 @@ import { CookieConsent } from "#/components/CookieConsent";
 import { ScrollToTop } from "#/components/ScrollToTop";
 import { themeBootScript } from "#/components/ThemeToggle";
 import { button } from "#/components/ui";
-import { pageHead } from "#/lib/seo";
-import { SITE_NAME, SITE_URL } from "#/lib/site";
+import { organizationJsonLd, pageHead } from "#/lib/seo";
+import { SITE_NAME } from "#/lib/site";
 
 import appCss from "../styles.css?url";
 
@@ -58,12 +58,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              name: SITE_NAME,
-              url: SITE_URL,
-            }),
+            __html: JSON.stringify(organizationJsonLd()),
           }}
         />
       </head>

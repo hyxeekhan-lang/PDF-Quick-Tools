@@ -31,3 +31,26 @@ export const toolEvents = {
     track("processing_failed", { tool, reason }),
   downloaded: (tool: string) => track("download_clicked", { tool }),
 };
+
+/**
+ * Events for the journey that happens *before* a tool opens.
+ *
+ * Every `toolEvents` entry fires from inside a tool, so the funnel had a name
+ * but no top: nothing recorded that a visitor arrived, which hero button they
+ * pressed, or whether they left for a competitor instead. Without these, the
+ * only way to tell the hero dropzone from the "Explore Tools" button apart was
+ * to guess, and changes to either one were unmeasurable.
+ *
+ * No filenames, file contents, or document text — only which link was pressed.
+ */
+export const navEvents = {
+  landing: () => track("landing_viewed"),
+  cta: (where: string, label: string) => track("cta_clicked", { where, label }),
+  heroDrop: (bytes: number) => track("hero_drop_started", { bytes }),
+  toolsSearch: (query: string) =>
+    // The query itself can be a company name or a document title, so only the
+    // fact that a search happened, and how long it was, is sent.
+    track("tools_searched", { length: query.length }),
+  extension: (place: string) => track("extension_clicked", { place }),
+  outbound: (target: string) => track("outbound_clicked", { target }),
+};

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { navEvents } from "#/lib/analytics";
 import { EXTENSION_DOWNLOAD_URL, GITHUB_RELEASE_URL } from "#/lib/site";
 import { CloseIcon, DownloadIcon, SparkIcon } from "./Icons";
 import { button, cx } from "./ui";
@@ -32,11 +33,11 @@ export function ExtensionBanner() {
             first tool card off the bottom of the screen. It is still in the
             mobile nav. */}
         <div className="flex flex-wrap items-center gap-2 sm:shrink-0 sm:pl-0">
-          <a href={EXTENSION_DOWNLOAD_URL} download className={cx(button("primary", "sm"), "flex-1 justify-center sm:flex-none")}>
+          <a href={EXTENSION_DOWNLOAD_URL} download onClick={() => navEvents.extension("banner_download")} className={cx(button("primary", "sm"), "flex-1 justify-center sm:flex-none")}>
             <DownloadIcon className="h-4 w-4 shrink-0" />
             Download Extension
           </a>
-          <a href={GITHUB_RELEASE_URL} target="_blank" rel="noreferrer" className={cx(button("secondary", "sm"), "max-sm:!hidden")}>
+          <a href={GITHUB_RELEASE_URL} target="_blank" rel="noreferrer" onClick={() => navEvents.extension("banner_github")} className={cx(button("secondary", "sm"), "max-sm:!hidden")}>
             GitHub Release
           </a>
         </div>

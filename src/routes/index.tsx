@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Faq } from "#/components/Faq";
 import {
   ArrowRightIcon,
@@ -25,8 +25,10 @@ import {
   ToPdfIcon,
 } from "#/components/Icons";
 import { AdSlot } from "#/components/AdSlot";
+import { navEvents } from "#/lib/analytics";
 import { ToolCard } from "#/components/ToolCard";
 import { ExtensionBanner } from "#/components/ExtensionBanner";
+import { HeroDropzone } from "#/components/HeroDropzone";
 import { AiNotice } from "#/components/AiNotice";
 import { button, heading, muted, sectionWrap } from "#/components/ui";
 import {
@@ -89,11 +91,30 @@ const popular = TOOLS.filter((tool) => tool.popular);
 
 const aiTools = TOOLS.filter((tool) => tool.category === "AI Tools");
 
+/**
+ * The numbers under the hero.
+ *
+ * Every value here is checked against the code rather than chosen for effect —
+ * `TOOLS.length` is rendered directly, so the count cannot drift out of sync
+ * with the catalogue again. This band previously read "13+" while the same page
+ * rendered "See all 55 tools" two sections below it, which is the kind of
+ * inaccuracy a visitor who is deciding whether to trust a tool with their file
+ * notices immediately.
+ *
+ * There is deliberately no star rating or review count here. The site has no
+ * reviews, and inventing some would breach both Google's structured-data
+ * guidelines and AdSense's, while contradicting the site's own claim that it
+ * does not fabricate. The real numbers are the strongest ones available.
+ */
 const STATS = [
-  { value: "Local", label: "Privacy-first processing", sub: "Regular tools run in your browser" },
-  { value: "Fast", label: "Browser-based processing", sub: "Most tools work without a server upload" },
-  { value: "13+", label: "Essential PDF Tools", sub: "Including Next-Gen AI" },
-  { value: "Free", label: "Free PDF tools", sub: "Simple document workflows" },
+  {
+    value: String(TOOLS.length),
+    label: "PDF tools",
+    sub: "Plus a suite of AI document tools",
+  },
+  { value: "50 MB", label: "Per file", sub: "No account, no trial, no paywall" },
+  { value: "0", label: "Uploads for most tools", sub: "Your file never leaves the browser" },
+  { value: "$0", label: "Forever", sub: "No paid tier hiding the useful settings" },
 ];
 
 function StatsBanner() {
@@ -122,6 +143,13 @@ function StatsBanner() {
 }
 
 function Home() {
+  // Fires once per mount, not once per render — the funnel has to have a
+  // denominator, and "how many people landed here" was the number that was
+  // missing.
+  useEffect(() => {
+    navEvents.landing();
+  }, []);
+
   return (
     <>
       <script
@@ -312,10 +340,13 @@ function Hero() {
               may send extracted text to an AI provider when you use them.
             </p>
 
+            <HeroDropzone />
+
             {/* CTA buttons */}
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
                 to="/tools"
+                onClick={() => navEvents.cta("hero", "Explore PDF Tools")}
                 className="btn-press group relative inline-flex items-center gap-2.5 overflow-hidden rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition-all hover:shadow-xl hover:shadow-brand-600/30 hover:from-brand-500 hover:to-brand-600 dark:from-brand-500 dark:to-brand-600 dark:shadow-brand-600/20"
               >
                 <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
@@ -324,6 +355,7 @@ function Hero() {
               </Link>
               <Link
                 to="/compress-pdf"
+                onClick={() => navEvents.cta("hero", "Compress a PDF")}
                 className="btn-press inline-flex items-center gap-2 rounded-xl bg-white/80 px-7 py-3.5 text-sm font-semibold text-ink-700 ring-1 ring-ink-200 backdrop-blur-sm transition-all hover:bg-white hover:ring-ink-300 hover:shadow-md dark:bg-ink-800/60 dark:text-ink-200 dark:ring-ink-700 dark:hover:bg-ink-800 dark:hover:ring-ink-600"
               >
                 <BoltIcon className="h-4 w-4 text-brand-600 dark:text-brand-400" />
@@ -648,7 +680,12 @@ function MobileHeroPreview() {
               specific tool first and only fall back to searching. */}
           <div className="mt-3 mx-4 flex items-center gap-1.5 rounded-xl bg-white/[0.05] px-2.5 py-2 ring-1 ring-white/10">
             <SearchIcon className="h-3 w-3 flex-shrink-0 text-brand-300" />
-            <span className="text-[9px] text-ink-400">AI-Powered Search</span>
+            {/* Reads "Search tools", not "AI-Powered Search". There is no AI
+                search on this site — the header typeahead is a plain substring
+                match — and a mockup advertising a feature that does not exist
+                is the sort of thing a visitor who is about to hand over a file
+                notices. */}
+            <span className="text-[9px] text-ink-400">Search tools</span>
           </div>
 
           {/* Dropzone last, at the thumb's rest position at the bottom of the

@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { navEvents } from "#/lib/analytics";
 import { EXTENSION_DOWNLOAD_URL, GITHUB_RELEASE_URL, SITE_NAME, SITE_TAGLINE } from "#/lib/site";
 import { AdSlot } from "./AdSlot";
 import { BrandMark } from "./BrandMark";
@@ -104,6 +105,7 @@ export function SiteFooter() {
             <a
               href={EXTENSION_DOWNLOAD_URL}
               download
+              onClick={() => navEvents.outbound("chrome_extension")}
               className="font-semibold hover:text-brand-700 dark:hover:text-brand-300"
             >
               Download Chrome Extension
@@ -112,6 +114,7 @@ export function SiteFooter() {
               href={GITHUB_RELEASE_URL}
               target="_blank"
               rel="noreferrer"
+              onClick={() => navEvents.outbound("github_release")}
               className="font-semibold hover:text-brand-700 dark:hover:text-brand-300"
             >
               GitHub Release
@@ -120,6 +123,7 @@ export function SiteFooter() {
               href="https://aifinancepk.site/"
               target="_blank"
               rel="noreferrer"
+              onClick={() => navEvents.outbound("aifinancepk")}
               className="font-semibold hover:text-brand-700 dark:hover:text-brand-300"
             >
               aifinancepk.site

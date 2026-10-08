@@ -11,7 +11,9 @@ import {
   type AcceptedFile,
   type FileKind,
 } from "#/lib/files";
+import { acceptPending, rejectPending } from "#/lib/pendingFile";
 import { MAX_FILE_LABEL } from "#/lib/site";
+import { toolHrefOf } from "#/lib/tools";
 import { ImageFileIcon, PdfFileIcon, UploadIcon } from "./Icons";
 import { button, cx } from "./ui";
 
@@ -65,6 +67,41 @@ export function FileUploader({
   // the Chrome extension sees anyway.
   const acceptsPrefetch = kind === "pdf" || kind === "document";
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
+
+  // A file handed over by the homepage dropzone.
+  //
+  // This lives here rather than in each tool route so that every tool which
+  // shows a PDF uploader picks the file up without being edited one by one —
+  // which is also the only way the dropzone can route to a tool by file type
+  // without that tool having to know the dropzone exists.
+  //
+  // `onFiles` and `onRejected` are props, and a tool route passes handlers
+  // that are rebuilt on every render, so this effect cannot simply depend on
+  // them without re-firing. The ref is the guard: a file is handed over once
+  // per mount, and the key is the tool, so switching tools on the same page
+  // re-arms it.
+  const handedOver = useRef("");
+  useEffect(() => {
+    if (!acceptedKind) return;
+    if (handedOver.current === toolName) return;
+    const href = toolHrefOf(toolName);
+    const incoming = acceptPending(href, acceptedKind);
+    if (!incoming) {
+      const rejection = rejectPending();
+      if (rejection) onRejected(rejection);
+      return;
+    }
+    handedOver.current = toolName;
+    setDropSuccess(true);
+    window.setTimeout(() => setDropSuccess(false), 900);
+    toolEvents.fileSelected(toolName, 1, incoming.file.size);
+    onFiles([incoming]);
+    // `onFiles` and `onRejected` are deliberately absent: a tool route passes
+    // handlers rebuilt on every render, and depending on them would re-arm the
+    // handoff on every keystroke elsewhere in the page. `handedOver` is what
+    // makes this run once per tool, and a tool page opened directly finds
+    // nothing parked and does nothing at all.
+  }, [toolName, acceptedKind]);
 
   useEffect(() => {
     if (!acceptsPrefetch) {

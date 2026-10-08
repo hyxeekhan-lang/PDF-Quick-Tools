@@ -5,6 +5,7 @@ import { ToolCard } from "#/components/ToolCard";
 import { AdSlot } from "#/components/AdSlot";
 import { EmptyState } from "#/components/ToolFeedback";
 import { button, cx, heading, muted, sectionWrap } from "#/components/ui";
+import { navEvents } from "#/lib/analytics";
 import { pageHead } from "#/lib/seo";
 import { SITE_NAME } from "#/lib/site";
 import { TOOLS, TOOL_CATEGORIES, type ToolCategory } from "#/lib/tools";
@@ -79,7 +80,10 @@ function AllTools() {
             id={searchId}
             type="search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              navEvents.toolsSearch(event.target.value);
+            }}
             placeholder="Search tools, for example: merge, number, image..."
             className="w-full rounded-2xl bg-white py-3.5 pl-12 pr-12 text-base text-ink-900 ring-1 ring-ink-200 outline-none transition focus:ring-2 focus:ring-brand-500 dark:bg-ink-950 dark:text-white dark:ring-ink-700"
           />

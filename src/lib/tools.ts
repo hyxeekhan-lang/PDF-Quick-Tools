@@ -757,6 +757,19 @@ export function toolByHref(href: ToolHref): Tool {
   return tool;
 }
 
+/**
+ * The href of a tool, looked up by its display name.
+ *
+ * `FileUploader` is given a `toolName` and not a `Tool`, so this is how it
+ * recognises the two tools the homepage dropzone routes to. It returns `null`
+ * rather than throwing, because a tool page passing a name that is not in the
+ * catalogue is a bug worth surviving — the uploader simply shows its empty
+ * state instead of taking the whole tool page down with it.
+ */
+export function toolHrefOf(name: string): ToolHref | null {
+  return TOOLS.find((candidate) => candidate.name === name)?.href ?? null;
+}
+
 /** Up to `count` other tools, for the internal links block on a tool page. */
 export function relatedTools(href: ToolHref, count = 4): Tool[] {
   const self = toolByHref(href);
@@ -767,4 +780,57 @@ export function relatedTools(href: ToolHref, count = 4): Tool[] {
     (tool) => tool.href !== href && tool.category !== self.category,
   );
   return [...sameCategory, ...rest].slice(0, count);
+}
+
+/**
+ * Scored match for the header's typeahead.
+ *
+ * Ranking is positional rather than boolean, because the header shows results
+ * while the visitor is still typing and a flat "contains" match puts
+ * "Extract Pages" above "Merge PDF" for the query "pdf" — the word is in both.
+ * An exact name is worth more than a name that starts with the query, which is
+ * worth more than a hit buried in the description, and a hit in the name is
+ * worth more than the same hit in the blurb.
+ *
+ * Every phrase a real visitor types has to reach a tool, so the comparison is
+ * loose: it also tries whitespace-stripped and stemmed forms, because "compress"
+ * should find "Compress PDF" and "merging" should find "Merge PDF".
+ */
+export interface ToolSearchHit {
+  tool: Tool;
+  score: number;
+}
+
+export function searchTools(query: string, limit = 6): ToolSearchHit[] {
+  const q = query.trim().toLocaleLowerCase();
+  if (!q) return [];
+  const squashed = q.replace(/\s+/g, "");
+
+  const hits: ToolSearchHit[] = [];
+  for (const tool of TOOLS) {
+    const name = tool.name.toLocaleLowerCase();
+    const squashedName = name.replace(/\s+/g, "");
+    const blurb = tool.blurb.toLocaleLowerCase();
+    const category = tool.category.toLocaleLowerCase();
+
+    let score = 0;
+    if (name === q) score = 100;
+    else if (squashedName === squashed) score = 95;
+    else if (name.startsWith(q)) score = 80;
+    else if (squashedName.startsWith(squashed)) score = 70;
+    else if (name.includes(q)) score = 55;
+    else if (squashedName.includes(squashed)) score = 45;
+    else if (blurb.includes(q)) score = 25;
+    else if (category.includes(q)) score = 15;
+    else if (blurb.includes(squashed)) score = 10;
+
+    if (score > 0) hits.push({ tool, score });
+  }
+
+  // Ties break toward the tools already marked popular, so the typeahead does
+  // not rank a niche tool above Compress or Merge on a two-word query.
+  hits.sort(
+    (a, b) => b.score - a.score || Number(b.tool.popular) - Number(a.tool.popular),
+  );
+  return hits.slice(0, limit);
 }

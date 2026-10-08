@@ -12,6 +12,7 @@ import {
 } from "./Icons";
 import { BrandMark } from "./BrandMark";
 import { ThemeToggle } from "./ThemeToggle";
+import { ToolSearch } from "./ToolSearch";
 import { button, cx } from "./ui";
 
 const NAV = [
@@ -85,6 +86,12 @@ export function SiteHeader() {
 
         {/* shrink-0 so these four stay rigid while the logo yields the space. */}
         <div className="ml-auto flex shrink-0 items-center justify-end gap-1.5 sm:gap-2">
+          {/* Desktop only. On a phone the bar is already carrying the logo, the
+              install button, the theme toggle and "All Tools" in 390px — there
+              is no room for a field, and the "All Tools" button already reaches
+              every tool, so a cramped field would be worse than none. The
+              mobile nav row below is the phone route in. */}
+          <ToolSearch className="hidden w-52 lg:block xl:w-64" />
           <InstallAppButton />
           <ThemeToggle />
           <Link to="/tools" className={cx(button("primary", "sm"), "max-sm:!hidden")}>
