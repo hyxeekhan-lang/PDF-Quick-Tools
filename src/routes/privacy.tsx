@@ -18,14 +18,20 @@ function Privacy() {
     <ArticlePage
       title="Privacy Policy"
       intro={`How ${SITE_NAME} handles your files, and what we do and do not collect.`}
-      updated="2 October 2026"
+      updated="8 October 2026"
     >
-      <Block title="Your files are not uploaded">
+      <Block title="Your files stay on your device">
         <p>
           Every tool on this site runs inside your own web browser, using your
           device's own processor and memory. When you choose a PDF or an image,
           the browser reads it locally. For non-AI PDF tools, the original file
           is not transmitted to us or stored on our servers.
+        </p>
+        <p className="mt-3 rounded-lg bg-amber-50 p-3 text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+          The AI tools are the exception. Your original file still never leaves
+          your device, but the text extracted from it — and, for scanned pages,
+          an image of each page — is sent to an AI provider when you start an
+          AI action. See the next section for exactly what is sent and to whom.
         </p>
         <p>
           The finished document lives in your browser's memory until you close or
