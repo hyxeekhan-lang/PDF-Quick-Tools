@@ -15,9 +15,9 @@ import { ADSENSE_PUBLISHER_ID } from "#/lib/site";
  *     the user has accepted cookies, which the cookie banner records. Until
  *     then the box stays empty and the page carries no third-party request.
  *
- * Set PUBLISHER_ID in site.ts to a real "ca-pub-..." value to go live. Left
- * empty, nothing is ever injected and the reserved space is the only visible
- * result, so the site renders identically to before in the meantime.
+ * The publisher ID lives in site.ts as ADSENSE_PUBLISHER_ID. If it is ever
+ * cleared, nothing is injected and the reserved space is the only visible
+ * result, so the site still renders.
  */
 
 declare global {

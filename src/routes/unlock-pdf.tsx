@@ -115,7 +115,7 @@ function UnlockPage() {
               onRemove={startOver}
             />
 
-            {busy && <ProgressBar progress={run.progress} />}
+            {busy && <ProgressBar progress={run.progress} onCancel={run.cancel} />}
 
             {!busy && (
               <div className="mt-4 space-y-4">

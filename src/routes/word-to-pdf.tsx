@@ -111,7 +111,7 @@ function WordToPdfPage() {
             <>
               <FileList files={files} kind="document" disabled={busy} onRemove={remove} />
 
-              {busy && <ProgressBar progress={run.progress} />}
+              {busy && <ProgressBar progress={run.progress} onCancel={run.cancel} />}
 
               {run.status === "error" && run.error && (
                 <ErrorMessage

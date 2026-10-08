@@ -91,6 +91,12 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
 
         <HowTo toolName={tool.name} steps={howTo} />
 
+        {/* The second slot sits inside the prose, not at its foot: tool pages
+            now carry enough written content that one ad leaves the page
+            looking thin halfway down, and AdSense wants in-article ads to
+            break up the text rather than only sit at the end of it. */}
+        <AdSlot format="inArticle" className="mt-10" />
+
         {sections.length > 0 && (
           <section aria-labelledby="details-heading" className="mt-12">
             <h2 id="details-heading" className={heading.h2}>

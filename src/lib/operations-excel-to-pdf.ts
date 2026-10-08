@@ -65,7 +65,7 @@ export async function excelToPdf(
     bytes = await file.arrayBuffer();
   } catch {
     return friendly(
-      "That file could not be read. It may have been moved or renamed since you picked it.",
+      `"${file.name}" could not be read. It may have been moved or renamed since you picked it.`,
     );
   }
 

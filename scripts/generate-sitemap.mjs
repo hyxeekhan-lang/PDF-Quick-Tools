@@ -29,26 +29,15 @@ const SITE_URL = "https://pdfpilot.site";
 /** Pages that are not tools, and so should not carry a tool's priority. */
 const STANDALONE = new Set(["/", "/tools", "/about", "/contact"]);
 
-/** Utility and legal pages: indexable, but not what the site is for. */
-const LOW_PRIORITY = new Set([
-  "/privacy",
-  "/terms",
-  "/disclaimer",
-  "/ai-chat",
-  "/ai-ask-pdf",
-  "/ai-document-analyzer",
-  "/ai-flashcard-generator",
-  "/ai-citation-generator",
-  "/ai-grammar-checker",
-  "/ai-notes",
-  "/ai-pdf-question-generator",
-  "/ai-pdf-rewriter",
-  "/ai-pdf-to-presentation",
-  "/ai-pdf-translator",
-  "/ai-quiz",
-  "/ai-resume-analyzer",
-  "/ai-summarizer",
-]);
+/**
+ * Utility and legal pages: indexable, but not what the site is for.
+ *
+ * AI tools used to sit here too, which contradicted `popular: true` for AI
+ * Summarizer, AI Chat and AI Quiz and demoted a whole category below the
+ * single-purpose tools it competes with. They now have their own category hub
+ * (/ai-pdf-tools), so they are ordinary tool pages.
+ */
+const LOW_PRIORITY = new Set(["/privacy", "/terms", "/disclaimer"]);
 
 /**
  * Category hub pages, one per ToolCategory. Each targets a broad head term

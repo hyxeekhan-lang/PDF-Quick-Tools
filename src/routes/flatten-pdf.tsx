@@ -101,7 +101,7 @@ function FlattenPage() {
                 into the pages. This cannot be undone in the downloaded file.
               </p>
 
-              {busy && <ProgressBar progress={run.progress} />}
+              {busy && <ProgressBar progress={run.progress} onCancel={run.cancel} />}
 
               {run.status === "error" && run.error && (
                 <ErrorMessage

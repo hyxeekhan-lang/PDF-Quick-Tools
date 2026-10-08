@@ -5,7 +5,14 @@ import { formatBytes, triggerDownload, type ResultFile } from "#/lib/files";
 import type { Progress } from "#/hooks/useToolRun";
 export type { ResultFile };
 
-export function ProgressBar({ progress }: { progress: Progress }) {
+export function ProgressBar({
+  progress,
+  onCancel,
+}: {
+  progress: Progress;
+  /** Shown as a Cancel button when supplied, so a long job is never a dead end. */
+  onCancel?: () => void;
+}) {
   return (
     <div
       className="rounded-2xl bg-brand-50 px-5 py-5 ring-1 ring-brand-100 dark:bg-brand-600/10 dark:ring-brand-600/25"
@@ -33,9 +40,18 @@ export function ProgressBar({ progress }: { progress: Progress }) {
           style={{ width: `${Math.max(progress.percent, 4)}%` }}
         />
       </div>
-      <div className="mt-4 flex items-center gap-3 text-xs font-medium text-brand-700 dark:text-brand-300">
-        <span className="document-scanner" aria-hidden="true"><PdfFileIcon className="h-7 w-7" /></span>
-        <span>Scanning and preparing your document</span>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3 text-xs font-medium text-brand-700 dark:text-brand-300">
+          <span className="document-scanner" aria-hidden="true"><PdfFileIcon className="h-7 w-7" /></span>
+          <span>Scanning and preparing your document</span>
+        </div>
+        {/* A big file can take a while, and an unresponsive page reads as a
+            broken one. Cancelling stops at the next progress report. */}
+        {onCancel && (
+          <button type="button" onClick={onCancel} className={button("secondary", "sm")}>
+            Cancel
+          </button>
+        )}
       </div>
     </div>
   );

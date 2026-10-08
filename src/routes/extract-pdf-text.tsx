@@ -157,7 +157,7 @@ function ExtractTextPage() {
           />
         )}
 
-        {busy && <ProgressBar progress={run.progress} />}
+        {busy && <ProgressBar progress={run.progress} onCancel={run.cancel} />}
 
         {run.status === "error" && run.error && (
           <ErrorMessage

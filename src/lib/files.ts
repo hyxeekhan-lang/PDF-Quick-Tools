@@ -131,12 +131,12 @@ export async function readPdfBytes(file: File): Promise<Uint8Array> {
     buffer = await file.arrayBuffer();
   } catch {
     return friendly(
-      "That file could not be read. It may have been moved or renamed since you picked it.",
+      `"${file.name}" could not be read. It may have been moved or renamed since you picked it.`,
     );
   }
   const bytes = new Uint8Array(buffer);
   if (bytes.length < 5) {
-    return friendly("That PDF looks empty. Please choose a different file.");
+    return friendly(`"${file.name}" looks empty. Please choose a different file.`);
   }
   const header = bytes.subarray(0, 1024);
   let offset = -1;
@@ -164,7 +164,7 @@ export async function readImageBytes(file: File): Promise<Uint8Array> {
     return new Uint8Array(await file.arrayBuffer());
   } catch {
     return friendly(
-      "That image could not be read. It may have been moved or renamed since you picked it.",
+      `"${file.name}" could not be read. It may have been moved or renamed since you picked it.`,
     );
   }
 }

@@ -359,7 +359,7 @@ export async function repairPdf(
     await PDFDocument.load(bytes, { updateMetadata: false });
   } catch {
     return friendly(
-      "This PDF is damaged beyond what can be rebuilt. It was most likely cut short while downloading. Try downloading it again from the original source.",
+      `"${file.name}" is damaged beyond what can be rebuilt. It was most likely cut short while downloading. Try downloading it again from the original source.`,
     );
   }
 
