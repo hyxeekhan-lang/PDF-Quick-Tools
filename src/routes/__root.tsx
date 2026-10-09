@@ -6,6 +6,7 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { SiteFooter } from "#/components/SiteFooter";
+import { StickyCtaBar } from "#/components/StickyCtaBar";
 import { SiteHeader } from "#/components/SiteHeader";
 import { CookieConsent } from "#/components/CookieConsent";
 import { ScrollToTop } from "#/components/ScrollToTop";
@@ -77,6 +78,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         </div>
         <CookieConsent />
         <ScrollToTop />
+        <StickyCtaBar />
         <Scripts />
       </body>
     </html>

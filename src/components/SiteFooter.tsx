@@ -76,10 +76,14 @@ function Column({
 export function SiteFooter() {
   return (
     <>
-      {/* Above the footer rather than inside it: the footer is already dense
+      {/* The ad sits above the footer rather than inside it: the footer is already dense
           with link columns, and an ad competing with those reads as clutter. */}
       <AdSlot format="fluid" className="mx-auto max-w-6xl" />
-      <footer className="mt-20 border-t border-ink-200 bg-ink-50 dark:border-ink-800 dark:bg-ink-900/40">
+      {/* pb-28 on phones only. The homepage's sticky bar is fixed to the bottom
+          of the viewport on small screens, and without this it sits on top of
+          the last row of footer links — which is exactly the row nobody would
+          otherwise notice had been covered. */}
+      <footer className="mt-20 border-t border-ink-200 bg-ink-50 pb-28 lg:pb-0 dark:border-ink-800 dark:bg-ink-900/40">
       <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
           <div>

@@ -36,6 +36,7 @@ import { MyToolsBar } from "#/components/MyToolsBar";
 import { AiNotice } from "#/components/AiNotice";
 import { button, cx, heading, muted, sectionWrap } from "#/components/ui";
 import { DailyChallengeCard } from "#/components/DailyChallengeCard";
+import { TrustStrip } from "#/components/TrustStrip";
 import { ToolSearch } from "#/components/ToolSearch";
 import {
   callGemini,
@@ -247,6 +248,8 @@ function Home() {
       <Hero />
 
       <StatsBanner />
+
+      <TrustStrip />
 
       <ProblemPicker />
 
@@ -578,21 +581,25 @@ function Hero() {
               </Link>
             </div>
 
-            {/* Trust badges */}
-            <ul className="mt-9 flex flex-wrap gap-x-6 gap-y-3 text-sm text-ink-600 dark:text-ink-400">
-              {[
-                { icon: LockIcon, text: "No account needed" },
-                { icon: CheckIcon, text: "Browser-based tools" },
-                { icon: BoltIcon, text: "Works on mobile" },
-              ].map((item) => (
-                <li key={item.text} className="flex items-center gap-2.5">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
-                    <item.icon className="h-3.5 w-3.5" />
-                  </span>
-                  <span className="font-medium">{item.text}</span>
-                </li>
-              ))}
-            </ul>
+            {/* The trust claims used to be three pills here. They now live in
+                TrustStrip, one section lower, where each one is a link to the
+                page that backs it. Repeating them here in badge form was making
+                the same promise twice in two different voices, and a badge is
+                the weaker of the two forms. */}
+            <p className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-ink-600 dark:text-ink-400">
+              <span className="flex items-center gap-2.5">
+                <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
+                  <LockIcon className="h-3.5 w-3.5" />
+                </span>
+                <span className="font-medium">No account needed</span>
+              </span>
+              <span className="flex items-center gap-2.5">
+                <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
+                  <CheckIcon className="h-3.5 w-3.5" />
+                </span>
+                <span className="font-medium">Works on your phone</span>
+              </span>
+            </p>
           </div>
 
           {/* ── Right — Laptop mockup with floating icons ── */}
