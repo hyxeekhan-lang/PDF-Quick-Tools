@@ -7,7 +7,6 @@ import { isFavourite, toggleFavourite } from "#/lib/storage";
 import { toolSectionsFor } from "#/lib/tool-sections";
 import { relatedTools, type Tool, type ToolHref } from "#/lib/tools";
 import { AdSlot } from "./AdSlot";
-import { Banner160x600Ad } from "./Banner160x600Ad";
 import { Faq } from "./Faq";
 import { HowTo } from "./HowTo";
 import { ArrowRightIcon, LockIcon } from "./Icons";
@@ -52,7 +51,7 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
         className="fixed top-1/2 z-20 hidden -translate-y-1/2 xl:block"
         style={{ right: "max(16px, calc((100vw - 896px) / 2 - 176px))" }}
       >
-        <Banner160x600Ad />
+        <AdSlot format="skyscraper" className="my-0" />
       </aside>
       <div className="min-w-0">
         <nav aria-label="Breadcrumb" className="mb-6">

@@ -31,7 +31,8 @@ export type AdFormat =
   | "leaderboard"
   | "rectangle"
   | "inArticle"
-  | "fluid";
+  | "fluid"
+  | "skyscraper";
 
 const FORMAT: Record<AdFormat, string> = {
   // 728x90 desktop, collapses to a responsive container on narrow screens.
@@ -39,6 +40,10 @@ const FORMAT: Record<AdFormat, string> = {
   rectangle: "min-h-[280px]",
   inArticle: "min-h-[280px]",
   fluid: "min-h-[120px]",
+  // 160x600 wide skyscraper. Desktop-only, and positioned by its caller — the
+  // generic formats are all far shorter, so asking one of them for a 600px
+  // column would either squash it or blow the layout out.
+  skyscraper: "h-[600px] w-[160px]",
 };
 
 export interface AdSlotProps {

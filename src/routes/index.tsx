@@ -24,7 +24,7 @@ import {
   TargetIcon,
   ToPdfIcon,
 } from "#/components/Icons";
-import { Banner160x600Ad } from "#/components/Banner160x600Ad";
+import { AdSlot } from "#/components/AdSlot";
 import { navEvents } from "#/lib/analytics";
 import { ToolCard } from "#/components/ToolCard";
 import { ExtensionBanner } from "#/components/ExtensionBanner";
@@ -235,12 +235,15 @@ function Home() {
         }}
       />
 
+      {/* The 160x600 sidebar unit, desktop only. It sits in the margin beside
+          the container rather than inside it, so it never competes with the
+          tool grid for space or shifts it when a creative loads. */}
       <aside
         aria-label="Advertisement"
         className="fixed top-1/2 z-20 hidden -translate-y-1/2 2xl:block"
         style={{ right: "max(16px, calc((100vw - 1152px) / 2 - 176px))" }}
       >
-        <Banner160x600Ad />
+        <AdSlot format="skyscraper" className="my-0" />
       </aside>
 
       <ExtensionBanner />
