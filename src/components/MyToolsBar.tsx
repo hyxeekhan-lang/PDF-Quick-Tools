@@ -12,6 +12,7 @@ import {
   removeFavourite,
 } from "#/lib/storage";
 import { TOOLS } from "#/lib/tools";
+import { sectionWrap } from "#/components/ui";
 
 /**
  * "Your tools" — the bar that makes a visitor's second visit faster than
@@ -88,7 +89,11 @@ export function MyToolsBar() {
   if (favouriteTools.length === 0 && recentTools.length === 0) return null;
 
   return (
-    <section aria-labelledby="my-tools-heading" className="mt-16">
+    /* sectionWrap, like every other section on the page. Without it this
+       renders full-bleed and its cards run to the screen edges while the rest
+       of the page stays inside the container — the misalignment is the first
+       thing the eye catches. */
+    <section aria-labelledby="my-tools-heading" className={`${sectionWrap} mt-16`}>
       {favouriteTools.length > 0 && (
         <Row
           id="my-tools-heading"
@@ -175,7 +180,11 @@ function Row({
 }) {
   return (
     <div>
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      {/* Centred like every other section on the page, so the eye reads one
+          column of headings rather than a run of differently-anchored ones.
+          This wrapper was a two-child justify-between with one child, which is
+          what left the heading pinned left against a centred grid below it. */}
+      <div className="mx-auto max-w-2xl text-center">
         <div>
           <h2 id={id} className="text-xl font-bold tracking-tight text-ink-900 dark:text-white">
             {title}
