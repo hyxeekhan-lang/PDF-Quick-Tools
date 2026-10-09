@@ -115,58 +115,98 @@ html.dark :focus-visible {
 .brand-mark-compact { width: 2rem; height: 2rem; }
 .brand-mark:hover { transform: translateY(-1px) rotate(-2deg); filter: drop-shadow(0 7px 12px rgba(79, 70, 229, 0.28)); }
 
+/**
+ * The primary call to action on every AI tool.
+ *
+ * This was a white pill with a 2px near-black border, a hard 4px offset shadow
+ * underneath it, and a rainbow conic glow that bloomed on hover. Each piece is
+ * defensible alone; together they read as a consumer-app button dropped into a
+ * page built on restrained cards and 1px rings, and the rainbow was the loudest
+ * thing on a page whose whole premise is that the tool, not the chrome, is what
+ * you look at.
+ *
+ * What replaced it is the site's own language: the same brand-600 fill and soft
+ * shadow as `button("primary")`, a 1px ring instead of a 2px border, and a
+ * gradient sheen that is *already* faintly visible and only warms up on hover.
+ * The lift is 1px rather than 3px — enough to feel responsive, not enough to
+ * look like the button is coming off the page.
+ */
 .generate-button {
   position: relative;
   isolation: isolate;
   display: inline-flex;
-  min-height: 3rem;
+  min-height: 2.875rem;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
-  overflow: visible;
-  border: 2px solid var(--color-ink-900);
+  gap: 0.5rem;
+  overflow: hidden;
+  border: 1px solid transparent;
   border-radius: 999px;
-  padding: 0.7rem 1.35rem;
-  background: white;
-  color: var(--color-ink-900);
-  font-size: 1rem;
-  font-weight: 800;
-  box-shadow: 0 4px 0 var(--color-ink-900);
-  transition: transform 180ms ease, box-shadow 180ms ease, color 180ms ease;
+  padding: 0.65rem 1.4rem;
+  background: var(--color-brand-600);
+  color: white;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(79, 70, 229, 0.16);
+  transition: background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
-.generate-button::before {
-  content: '';
-  position: absolute;
-  z-index: -2;
-  inset: -0.45rem;
-  border-radius: inherit;
-  background: conic-gradient(from 90deg, #3b82f6, #a855f7, #ec4899, #f59e0b, #22c55e, #3b82f6);
-  opacity: 0;
-  filter: blur(12px);
-  transition: opacity 180ms ease, transform 180ms ease;
-}
+
+/* A sheen that sits under the label, so text stays legible on top of it.
+   Fixed rather than conic so it does not shift hue as the button is hovered. */
 .generate-button-glow {
   position: absolute;
   z-index: -1;
-  inset: 0.2rem;
+  inset: 0;
   border-radius: inherit;
-  background: linear-gradient(110deg, #dbeafe, #ede9fe 50%, #fce7f3);
-  opacity: 0;
-  transform: scale(0.86);
-  transition: opacity 180ms ease, transform 180ms ease;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 55%);
+  opacity: 0.75;
+  transition: opacity 160ms ease;
 }
+
 .generate-button:hover {
-  color: #312e81;
-  transform: translateY(-3px);
-  box-shadow: 0 7px 0 var(--color-ink-900);
+  background: var(--color-brand-700);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08), 0 8px 20px rgba(79, 70, 229, 0.22);
 }
-.generate-button:hover::before { opacity: 0.82; transform: scale(1.06); }
-.generate-button:hover .generate-button-glow { opacity: 1; transform: scale(1); }
-.generate-button:active { transform: translateY(1px); box-shadow: 0 2px 0 var(--color-ink-900); }
-.generate-button-spark { transition: transform 220ms ease; }
-.generate-button:hover .generate-button-spark { transform: rotate(12deg) scale(1.16); }
-html.dark .generate-button { border-color: #e2e8f0; background: #f8fafc; box-shadow: 0 4px 0 #020617; }
-html.dark .generate-button:hover { box-shadow: 0 7px 0 #020617; }
+.generate-button:hover .generate-button-glow { opacity: 1; }
+
+/* Down 0 with a tightened shadow. A translateY(1px) on a button this rounded
+   pushes the label visibly out of the optical centre. */
+.generate-button:active {
+  transform: translateY(0);
+  background: var(--color-brand-800);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+}
+
+.generate-button-spark {
+  opacity: 0.85;
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+.generate-button:hover .generate-button-spark { transform: scale(1.1); opacity: 1; }
+
+/* Disabled is set by the callers while a request is in flight. The dimming is
+   carried by the button's own opacity rather than a separate colour, so the
+   brand fill survives and the control still reads as itself. */
+.generate-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+.generate-button:disabled:hover { background: var(--color-brand-600); }
+
+.generate-button:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .generate-button,
+  .generate-button-glow,
+  .generate-button-spark { transition: none; }
+  .generate-button:hover { transform: none; }
+}
 
 .cookie-banner {
   position: fixed;

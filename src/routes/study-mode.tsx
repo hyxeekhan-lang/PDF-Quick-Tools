@@ -264,10 +264,10 @@ function StudyModePage() {
                     aria-selected={active}
                     onClick={() => setTab(id)}
                     className={cx(
-                      "rounded-xl px-3 py-2.5 text-left text-sm font-semibold ring-1 transition",
+                      "group rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition",
                       active
-                        ? "bg-brand-600 text-white ring-brand-600"
-                        : "bg-white text-ink-700 ring-ink-200 hover:bg-ink-50 dark:bg-ink-900 dark:text-ink-200 dark:ring-ink-700 dark:hover:bg-ink-800",
+                        ? "bg-brand-600 text-white shadow-sm shadow-brand-600/25 ring-1 ring-brand-600"
+                        : "bg-white text-ink-700 ring-1 ring-ink-200 hover:bg-ink-50 hover:ring-ink-300 dark:bg-ink-900 dark:text-ink-200 dark:ring-ink-700 dark:hover:bg-ink-800 dark:hover:ring-ink-600",
                     )}
                   >
                     {MATERIAL_LABELS[id]}
