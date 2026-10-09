@@ -135,17 +135,19 @@ html.dark :focus-visible {
   position: relative;
   isolation: isolate;
   display: inline-flex;
-  min-height: 2.875rem;
+  min-height: 3.25rem;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   overflow: hidden;
   border: 1px solid transparent;
-  border-radius: 999px;
-  padding: 0.65rem 1.4rem;
+  /* rounded-xl, matching button("secondary", "lg") which sits beside it.
+     A pill against a rounded rect reads as two unrelated controls. */
+  border-radius: 0.75rem;
+  padding: 0.875rem 1.5rem;
   background: var(--color-brand-600);
   color: white;
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(79, 70, 229, 0.16);
