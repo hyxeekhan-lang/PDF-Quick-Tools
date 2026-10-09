@@ -118,7 +118,7 @@ export function AdSlot({ format = "fluid", label = "Advertisement", className = 
 }
 
 const CONSENT_KEY = "pqt-ad-consent";
-const SCRIPT_SRC = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
+const SCRIPT_SRC = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_PUBLISHER_ID}`;
 
 export function hasAdConsent(): boolean {
   try {
@@ -134,8 +134,6 @@ function loadAdSense(onLoad: () => void) {
   s.async = true;
   s.crossOrigin = "anonymous";
   s.dataset.adSense = "1";
-  // AdSense reads the publisher id off the loader tag itself.
-  s.dataset.adClient = ADSENSE_PUBLISHER_ID;
   s.onload = onLoad;
   document.head.appendChild(s);
 }

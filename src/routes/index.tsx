@@ -24,11 +24,15 @@ import {
   TargetIcon,
   ToPdfIcon,
 } from "#/components/Icons";
-import { AdSlot } from "#/components/AdSlot";
+import { Banner160x600Ad } from "#/components/Banner160x600Ad";
 import { navEvents } from "#/lib/analytics";
 import { ToolCard } from "#/components/ToolCard";
 import { ExtensionBanner } from "#/components/ExtensionBanner";
 import { HeroDropzone } from "#/components/HeroDropzone";
+import { ProblemPicker } from "#/components/ProblemPicker";
+import { StepIllustration, type StepArt } from "#/components/StepIllustration";
+import { PrivacyProof } from "#/components/PrivacyProof";
+import { MyToolsBar } from "#/components/MyToolsBar";
 import { AiNotice } from "#/components/AiNotice";
 import { button, heading, muted, sectionWrap } from "#/components/ui";
 import {
@@ -162,11 +166,23 @@ function Home() {
         }}
       />
 
+      <aside
+        aria-label="Advertisement"
+        className="fixed top-1/2 z-20 hidden -translate-y-1/2 2xl:block"
+        style={{ right: "max(16px, calc((100vw - 1152px) / 2 - 176px))" }}
+      >
+        <Banner160x600Ad />
+      </aside>
+
       <ExtensionBanner />
 
       <Hero />
 
       <StatsBanner />
+
+      <ProblemPicker />
+
+      <MyToolsBar />
 
       <section aria-labelledby="tools-heading" className={`${sectionWrap} mt-12 animate-fade-in-up`}>
         <div className="flex flex-wrap items-end justify-between gap-4">
@@ -209,8 +225,6 @@ function Home() {
           </li>
         </ul>
       </section>
-
-      <AdSlot format="leaderboard" className="mx-auto max-w-6xl" />
 
       <section aria-labelledby="current-tools-heading" className={`${sectionWrap} mt-20 animate-fade-in-up`}>
         <div className="flex flex-wrap items-end justify-between gap-4">
@@ -300,6 +314,8 @@ function Home() {
       <WhyUs />
 
       <Privacy />
+
+      <PrivacyProof />
 
       <section className={`${sectionWrap} mt-20 animate-fade-in-up`}>
         <Faq items={FAQ} title="Frequently asked questions" id="home-faq" />
@@ -943,13 +959,24 @@ function AiDemo() {
   );
 }
 
-const STEPS = [
+// Annotated rather than inferred: without it TypeScript widens `art` to a bare
+// `string`, and a typo like "uplaod" would sail through the typecheck and only
+// fail at runtime as an unstyled card.
+const STEPS: Array<{
+  number: string;
+  title: string;
+  body: string;
+  icon: (props: { className?: string }) => React.ReactElement;
+  badge: string;
+  art: StepArt;
+}> = [
   {
     number: "01",
     title: "Select & Upload",
     body: "Drop a PDF file or choose one from your device. Most regular tools run in the browser.",
     icon: FolderIcon,
     badge: "Browser-based",
+    art: "upload",
   },
   {
     number: "02",
@@ -957,6 +984,7 @@ const STEPS = [
     body: "Choose compress, merge, convert, or use an AI feature. Most tasks run with fast browser-side processing.",
     icon: BoltIcon,
     badge: "Fast processing",
+    art: "edit",
   },
   {
     number: "03",
@@ -964,6 +992,7 @@ const STEPS = [
     body: "Save the finished result directly to your device after processing.",
     icon: DownloadIcon,
     badge: "Download-ready",
+    art: "download",
   },
 ];
 
@@ -988,16 +1017,23 @@ function HowItWorks() {
             key={step.number}
             className="group relative rounded-3xl bg-white p-8 ring-1 ring-ink-200/80 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand-500/10 hover:ring-brand-300 dark:bg-ink-900 dark:ring-ink-800 dark:hover:ring-brand-500/50"
           >
-            <div className="flex items-center justify-between">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 group-hover:scale-110 transition-transform duration-300 dark:bg-brand-900/30 dark:text-brand-300">
-                <step.icon className="h-6 w-6" />
+            {/* The illustration sits above the text so the row reads as three
+                screens of one flow — upload, edit, save — rather than three
+                headings with decorative corners. It is the first thing the eye
+                lands on and the reason the section looks like a demonstration
+                instead of a bullet list. */}
+            <StepIllustration art={step.art} />
+
+            <div className="mt-5 flex items-center justify-between">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 transition-transform duration-300 group-hover:scale-110 dark:bg-brand-900/30 dark:text-brand-300">
+                <step.icon className="h-5 w-5" />
               </span>
               <span className="text-3xl font-black text-ink-500 transition-colors group-hover:text-brand-600 dark:text-ink-400 dark:group-hover:text-brand-300">
                 {step.number}
               </span>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-4">
               <span className="inline-block text-[11px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">
                 {step.badge}
               </span>

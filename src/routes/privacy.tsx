@@ -157,9 +157,8 @@ function Privacy() {
           .
         </p>
         <p>
-          Advertising is served only after you accept cookies. If you decline,
-          no ad script is loaded and you continue to see every tool working
-          normally without them.
+          Google AdSense ads are loaded only after you allow them in the consent
+          notice. If you decline, Google ads and analytics remain off.
         </p>
       </Block>
 
