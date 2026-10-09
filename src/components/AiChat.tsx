@@ -16,6 +16,14 @@ interface AiChatProps {
   suggestedQuestions?: string[];
   error?: string | null;
   onRetry?: () => void;
+  /**
+   * Extra content shown under the message at `index` — used by the multi-PDF
+   * chat to list which documents an answer came from. Omitted by the
+   * single-document chat, which has nothing to add.
+   */
+  renderExtras?: (index: number) => React.ReactNode;
+  /** Overrides the input hint; the multi-PDF chat asks about "these documents". */
+  inputPlaceholder?: string;
 }
 
 export function AiChat({
@@ -25,6 +33,8 @@ export function AiChat({
   suggestedQuestions,
   error,
   onRetry,
+  renderExtras,
+  inputPlaceholder,
 }: AiChatProps) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -95,13 +105,21 @@ export function AiChat({
             )}
             <div
               className={cx(
-                "max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed",
-                msg.role === "user"
-                  ? "bg-brand-600 text-white animate-slide-in-right"
-                  : "bg-white text-ink-700 ring-1 ring-ink-200 dark:bg-ink-800 dark:text-ink-200 dark:ring-ink-700 animate-slide-in-left",
+                "flex max-w-[80%] flex-col",
+                msg.role === "user" ? "items-end" : "items-start",
               )}
             >
-              <p className="whitespace-pre-wrap">{msg.content}</p>
+              <div
+                className={cx(
+                  "rounded-2xl px-4 py-3 text-sm leading-relaxed",
+                  msg.role === "user"
+                    ? "bg-brand-600 text-white animate-slide-in-right"
+                    : "bg-white text-ink-700 ring-1 ring-ink-200 dark:bg-ink-800 dark:text-ink-200 dark:ring-ink-700 animate-slide-in-left",
+                )}
+              >
+                <p className="whitespace-pre-wrap">{msg.content}</p>
+              </div>
+              {msg.role === "assistant" && renderExtras?.(i)}
             </div>
           </div>
         ))}
@@ -154,7 +172,7 @@ export function AiChat({
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask a question about this PDF..."
+          placeholder={inputPlaceholder ?? "Ask a question about this PDF..."}
           disabled={isLoading}
           className="flex-1 rounded-xl border border-ink-200 bg-white px-4 py-3 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/20 disabled:opacity-50 dark:border-ink-700 dark:bg-ink-900 dark:text-white dark:placeholder:text-ink-500 dark:focus:border-brand-500"
         />

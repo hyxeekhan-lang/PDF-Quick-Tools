@@ -35,14 +35,22 @@ export function AiQuizPanel({ questions, onRegenerate }: AiQuizPanelProps) {
     setFlipped({});
   }, []);
 
-  const score = questions.reduce((acc, q, i) => {
-    const userAnswer = answers[i];
+  // A question whose correct answer could not be located is still shown and
+  // still answerable, but it is held out of both sides of the score. Counting
+  // it would mark a student wrong for any answer they gave; ignoring it without
+  // saying so would make the total quietly wrong.
+  const scored = questions.filter((q) => !("unmarkable" in q && q.unmarkable));
+
+  const score = scored.reduce((acc, q) => {
+    const userAnswer = answers[questions.indexOf(q)];
     if (!userAnswer) return acc;
     if (q.type === "mcq" && Number(userAnswer) === q.correct) return acc + 1;
     if (q.type === "true-false" && userAnswer === String(q.correct)) return acc + 1;
     if (q.type === "short-answer" && userAnswer.toLowerCase().trim() === String(q.correct).toLowerCase().trim()) return acc + 1;
     return acc;
   }, 0);
+
+  const skipped = questions.length - scored.length;
 
   return (
     <div className="animate-blur-in space-y-5">
@@ -54,11 +62,19 @@ export function AiQuizPanel({ questions, onRegenerate }: AiQuizPanelProps) {
             </span>
             <div>
               <p className="flex items-center gap-1.5 text-sm font-semibold text-brand-900 dark:text-brand-200">
-                {score === questions.length ? "Perfect Score!" : score >= questions.length * 0.7 ? "Great Job!" : "Keep Practicing!"}
+                {score === scored.length ? "Perfect Score!" : score >= scored.length * 0.7 ? "Great Job!" : "Keep Practicing!"}
               </p>
               <p className="text-xs text-brand-700 dark:text-brand-300">
-                You got {score} out of {questions.length} correct
+                You got {score} out of {scored.length} correct
               </p>
+              {skipped > 0 && (
+                <p className="mt-1.5 text-xs leading-relaxed text-ink-600 dark:text-ink-400">
+                  {skipped} of these {skipped === 1 ? "question is" : "questions are"} not
+                  counted. The generated answer could not be matched to any option, so
+                  marking {skipped === 1 ? "it" : "them"} would mean guessing — read{" "}
+                  {skipped === 1 ? "it" : "them"} against your document instead.
+                </p>
+              )}
             </div>
           </div>
         </div>

@@ -32,9 +32,11 @@ import { Route as AiSummarizerRouteImport } from './routes/ai-summarizer'
 import { Route as ChangePageSizeRouteImport } from './routes/change-page-size'
 import { Route as ComparePdfRouteImport } from './routes/compare-pdf'
 import { Route as CompressPdfRouteImport } from './routes/compress-pdf'
+import { Route as CompressPdfToSpecificSizeRouteImport } from './routes/compress-pdf-to-specific-size'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ConvertPdfRouteImport } from './routes/convert-pdf'
 import { Route as CropPdfRouteImport } from './routes/crop-pdf'
+import { Route as DailyChallengeRouteImport } from './routes/daily-challenge'
 import { Route as DeletePdfPagesRouteImport } from './routes/delete-pdf-pages'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as EditPdfRouteImport } from './routes/edit-pdf'
@@ -50,6 +52,7 @@ import { Route as ImageToTextRouteImport } from './routes/image-to-text'
 import { Route as InsertBlankPageRouteImport } from './routes/insert-blank-page'
 import { Route as JpgToPdfRouteImport } from './routes/jpg-to-pdf'
 import { Route as MergePdfRouteImport } from './routes/merge-pdf'
+import { Route as MultiPdfChatRouteImport } from './routes/multi-pdf-chat'
 import { Route as OcrPdfRouteImport } from './routes/ocr-pdf'
 import { Route as OptimizePdfRouteImport } from './routes/optimize-pdf'
 import { Route as OrganizePdfRouteImport } from './routes/organize-pdf'
@@ -69,6 +72,7 @@ import { Route as RepairPdfRouteImport } from './routes/repair-pdf'
 import { Route as RotatePdfRouteImport } from './routes/rotate-pdf'
 import { Route as SignPdfRouteImport } from './routes/sign-pdf'
 import { Route as SplitPdfRouteImport } from './routes/split-pdf'
+import { Route as StudyModeRouteImport } from './routes/study-mode'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as UnlockPdfRouteImport } from './routes/unlock-pdf'
@@ -190,6 +194,12 @@ const CompressPdfRoute = CompressPdfRouteImport.update({
   path: '/compress-pdf',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CompressPdfToSpecificSizeRoute =
+  CompressPdfToSpecificSizeRouteImport.update({
+    id: '/compress-pdf-to-specific-size',
+    path: '/compress-pdf-to-specific-size',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -203,6 +213,11 @@ const ConvertPdfRoute = ConvertPdfRouteImport.update({
 const CropPdfRoute = CropPdfRouteImport.update({
   id: '/crop-pdf',
   path: '/crop-pdf',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DailyChallengeRoute = DailyChallengeRouteImport.update({
+  id: '/daily-challenge',
+  path: '/daily-challenge',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DeletePdfPagesRoute = DeletePdfPagesRouteImport.update({
@@ -278,6 +293,11 @@ const JpgToPdfRoute = JpgToPdfRouteImport.update({
 const MergePdfRoute = MergePdfRouteImport.update({
   id: '/merge-pdf',
   path: '/merge-pdf',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MultiPdfChatRoute = MultiPdfChatRouteImport.update({
+  id: '/multi-pdf-chat',
+  path: '/multi-pdf-chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OcrPdfRoute = OcrPdfRouteImport.update({
@@ -375,6 +395,11 @@ const SplitPdfRoute = SplitPdfRouteImport.update({
   path: '/split-pdf',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudyModeRoute = StudyModeRouteImport.update({
+  id: '/study-mode',
+  path: '/study-mode',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -425,9 +450,11 @@ export interface FileRoutesByFullPath {
   '/change-page-size': typeof ChangePageSizeRoute
   '/compare-pdf': typeof ComparePdfRoute
   '/compress-pdf': typeof CompressPdfRoute
+  '/compress-pdf-to-specific-size': typeof CompressPdfToSpecificSizeRoute
   '/contact': typeof ContactRoute
   '/convert-pdf': typeof ConvertPdfRoute
   '/crop-pdf': typeof CropPdfRoute
+  '/daily-challenge': typeof DailyChallengeRoute
   '/delete-pdf-pages': typeof DeletePdfPagesRoute
   '/disclaimer': typeof DisclaimerRoute
   '/edit-pdf': typeof EditPdfRoute
@@ -443,6 +470,7 @@ export interface FileRoutesByFullPath {
   '/insert-blank-page': typeof InsertBlankPageRoute
   '/jpg-to-pdf': typeof JpgToPdfRoute
   '/merge-pdf': typeof MergePdfRoute
+  '/multi-pdf-chat': typeof MultiPdfChatRoute
   '/ocr-pdf': typeof OcrPdfRoute
   '/optimize-pdf': typeof OptimizePdfRoute
   '/organize-pdf': typeof OrganizePdfRoute
@@ -462,6 +490,7 @@ export interface FileRoutesByFullPath {
   '/rotate-pdf': typeof RotatePdfRoute
   '/sign-pdf': typeof SignPdfRoute
   '/split-pdf': typeof SplitPdfRoute
+  '/study-mode': typeof StudyModeRoute
   '/terms': typeof TermsRoute
   '/tools': typeof ToolsRoute
   '/unlock-pdf': typeof UnlockPdfRoute
@@ -492,9 +521,11 @@ export interface FileRoutesByTo {
   '/change-page-size': typeof ChangePageSizeRoute
   '/compare-pdf': typeof ComparePdfRoute
   '/compress-pdf': typeof CompressPdfRoute
+  '/compress-pdf-to-specific-size': typeof CompressPdfToSpecificSizeRoute
   '/contact': typeof ContactRoute
   '/convert-pdf': typeof ConvertPdfRoute
   '/crop-pdf': typeof CropPdfRoute
+  '/daily-challenge': typeof DailyChallengeRoute
   '/delete-pdf-pages': typeof DeletePdfPagesRoute
   '/disclaimer': typeof DisclaimerRoute
   '/edit-pdf': typeof EditPdfRoute
@@ -510,6 +541,7 @@ export interface FileRoutesByTo {
   '/insert-blank-page': typeof InsertBlankPageRoute
   '/jpg-to-pdf': typeof JpgToPdfRoute
   '/merge-pdf': typeof MergePdfRoute
+  '/multi-pdf-chat': typeof MultiPdfChatRoute
   '/ocr-pdf': typeof OcrPdfRoute
   '/optimize-pdf': typeof OptimizePdfRoute
   '/organize-pdf': typeof OrganizePdfRoute
@@ -529,6 +561,7 @@ export interface FileRoutesByTo {
   '/rotate-pdf': typeof RotatePdfRoute
   '/sign-pdf': typeof SignPdfRoute
   '/split-pdf': typeof SplitPdfRoute
+  '/study-mode': typeof StudyModeRoute
   '/terms': typeof TermsRoute
   '/tools': typeof ToolsRoute
   '/unlock-pdf': typeof UnlockPdfRoute
@@ -560,9 +593,11 @@ export interface FileRoutesById {
   '/change-page-size': typeof ChangePageSizeRoute
   '/compare-pdf': typeof ComparePdfRoute
   '/compress-pdf': typeof CompressPdfRoute
+  '/compress-pdf-to-specific-size': typeof CompressPdfToSpecificSizeRoute
   '/contact': typeof ContactRoute
   '/convert-pdf': typeof ConvertPdfRoute
   '/crop-pdf': typeof CropPdfRoute
+  '/daily-challenge': typeof DailyChallengeRoute
   '/delete-pdf-pages': typeof DeletePdfPagesRoute
   '/disclaimer': typeof DisclaimerRoute
   '/edit-pdf': typeof EditPdfRoute
@@ -578,6 +613,7 @@ export interface FileRoutesById {
   '/insert-blank-page': typeof InsertBlankPageRoute
   '/jpg-to-pdf': typeof JpgToPdfRoute
   '/merge-pdf': typeof MergePdfRoute
+  '/multi-pdf-chat': typeof MultiPdfChatRoute
   '/ocr-pdf': typeof OcrPdfRoute
   '/optimize-pdf': typeof OptimizePdfRoute
   '/organize-pdf': typeof OrganizePdfRoute
@@ -597,6 +633,7 @@ export interface FileRoutesById {
   '/rotate-pdf': typeof RotatePdfRoute
   '/sign-pdf': typeof SignPdfRoute
   '/split-pdf': typeof SplitPdfRoute
+  '/study-mode': typeof StudyModeRoute
   '/terms': typeof TermsRoute
   '/tools': typeof ToolsRoute
   '/unlock-pdf': typeof UnlockPdfRoute
@@ -629,9 +666,11 @@ export interface FileRouteTypes {
     | '/change-page-size'
     | '/compare-pdf'
     | '/compress-pdf'
+    | '/compress-pdf-to-specific-size'
     | '/contact'
     | '/convert-pdf'
     | '/crop-pdf'
+    | '/daily-challenge'
     | '/delete-pdf-pages'
     | '/disclaimer'
     | '/edit-pdf'
@@ -647,6 +686,7 @@ export interface FileRouteTypes {
     | '/insert-blank-page'
     | '/jpg-to-pdf'
     | '/merge-pdf'
+    | '/multi-pdf-chat'
     | '/ocr-pdf'
     | '/optimize-pdf'
     | '/organize-pdf'
@@ -666,6 +706,7 @@ export interface FileRouteTypes {
     | '/rotate-pdf'
     | '/sign-pdf'
     | '/split-pdf'
+    | '/study-mode'
     | '/terms'
     | '/tools'
     | '/unlock-pdf'
@@ -696,9 +737,11 @@ export interface FileRouteTypes {
     | '/change-page-size'
     | '/compare-pdf'
     | '/compress-pdf'
+    | '/compress-pdf-to-specific-size'
     | '/contact'
     | '/convert-pdf'
     | '/crop-pdf'
+    | '/daily-challenge'
     | '/delete-pdf-pages'
     | '/disclaimer'
     | '/edit-pdf'
@@ -714,6 +757,7 @@ export interface FileRouteTypes {
     | '/insert-blank-page'
     | '/jpg-to-pdf'
     | '/merge-pdf'
+    | '/multi-pdf-chat'
     | '/ocr-pdf'
     | '/optimize-pdf'
     | '/organize-pdf'
@@ -733,6 +777,7 @@ export interface FileRouteTypes {
     | '/rotate-pdf'
     | '/sign-pdf'
     | '/split-pdf'
+    | '/study-mode'
     | '/terms'
     | '/tools'
     | '/unlock-pdf'
@@ -763,9 +808,11 @@ export interface FileRouteTypes {
     | '/change-page-size'
     | '/compare-pdf'
     | '/compress-pdf'
+    | '/compress-pdf-to-specific-size'
     | '/contact'
     | '/convert-pdf'
     | '/crop-pdf'
+    | '/daily-challenge'
     | '/delete-pdf-pages'
     | '/disclaimer'
     | '/edit-pdf'
@@ -781,6 +828,7 @@ export interface FileRouteTypes {
     | '/insert-blank-page'
     | '/jpg-to-pdf'
     | '/merge-pdf'
+    | '/multi-pdf-chat'
     | '/ocr-pdf'
     | '/optimize-pdf'
     | '/organize-pdf'
@@ -800,6 +848,7 @@ export interface FileRouteTypes {
     | '/rotate-pdf'
     | '/sign-pdf'
     | '/split-pdf'
+    | '/study-mode'
     | '/terms'
     | '/tools'
     | '/unlock-pdf'
@@ -831,9 +880,11 @@ export interface RootRouteChildren {
   ChangePageSizeRoute: typeof ChangePageSizeRoute
   ComparePdfRoute: typeof ComparePdfRoute
   CompressPdfRoute: typeof CompressPdfRoute
+  CompressPdfToSpecificSizeRoute: typeof CompressPdfToSpecificSizeRoute
   ContactRoute: typeof ContactRoute
   ConvertPdfRoute: typeof ConvertPdfRoute
   CropPdfRoute: typeof CropPdfRoute
+  DailyChallengeRoute: typeof DailyChallengeRoute
   DeletePdfPagesRoute: typeof DeletePdfPagesRoute
   DisclaimerRoute: typeof DisclaimerRoute
   EditPdfRoute: typeof EditPdfRoute
@@ -849,6 +900,7 @@ export interface RootRouteChildren {
   InsertBlankPageRoute: typeof InsertBlankPageRoute
   JpgToPdfRoute: typeof JpgToPdfRoute
   MergePdfRoute: typeof MergePdfRoute
+  MultiPdfChatRoute: typeof MultiPdfChatRoute
   OcrPdfRoute: typeof OcrPdfRoute
   OptimizePdfRoute: typeof OptimizePdfRoute
   OrganizePdfRoute: typeof OrganizePdfRoute
@@ -868,6 +920,7 @@ export interface RootRouteChildren {
   RotatePdfRoute: typeof RotatePdfRoute
   SignPdfRoute: typeof SignPdfRoute
   SplitPdfRoute: typeof SplitPdfRoute
+  StudyModeRoute: typeof StudyModeRoute
   TermsRoute: typeof TermsRoute
   ToolsRoute: typeof ToolsRoute
   UnlockPdfRoute: typeof UnlockPdfRoute
@@ -1038,6 +1091,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompressPdfRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/compress-pdf-to-specific-size': {
+      id: '/compress-pdf-to-specific-size'
+      path: '/compress-pdf-to-specific-size'
+      fullPath: '/compress-pdf-to-specific-size'
+      preLoaderRoute: typeof CompressPdfToSpecificSizeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -1057,6 +1117,13 @@ declare module '@tanstack/react-router' {
       path: '/crop-pdf'
       fullPath: '/crop-pdf'
       preLoaderRoute: typeof CropPdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/daily-challenge': {
+      id: '/daily-challenge'
+      path: '/daily-challenge'
+      fullPath: '/daily-challenge'
+      preLoaderRoute: typeof DailyChallengeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/delete-pdf-pages': {
@@ -1162,6 +1229,13 @@ declare module '@tanstack/react-router' {
       path: '/merge-pdf'
       fullPath: '/merge-pdf'
       preLoaderRoute: typeof MergePdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/multi-pdf-chat': {
+      id: '/multi-pdf-chat'
+      path: '/multi-pdf-chat'
+      fullPath: '/multi-pdf-chat'
+      preLoaderRoute: typeof MultiPdfChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ocr-pdf': {
@@ -1297,6 +1371,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SplitPdfRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/study-mode': {
+      id: '/study-mode'
+      path: '/study-mode'
+      fullPath: '/study-mode'
+      preLoaderRoute: typeof StudyModeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -1359,9 +1440,11 @@ const rootRouteChildren: RootRouteChildren = {
   ChangePageSizeRoute: ChangePageSizeRoute,
   ComparePdfRoute: ComparePdfRoute,
   CompressPdfRoute: CompressPdfRoute,
+  CompressPdfToSpecificSizeRoute: CompressPdfToSpecificSizeRoute,
   ContactRoute: ContactRoute,
   ConvertPdfRoute: ConvertPdfRoute,
   CropPdfRoute: CropPdfRoute,
+  DailyChallengeRoute: DailyChallengeRoute,
   DeletePdfPagesRoute: DeletePdfPagesRoute,
   DisclaimerRoute: DisclaimerRoute,
   EditPdfRoute: EditPdfRoute,
@@ -1377,6 +1460,7 @@ const rootRouteChildren: RootRouteChildren = {
   InsertBlankPageRoute: InsertBlankPageRoute,
   JpgToPdfRoute: JpgToPdfRoute,
   MergePdfRoute: MergePdfRoute,
+  MultiPdfChatRoute: MultiPdfChatRoute,
   OcrPdfRoute: OcrPdfRoute,
   OptimizePdfRoute: OptimizePdfRoute,
   OrganizePdfRoute: OrganizePdfRoute,
@@ -1396,6 +1480,7 @@ const rootRouteChildren: RootRouteChildren = {
   RotatePdfRoute: RotatePdfRoute,
   SignPdfRoute: SignPdfRoute,
   SplitPdfRoute: SplitPdfRoute,
+  StudyModeRoute: StudyModeRoute,
   TermsRoute: TermsRoute,
   ToolsRoute: ToolsRoute,
   UnlockPdfRoute: UnlockPdfRoute,

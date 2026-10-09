@@ -230,6 +230,36 @@ export function AlertIcon(props: IconProps) {
   );
 }
 
+/**
+ * The favourite star.
+ *
+ * Takes `filled` because the outline/filled pair carries the whole state, and a
+ * component that hardcoded one of them would mean two icons for one meaning.
+ */
+export function StarIcon({ filled = false, className }: IconProps & { filled?: boolean }) {
+  return (
+    <Svg className={className}>
+      <path
+        fill={filled ? "currentColor" : "none"}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.5 3.5a1 1 0 0 1 1.9 0l2.3 5.2 5.6.6a1 1 0 0 1 .6 1.8l-4.2 3.7 1.2 5.5a1 1 0 0 1-1.5 1.1L12 18.6l-4.9 2.8a1 1 0 0 1-1.5-1.1l1.2-5.5L2.6 11a1 1 0 0 1 .6-1.8l5.6-.6 2.3-5.2z"
+      />
+    </Svg>
+  );
+}
+
+/** Used only for the "clear this list" controls. */
+export function TrashIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 7h16" />
+      <path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7" />
+      <path d="M6.5 7l.8 12a2 2 0 0 0 2 1.9h5.4a2 2 0 0 0 2-1.9l.8-12" />
+    </Svg>
+  );
+}
+
 export function LockIcon(props: IconProps) {
   return (
     <Svg {...props}>

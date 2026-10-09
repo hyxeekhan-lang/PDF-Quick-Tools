@@ -34,7 +34,9 @@ import { StepIllustration, type StepArt } from "#/components/StepIllustration";
 import { PrivacyProof } from "#/components/PrivacyProof";
 import { MyToolsBar } from "#/components/MyToolsBar";
 import { AiNotice } from "#/components/AiNotice";
-import { button, heading, muted, sectionWrap } from "#/components/ui";
+import { button, cx, heading, muted, sectionWrap } from "#/components/ui";
+import { DailyChallengeCard } from "#/components/DailyChallengeCard";
+import { ToolSearch } from "#/components/ToolSearch";
 import {
   callGemini,
   extractPdfText,
@@ -94,6 +96,72 @@ const FAQ: FaqItem[] = [
 const popular = TOOLS.filter((tool) => tool.popular);
 
 const aiTools = TOOLS.filter((tool) => tool.category === "AI Tools");
+
+/**
+ * The two AI tools promoted above the grid.
+ *
+ * Chosen for capability rather than recency: one spans several documents, the
+ * other produces four kinds of study material from one. Everything else in the
+ * AI category does what a single-purpose page does well, and a grid of eight
+ * equal cards is the honest way to present those.
+ */
+const FEATURED_AI = [
+  {
+    href: "/multi-pdf-chat" as const,
+    Icon: SparkIcon,
+    title: "Chat with several PDFs at once",
+    body: "Upload up to five documents and ask one question across all of them. Answers name the document and page they came from, so you can open that page rather than take the answer on trust.",
+    points: [
+      "Up to 5 documents in one conversation",
+      "Every answer cites its source document and page",
+      "Compare documents, extract dates, find key facts",
+    ],
+    cta: "Open Multi-PDF Chat",
+  },
+  {
+    href: "/study-mode" as const,
+    Icon: BrainIcon,
+    title: "Turn one PDF into a full revision set",
+    body: "Upload a lecture once and get a summary, revision notes, practice questions and flashcards. Every question carries an explanation naming the part of the document it came from.",
+    points: [
+      "4 study materials from a single upload",
+      "5, 10 or 20 questions at three difficulty levels",
+      "Quiz with scoring, retry, and answers you can check",
+    ],
+    cta: "Open Study Mode",
+  },
+];
+
+/**
+ * The tools defined by a constraint rather than a task.
+ *
+ * `honesty` is not decoration. Both of these can fail in a way that is only
+ * visible after the visitor has already spent the time — a compression that
+ * missed its target, a translation in a script a PDF font cannot shape — and
+ * the person who needs to know that is the same person deciding whether to
+ * click. Putting the caveat on the card is the difference between a limit and
+ * a bug discovered at the wrong moment.
+ */
+const PRECISION_TOOLS = [
+  {
+    href: "/compress-pdf-to-specific-size" as const,
+    Icon: TargetIcon,
+    title: "Compress a PDF to an exact size",
+    body: "Pick 100 KB, 200 KB, 500 KB, 1 MB, or set your own target. The tool searches over image quality and render scale until the file is under it, then reports the original size, the result, and how much was saved.",
+    honesty:
+      "An exact size is not always reachable. If a page cannot be reduced further without becoming unreadable, the tool says so and gives you the smallest file it could actually make, rather than reporting a target it did not hit.",
+    cta: "Open Exact-Size Compressor",
+  },
+  {
+    href: "/ai-pdf-translator" as const,
+    Icon: ToPdfIcon,
+    title: "Translate a PDF into 17 languages",
+    body: "Translate into Urdu, Arabic, Persian, Hebrew, Hindi, Chinese, Japanese, Korean and more, with the text laid out right-to-left where the language needs it. Copy the result, or download it as a PDF where the script allows it.",
+    honesty:
+      "Urdu, Arabic, Persian and Hebrew cannot be exported as PDF here — a PDF font stores individual glyphs without joining them, so the output would be correctly shaped words in the wrong order. The tool offers Copy instead and says why, rather than handing you a broken download.",
+    cta: "Open PDF Translator",
+  },
+];
 
 /**
  * The numbers under the hero.
@@ -306,6 +374,102 @@ function Home() {
         </ul>
       </section>
 
+      {/* ── Two files jobs that a generic tool cannot do ──
+
+          Same reason as the AI section above: these are the tools where the
+          visitor's requirement is a number or a language, not a verb. Both
+          carry the honesty note in the card itself rather than in the FAQ,
+          because the person who needs to know the PDF may not be exact cannot
+          be guaranteed is the same person who is about to click the button. */}
+      <section aria-labelledby="precision-heading" className={`${sectionWrap} mt-20 animate-fade-in-up`}>
+        <h2 id="precision-heading" className={heading.h2}>
+          When a PDF has to be a specific thing
+        </h2>
+        <p className={`mt-2 max-w-2xl ${muted}`}>
+          Most tools do a job to a file. These two do a job to a limit.
+        </p>
+
+        <ul className="mt-8 grid gap-6 lg:grid-cols-2">
+          {PRECISION_TOOLS.map((item) => (
+            <li key={item.href}>
+              <Link
+                to={item.href}
+                className="group flex h-full flex-col rounded-2xl bg-white p-7 ring-1 ring-ink-200/80 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-600/10 hover:ring-brand-300 dark:bg-ink-900 dark:ring-ink-800 dark:hover:shadow-black/30 dark:hover:ring-brand-600/60"
+              >
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-600/15 dark:text-brand-300">
+                  <item.Icon className="h-6 w-6" />
+                </span>
+                <h3 className="mt-5 text-xl font-bold tracking-tight text-ink-900 dark:text-white">
+                  {item.title}
+                </h3>
+                <p className={`mt-2.5 text-sm leading-relaxed ${muted}`}>{item.body}</p>
+                <p className="mt-5 rounded-xl bg-ink-50 px-4 py-3 text-xs leading-relaxed text-ink-600 dark:bg-ink-950/60 dark:text-ink-400">
+                  {item.honesty}
+                </p>
+                <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 dark:text-brand-300">
+                  {item.cta}
+                  <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* ── The two things worth arriving for ──
+
+          The AI grid above is a catalogue: eight equal cards. This is not a
+          catalogue. These two are the tools that do something no single-purpose
+          page could — one works across several documents at once, the other
+          turns a single document into four kinds of study material. They get
+          space and a sentence each because "here are eight AI links" does not
+          tell a visitor which one solves their problem. */}
+      <section aria-labelledby="featured-ai-heading" className={`${sectionWrap} mt-20 animate-fade-in-up`}>
+        <h2 id="featured-ai-heading" className={heading.h2}>
+          Two things you can only do here
+        </h2>
+        <p className={`mt-2 max-w-2xl ${muted}`}>
+          Every other AI tool here works on one file at a time. These two go
+          further, in opposite directions.
+        </p>
+
+        <ul className="mt-8 grid gap-6 lg:grid-cols-2">
+          {FEATURED_AI.map((item) => (
+            <li key={item.href}>
+              <Link
+                to={item.href}
+                className="group flex h-full flex-col rounded-2xl bg-white p-7 ring-1 ring-ink-200/80 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-600/10 hover:ring-brand-300 dark:bg-ink-900 dark:ring-ink-800 dark:hover:shadow-black/30 dark:hover:ring-brand-600/60"
+              >
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-600/15 dark:text-brand-300">
+                  <item.Icon className="h-6 w-6" />
+                </span>
+                <h3 className="mt-5 text-xl font-bold tracking-tight text-ink-900 dark:text-white">
+                  {item.title}
+                </h3>
+                <p className={`mt-2.5 text-sm leading-relaxed ${muted}`}>
+                  {item.body}
+                </p>
+                <ul className="mt-5 space-y-2">
+                  {item.points.map((point) => (
+                    <li
+                      key={point}
+                      className="flex gap-2.5 text-sm text-ink-700 dark:text-ink-300"
+                    >
+                      <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-brand-600 dark:text-brand-400" />
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+                <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 dark:text-brand-300">
+                  {item.cta}
+                  <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       {/* ── Live AI Demo ── */}
       <AiDemo />
 
@@ -316,6 +480,30 @@ function Home() {
       <Privacy />
 
       <PrivacyProof />
+
+      <section className={`${sectionWrap} mt-20 animate-fade-in-up`}>
+        <div className="grid gap-6 lg:grid-cols-[1fr_1.15fr] lg:gap-10">
+          <div className="max-w-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">
+              Every day
+            </p>
+            <h2 className={cx(heading.h2, "mt-2")}>One useful thing, once a day</h2>
+            <p className={cx(muted, "mt-3")}>
+              A tip worth knowing, a task you can finish in a minute, or a single
+              question worth thinking about. No account, and nothing to lose if you
+              skip a day.
+            </p>
+            <a
+              href="/daily-challenge"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 dark:text-brand-300"
+            >
+              See all of them
+              <ArrowRightIcon className="h-4 w-4" />
+            </a>
+          </div>
+          <DailyChallengeCard compact />
+        </div>
+      </section>
 
       <section className={`${sectionWrap} mt-20 animate-fade-in-up`}>
         <Faq items={FAQ} title="Frequently asked questions" id="home-faq" />
@@ -343,18 +531,29 @@ function Hero() {
             </div>
 
             <h1 className="mt-8 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl xl:text-[4rem]">
+              <span className="text-ink-900 dark:text-white">Your PDFs. </span>
               <span className="bg-gradient-to-r from-brand-600 via-brand-500 to-purple-600 bg-clip-text text-transparent dark:from-brand-400 dark:via-brand-300 dark:to-purple-400">
-                PDF Tools.
+                Smarter, Faster, Easier.
               </span>
-              <br />
-              <span className="text-ink-900 dark:text-white">Simple. Fast. Free.</span>
             </h1>
 
             <p className="mt-6 max-w-xl text-lg/relaxed text-ink-600 sm:text-xl/relaxed dark:text-ink-400">
-              Compress, merge, split, convert and manage PDFs in seconds. Most
-              regular tools run in your browser on your device, while AI features
-              may send extracted text to an AI provider when you use them.
+              Free PDF tools and AI-powered document productivity in one place.
+              Most tools run in your browser on your device; AI features send
+              extracted text to an AI provider when you use them.
             </p>
+
+            {/* The search sits above the dropzone, not inside it. Someone who
+                arrives knowing the name of the job they want done ("merge two
+                files") never intended to drop anything, and a dropzone alone
+                asks them to do the one thing they came here to avoid. */}
+            <div className="mt-8 max-w-xl">
+              <ToolSearch
+                placeholder="What do you want to do with your PDF?"
+                label="Search PDF tools"
+                className="w-full"
+              />
+            </div>
 
             <HeroDropzone />
 

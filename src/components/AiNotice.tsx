@@ -8,9 +8,16 @@ import { AlertIcon } from "./Icons";
 export function AiNotice({
   className = "",
   tone = "panel",
+  children,
 }: {
   className?: string;
   tone?: "panel" | "inline";
+  /**
+   * Replaces the default wording. Study Mode uses this to name the document the
+   * material came from — a generated page with four tabs of text and no origin
+   * attached is four sets of claims with nothing to check them against.
+   */
+  children?: React.ReactNode;
 }) {
   if (tone === "inline") {
     return (
@@ -34,9 +41,13 @@ export function AiNotice({
           <AlertIcon className="h-4 w-4" />
         </span>
         <p className="text-sm text-amber-900 dark:text-amber-200">
-          AI-generated results can contain mistakes and may miss details in your
-          document. Check anything important — names, dates, figures and citations —
-          against the original before relying on it.
+          {children ?? (
+            <>
+              AI-generated results can contain mistakes and may miss details in your
+              document. Check anything important — names, dates, figures and
+              citations — against the original before relying on it.
+            </>
+          )}
         </p>
       </div>
     </div>

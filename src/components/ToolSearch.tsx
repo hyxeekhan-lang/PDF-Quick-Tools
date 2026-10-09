@@ -19,7 +19,19 @@ import { cx } from "./ui";
  * leaves for the next control instead of being consumed. That last part is
  * what keeps the header from trapping a keyboard user in the search field.
  */
-export function ToolSearch({ className }: { className?: string }) {
+export function ToolSearch({
+  className,
+  placeholder = "Search tools",
+  label = "Search PDF tools",
+}: {
+  className?: string;
+  /** The hero states the question a visitor actually arrives with; the header
+   * is a shortcut and stays terse. Same field, different job. */
+  placeholder?: string;
+  /** The accessible name. Left as the short form in the header, where the
+   * label would be redundant with the placeholder beside it. */
+  label?: string;
+}) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -116,8 +128,8 @@ export function ToolSearch({ className }: { className?: string }) {
         aria-activedescendant={
           open && hasQuery && hits[active] ? `${listId}-${active}` : undefined
         }
-        aria-label="Search PDF tools"
-        placeholder="Search tools"
+        aria-label={label}
+        placeholder={placeholder}
         value={query}
         onChange={(event) => {
           setQuery(event.target.value);

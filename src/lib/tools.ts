@@ -59,6 +59,7 @@ export type ToolCategory =
 
 export type ToolHref =
   | "/compress-pdf"
+  | "/compress-pdf-to-specific-size"
   | "/merge-pdf"
   | "/split-pdf"
   | "/pdf-to-jpg"
@@ -72,8 +73,10 @@ export type ToolHref =
   | "/sign-pdf"
   | "/ai-summarizer"
   | "/ai-chat"
+  | "/multi-pdf-chat"
   | "/ai-quiz"
   | "/ai-notes"
+  | "/study-mode"
   | "/ai-pdf-translator"
   | "/ai-pdf-rewriter"
   | "/ai-ask-pdf"
@@ -137,6 +140,18 @@ export const TOOLS: Tool[] = [
     description:
       "Compress a PDF online to make it smaller and easier to email or upload. Choose strong, recommended or basic compression. Free and no account needed.",
     popular: true,
+  },
+  {
+    href: "/compress-pdf-to-specific-size",
+    name: "Compress PDF to Exact Size",
+    blurb: "Shrink a PDF to fit a specific KB or MB limit.",
+    subtitle: "Fit a PDF under an exact file-size limit.",
+    icon: "compress",
+    category: "Optimize",
+    title: "Compress PDF to Exact Size — Hit Any KB or MB Target",
+    description:
+      "Shrink a PDF to a specific file size such as 100 KB, 200 KB, 500 KB or 1 MB. Compress in your browser to meet an email or upload limit. Free, no account needed.",
+    popular: false,
   },
   {
     href: "/merge-pdf",
@@ -295,6 +310,18 @@ export const TOOLS: Tool[] = [
     popular: true,
   },
   {
+    href: "/multi-pdf-chat",
+    name: "Multi-PDF AI Chat",
+    blurb: "Ask questions across several PDFs at once, with sources.",
+    subtitle: "Chat with several PDFs together.",
+    icon: "chat",
+    category: "AI Tools",
+    title: "Chat With Multiple PDFs at Once — Multi-Document AI",
+    description:
+      "Upload up to 5 PDFs and ask one question across all of them. Answers cite the document and page they came from. Free, no account needed.",
+    popular: true,
+  },
+  {
     href: "/ai-quiz",
     name: "AI Quiz Generator",
     blurb: "Generate quizzes from your PDF content.",
@@ -305,6 +332,18 @@ export const TOOLS: Tool[] = [
     description:
       "Upload a PDF and automatically generate multiple choice, true/false, and short answer questions. Perfect for studying. Free and no account needed.",
     popular: false,
+  },
+  {
+    href: "/study-mode",
+    name: "AI Study Mode",
+    blurb: "One upload, four ways to revise it.",
+    subtitle: "Summary, notes, questions and flashcards from one PDF.",
+    icon: "notes",
+    category: "AI Tools",
+    title: "AI Study Mode — Summary, Notes, Questions and Flashcards From One PDF",
+    description:
+      "Upload a PDF once and get a summary, revision notes, practice questions and flashcards. Every answer comes with the part of the document it came from. Free, no account needed.",
+    popular: true,
   },
   {
     href: "/ai-notes",

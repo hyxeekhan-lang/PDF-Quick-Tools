@@ -1,9 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  clearAllTools,
+  clearRecent,
   isFavourite,
   noteToolVisit,
   readFavourites,
   readRecent,
+  removeFavourite,
   toggleFavourite,
   KEYS,
 } from "./storage";
@@ -81,6 +84,80 @@ describe("recent tools", () => {
       expect(recent).toHaveLength(6);
       expect(recent[0]).toBe("/tool-8");
     });
+  });
+});
+
+describe("removing and clearing", () => {
+  it("removes one favourite and leaves the rest in order", () => {
+    withStore(() => {
+      toggleFavourite("/merge-pdf");
+      toggleFavourite("/split-pdf");
+      toggleFavourite("/rotate-pdf");
+      expect(removeFavourite("/split-pdf")).toEqual(["/rotate-pdf", "/merge-pdf"]);
+      expect(readFavourites()).toEqual(["/rotate-pdf", "/merge-pdf"]);
+    });
+  });
+
+  it("removing a tool that is not starred changes nothing", () => {
+    withStore(() => {
+      toggleFavourite("/merge-pdf");
+      expect(removeFavourite("/watermark-pdf")).toEqual(["/merge-pdf"]);
+    });
+  });
+
+  it("clears recents without touching favourites", () => {
+    // The whole reason these are two functions: someone clearing where they
+    // have been does not usually want to lose the tools they deliberately kept.
+    withStore(() => {
+      toggleFavourite("/merge-pdf");
+      noteToolVisit("/split-pdf");
+      noteToolVisit("/rotate-pdf");
+      clearRecent();
+      expect(readRecent()).toEqual([]);
+      expect(readFavourites()).toEqual(["/merge-pdf"]);
+    });
+  });
+
+  it("clears both lists together", () => {
+    withStore(() => {
+      toggleFavourite("/merge-pdf");
+      noteToolVisit("/split-pdf");
+      clearAllTools();
+      expect(readRecent()).toEqual([]);
+      expect(readFavourites()).toEqual([]);
+    });
+  });
+
+  it("clearing an already-empty list is not an error", () => {
+    withStore(() => {
+      expect(() => clearRecent()).not.toThrow();
+      expect(() => clearAllTools()).not.toThrow();
+    });
+  });
+
+  it("clearing survives storage being blocked", () => {
+    vi.stubGlobal("window", {
+      localStorage: {
+        getItem: () => {
+          throw new Error("blocked");
+        },
+        setItem: () => {
+          throw new Error("quota");
+        },
+        removeItem: () => {
+          throw new Error("blocked");
+        },
+      },
+    });
+    try {
+      // A visitor in a locked-down browser clicking "clear both lists" should
+      // not be met with an error — the data was never there to begin with.
+      expect(() => removeFavourite("/merge-pdf")).not.toThrow();
+      expect(() => clearRecent()).not.toThrow();
+      expect(() => clearAllTools()).not.toThrow();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });
 

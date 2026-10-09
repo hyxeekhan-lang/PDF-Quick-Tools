@@ -76,11 +76,19 @@ export function ErrorMessage({
   onStartOver,
   retryLabel = "Try Again",
 }: {
-  message: string;
+  /**
+   * Optional so a caller can pass a conditional — `run.error ?? validationError`
+   * is undefined most of the time — without every tool page having to write
+   * `{error ? <ErrorMessage message={error} /> : null}` and risk rendering an
+   * empty red box.
+   */
+  message?: string;
   onRetry?: () => void;
   onStartOver?: () => void;
   retryLabel?: string;
 }) {
+  if (!message) return null;
+
   return (
     <PanelFocus>
       <div

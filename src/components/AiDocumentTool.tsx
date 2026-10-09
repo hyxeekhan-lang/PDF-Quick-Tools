@@ -3,6 +3,7 @@ import { AiChat, type ChatMessage } from "./AiChat";
 import { SparkIcon } from "./Icons";
 import { ErrorMessage, ProgressBar } from "./ToolFeedback";
 import { AiNotice } from "./AiNotice";
+import { AiFlashcardPanel, type Flashcard } from "./AiFlashcardPanel";
 import { FileUploader } from "./FileUploader";
 import { ToolPanel, ToolShell } from "./ToolShell";
 import { button } from "./ui";
@@ -18,10 +19,21 @@ import {
   type AiDocumentOptions,
   type AiDocumentTask,
 } from "#/lib/ai";
+import {
+  buildTranslatedPdf,
+  directionFor,
+  isRtl,
+  supportsPdfExport,
+  TRANSLATION_LANGUAGES,
+} from "#/lib/translate";
 import { pageHead } from "#/lib/seo";
 import { toolByHref, type ToolHref } from "#/lib/tools";
 
-const LANGUAGES = ["English", "Urdu", "Arabic", "Spanish", "French", "German", "Hindi", "Chinese", "Portuguese", "Turkish"];
+/**
+ * Shared with the translation lib so the list offered, the direction applied
+ * and the PDF export decision can never disagree about what a language is.
+ */
+const LANGUAGES: readonly string[] = TRANSLATION_LANGUAGES;
 const taskByHref: Record<string, AiDocumentTask | "ask"> = {
   "/ai-pdf-translator": "translator",
   "/ai-pdf-rewriter": "rewriter",
@@ -37,9 +49,12 @@ const taskByHref: Record<string, AiDocumentTask | "ask"> = {
 
 const faqByTask: Record<AiDocumentTask | "ask", { question: string; answer: string }[]> = {
   translator: [
-    { question: "Will the translation keep my formatting?", answer: "Text is extracted from your PDF and translated as plain text, so page layout, columns, and images from the original are not carried over. Copy or download the result and re-apply your layout if you need it." },
+    { question: "Will the translation keep my formatting?", answer: "The original layout is not carried over. What comes back is the translated text with its own paragraphs, laid out right-to-left when the target language needs it. You can copy it, and for languages whose script the embedded fonts can render you can also download it as a PDF." },
     { question: "How accurate is machine translation here?", answer: "Quality depends on how clear the source text is and on the AI provider handling the request. Technical terms, idioms, and long sentences are the most likely to come out wrong, so review the output before using it." },
-    { question: "Which languages are supported?", answer: "The language list includes English, Urdu, Arabic, Spanish, French, German, Hindi, Chinese, Portuguese, and Turkish. You can also leave the source set to auto-detect." },
+    { question: "Which languages are supported?", answer: "Seventeen: English, Urdu, Arabic, Persian, Hebrew, Hindi, Spanish, French, German, Italian, Portuguese, Turkish, Chinese, Japanese, Korean, Russian, and Indonesian. You can also leave the source set to auto-detect." },
+    { question: "Why is there no PDF download when I translate to Urdu or Arabic?", answer: "Because a PDF file stores individual glyphs but does not contain the engine that joins and reorders them. Writing Urdu this way gives you correctly spelled letters in the wrong order — a file that opens fine and reads as nonsense. So there is no PDF button for right-to-left languages, and the text is laid out right-to-left on screen so you can read and copy it correctly. For Chinese, Japanese, Korean, Russian and Hindi the reason is different but the outcome is the same: the fonts available here do not carry those glyphs. Both cases offer Copy instead, and pasting into Word or Google Docs gives you a properly typeset result." },
+    { question: "Will it translate a scanned document?", answer: "No. Translation reads the text layer of your PDF, and a scan has none. Run it through OCR PDF first and translate the result — that step is what makes the difference between a real translation and a confident guess. The tool says this on the upload screen rather than letting you spend a translation on an empty document." },
+    { question: "Is the translation any good?", answer: "It is a machine translation from a language model, and it is wrong sometimes in ways that matter — technical terms, idioms, names, and numbers are where it fails most often. Read it before you rely on it, and never paste it into anything legal, medical, or official without a second pair of eyes on the terms that matter." },
   ],
   rewriter: [
     { question: "Will rewriting change the meaning?", answer: "The tool is asked to keep the original meaning and only adjust style, tone, or length. Because the output is generated, check that no important detail was dropped or altered." },
@@ -89,7 +104,7 @@ const faqByTask: Record<AiDocumentTask | "ask", { question: string; answer: stri
 };
 
 const aboutByTask: Record<AiDocumentTask | "ask", string> = {
-  translator: "Text is extracted from your PDF in the browser and sent to the AI service to translate into your chosen language. Only the extracted text is transmitted — the original PDF file never leaves your device, and the result comes back as plain text you can copy or download.",
+  translator: "Text is extracted from your PDF in the browser and sent to the AI service to translate into your chosen language. Only the extracted text is transmitted — the original PDF file never leaves your device. The result comes back as text laid out in the correct direction for the target script, which you can copy, and as a downloadable PDF for the languages whose glyphs can be rendered correctly.",
   rewriter: "The text layer of your PDF is extracted locally and rewritten by the AI service according to the style you select. The original PDF is not uploaded, and the tool shows the original text beside the rewrite so you can compare them.",
   presentation: "Slide content is drafted from the text of your PDF and returned as structured titles, bullet points, and speaker notes. This produces an outline you can paste into your own presentation software — it does not create a downloadable slide file.",
   flashcards: "Your PDF's text is used to generate study cards, which you can flip through in the browser and copy in bulk. The original document is not uploaded; only extracted text is sent to generate the cards.",
@@ -103,12 +118,6 @@ const aboutByTask: Record<AiDocumentTask | "ask", string> = {
 
 interface AiDocumentToolProps {
   href: ToolHref;
-}
-
-interface Flashcard {
-  question: string;
-  answer: string;
-  topic?: string;
 }
 
 interface ChatState {
@@ -151,22 +160,68 @@ function downloadText(filename: string, text: string) {
   window.setTimeout(() => URL.revokeObjectURL(result.url), 1000);
 }
 
-function ResultView({ task, result, onCopy }: { task: AiDocumentTask; result: Record<string, unknown>; onCopy: () => void }) {
-  const [flashcardIndex, setFlashcardIndex] = useState(0);
-  const [flipped, setFlipped] = useState(false);
+function ResultView({ task, result, onCopy, onRegenerate, copied, onDownloadPdf }: { task: AiDocumentTask; result: Record<string, unknown>; onCopy: () => void; onRegenerate: () => void; copied?: boolean; onDownloadPdf?: () => void }) {
   const cards = Array.isArray(result.cards) ? result.cards as Flashcard[] : [];
   const questions = Array.isArray(result.questions) ? result.questions as Record<string, unknown>[] : [];
   if (task === "flashcards" && cards.length > 0) {
-    const card = cards[flashcardIndex];
-    return <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3"><p className="text-sm font-semibold text-ink-900 dark:text-white">Card {flashcardIndex + 1} of {cards.length}</p><span className="text-xs text-ink-500">{card.topic ?? "Study card"}</span></div>
-      <button type="button" onClick={() => setFlipped((current) => !current)} className="min-h-48 w-full rounded-2xl bg-brand-50 p-8 text-left ring-1 ring-brand-200 transition hover:bg-brand-100 dark:bg-brand-600/10 dark:ring-brand-600/30 dark:hover:bg-brand-600/20"><p className="text-xs font-semibold uppercase tracking-wide text-brand-700 dark:text-brand-300">{flipped ? "Answer" : "Question"}</p><p className="mt-4 text-xl font-semibold text-ink-900 dark:text-white">{flipped ? card.answer : card.question}</p><p className="mt-6 text-xs text-ink-500">Tap to flip</p></button>
-      <div className="flex flex-wrap gap-2"><button type="button" disabled={flashcardIndex === 0} onClick={() => { setFlashcardIndex((current) => current - 1); setFlipped(false); }} className={button("secondary", "sm")}>Previous</button><button type="button" disabled={flashcardIndex === cards.length - 1} onClick={() => { setFlashcardIndex((current) => current + 1); setFlipped(false); }} className={button("secondary", "sm")}>Next</button><button type="button" onClick={onCopy} className={button("ghost", "sm")}>Copy all</button></div>
-    </div>;
+    // Shared with Study Mode rather than a second copy that can drift.
+    return (
+      <AiFlashcardPanel
+        cards={cards}
+        onRegenerate={onRegenerate}
+        onCopy={onCopy}
+        copied={copied}
+      />
+    );
   }
 
   if (task === "questions" && questions.length > 0) {
     return <div className="space-y-4">{questions.map((question, index) => <article key={index} className="rounded-2xl bg-ink-50 p-4 dark:bg-ink-950/60"><h3 className="font-semibold text-ink-900 dark:text-white">{index + 1}. {String(question.question ?? "Question")}</h3><div className="mt-3 text-sm text-ink-600 dark:text-ink-400">{displayValue(question.options)}</div><details className="mt-3 text-sm"><summary className="cursor-pointer font-semibold text-brand-700 dark:text-brand-300">Show answer and explanation</summary><p className="mt-2 text-ink-700 dark:text-ink-300"><strong>Answer:</strong> {String(question.answer ?? "Not detected")}</p><p className="mt-1 text-ink-600 dark:text-ink-400">{String(question.explanation ?? "")}</p></details></article>)}</div>;
+  }
+
+  if (task === "translator") {
+    const target = String(result.targetLanguage ?? "English");
+    const translated = String(result.translatedText ?? "");
+    // Paragraphs rather than one blob, because the model's own paragraph breaks
+    // are the only structure the translated text still carries — and in a
+    // right-to-left script the direction attribute is what stops the browser
+    // rendering correct words with the punctuation on the wrong side.
+    return <div className="space-y-4">
+      <div className="flex flex-wrap gap-2 text-xs">
+        <span className="rounded-lg bg-ink-100 px-2.5 py-1 font-medium text-ink-600 dark:bg-ink-800 dark:text-ink-300">
+          From: {String(result.sourceLanguage ?? "Not detected")}
+        </span>
+        <span className="rounded-lg bg-ink-100 px-2.5 py-1 font-medium text-ink-600 dark:bg-ink-800 dark:text-ink-300">
+          To: {target}
+        </span>
+      </div>
+      <div
+        dir={directionFor(target)}
+        lang={target}
+        className="max-h-96 overflow-auto whitespace-pre-wrap rounded-2xl bg-ink-50 p-4 text-[15px] leading-loose text-ink-800 dark:bg-ink-950/60 dark:text-ink-200"
+      >
+        {translated || "No translated text was returned."}
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <button type="button" onClick={onCopy} className={button("secondary", "sm")}>Copy text</button>
+        {supportsPdfExport(target) && onDownloadPdf ? (
+          <button type="button" onClick={onDownloadPdf} className={button("primary", "sm")}>Download as PDF</button>
+        ) : (
+          <p className="text-xs leading-relaxed text-ink-500 dark:text-ink-400">
+            {isRtl(target)
+              ? `No PDF download for ${target}: a PDF font cannot join and reorder right-to-left letters, so the file would be unreadable. Copy the text instead.`
+              : `No PDF download for ${target} — the fonts available here do not carry that script. Copy the text instead.`}
+          </p>
+        )}
+      </div>
+      {isRtl(target) && (
+        <p className="text-xs leading-relaxed text-ink-500 dark:text-ink-400">
+          Copy this into a word processor rather than a plain text editor if the
+          letter spacing looks wrong — some editors do not apply the direction
+          that was set here.
+        </p>
+      )}
+    </div>;
   }
 
   return <dl className="grid gap-4 sm:grid-cols-2">{Object.entries(result).map(([key, value]) => <div key={key} className="rounded-2xl bg-ink-50 p-4 dark:bg-ink-950/60"><dt className="text-sm font-semibold capitalize text-ink-900 dark:text-white">{key.replace(/([A-Z])/g, " $1")}</dt><dd className="mt-2 max-h-96 overflow-auto text-sm leading-relaxed">{displayValue(value)}</dd></div>)}</dl>;
@@ -193,6 +248,7 @@ export function AiDocumentToolPage({ href }: AiDocumentToolProps) {
   const [chat, setChat] = useState<ChatState>({ messages: [], question: "" });
   const [chatError, setChatError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const [pdfNote, setPdfNote] = useState<string | null>(null);
   const busy = run.status === "working";
 
   const reset = useCallback(() => { setFile(null); setPdfText(""); setResult(null); setChat({ messages: [], question: "" }); setChatError(null); setIsSending(false); run.reset(); }, [run]);
@@ -262,6 +318,30 @@ export function AiDocumentToolPage({ href }: AiDocumentToolProps) {
     } catch (error) { setChatError(error instanceof Error ? error.message : "The AI could not answer. Please try again."); } finally { setIsSending(false); }
   }, [chat.messages, isSending, pdfText]);
 
+  /**
+   * Builds the downloadable PDF for a translation, and says why it cannot when
+   * it cannot. The refusal is a message the visitor sees, not a silent no-op.
+   */
+  const downloadTranslatedPdf = useCallback(async () => {
+    if (!result || task !== "translator" || !file) return;
+    setPdfNote(null);
+    await run.run(async (report) => {
+      const outcome = await buildTranslatedPdf(
+        String(result.translatedText ?? ""),
+        String(result.targetLanguage ?? "English"),
+        file.name,
+        report,
+      );
+      if ("unsupported" in outcome) {
+        setPdfNote(outcome.reason);
+        return [];
+      }
+      triggerDownload(outcome.result);
+      window.setTimeout(() => URL.revokeObjectURL(outcome.result.url), 1000);
+      return [outcome.result];
+    });
+  }, [result, task, file, run]);
+
   const copyResult = useCallback(() => { if (result) void navigator.clipboard.writeText(JSON.stringify(result, null, 2)); }, [result]);
   const isAsk = task === "ask";
   const showingResult = isAsk ? Boolean(pdfText) : Boolean(result);
@@ -273,13 +353,26 @@ export function AiDocumentToolPage({ href }: AiDocumentToolProps) {
       {file && !showingResult && <div className="space-y-5">
         <div className="flex items-center justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-semibold text-ink-900 dark:text-white">{file.name}</p><p className="text-xs text-ink-500">{(file.size / 1024 / 1024).toFixed(1)} MB</p></div><button type="button" onClick={reset} className={button("ghost", "sm")}>Change file</button></div>
         {!isAsk && <Options task={task} options={options} setOptions={setOptions} />}
+        {task === "translator" && (
+          <p className="rounded-xl bg-ink-50 px-4 py-3 text-xs leading-relaxed text-ink-600 ring-1 ring-ink-200 dark:bg-ink-950/60 dark:text-ink-400 dark:ring-ink-700">
+            Translation works from the text layer of your PDF. A scanned document
+            has no text layer, so it would come back empty or badly wrong — run{" "}
+            <a href="/ocr-pdf" className="font-semibold text-brand-700 underline underline-offset-2 dark:text-brand-300">
+              OCR PDF
+            </a>{" "}
+            first, then translate the result. Scanned pages cannot be translated
+            directly, and we would rather say that than return a confident
+            translation of nothing.
+          </p>
+        )}
         {busy && <ProgressBar progress={run.progress} onCancel={run.cancel} />}
         {run.status === "error" && run.error && <ErrorMessage message={run.error} onRetry={isAsk ? loadForChat : generate} onStartOver={reset} />}
         {!busy && run.status !== "error" && <button type="button" onClick={isAsk ? loadForChat : generate} className={button("primary", "lg", "gap-2.5")}><SparkIcon />{isAsk ? "Prepare document chat" : "Generate with AI"}</button>}
       </div>}
       {showingResult && <div className="space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-3"><p className="text-sm font-semibold text-ink-900 dark:text-white">{tool.name}: {file?.name}</p><div className="flex flex-wrap gap-2"><button type="button" onClick={reset} className={button("secondary", "sm")}>Start over</button>{!isAsk && result && <><button type="button" onClick={copyResult} className={button("ghost", "sm")}>Copy</button><button type="button" onClick={() => downloadText(`${file?.name.replace(/\.pdf$/i, "") ?? "ai-result"}-${tool.name.toLowerCase().replaceAll(" ", "-")}.txt`, JSON.stringify(result, null, 2))} className={button("primary", "sm")}>Download</button></>}</div></div>
-        {isAsk ? <AiChat onSend={ask} messages={chat.messages} isLoading={isSending} suggestedQuestions={chat.messages.length === 0 ? ["What is this document about?", "What are the key points?", "What important dates are mentioned?"] : undefined} error={chatError} onRetry={chat.messages.at(-1)?.role === "user" ? () => ask(chat.messages.at(-1)?.content ?? "", false) : undefined} /> : result && <ResultView task={task} result={result} onCopy={copyResult} />}
+        {pdfNote && <p role="status" className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200 dark:bg-amber-950/25 dark:text-amber-200 dark:ring-amber-900/60">{pdfNote}</p>}
+        {isAsk ? <AiChat onSend={ask} messages={chat.messages} isLoading={isSending} suggestedQuestions={chat.messages.length === 0 ? ["What is this document about?", "What are the key points?", "What important dates are mentioned?"] : undefined} error={chatError} onRetry={chat.messages.at(-1)?.role === "user" ? () => ask(chat.messages.at(-1)?.content ?? "", false) : undefined} /> : result && <ResultView task={task} result={result} onCopy={copyResult} onRegenerate={generate} onDownloadPdf={task === "translator" ? downloadTranslatedPdf : undefined} />}
         <AiNotice />
       </div>}
     </ToolPanel>

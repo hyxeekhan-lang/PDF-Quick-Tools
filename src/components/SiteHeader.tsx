@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { SITE_NAME } from "#/lib/site";
 import {
+  BrainIcon,
   CompressIcon,
   DownloadIcon,
   GridIcon,
@@ -15,9 +16,22 @@ import { ThemeToggle } from "./ThemeToggle";
 import { ToolSearch } from "./ToolSearch";
 import { button, cx } from "./ui";
 
+/**
+ * Primary navigation.
+ *
+ * "All Tools" and "AI Tools" are the two browsable ways in; the three PDF jobs
+ * after them are the ones typed often enough to be worth a single click.
+ * Study Mode is the newest and most distinctive thing the site does, so it is
+ * in the nav rather than only on the homepage — someone who came for it once
+ * should be able to get back to it without going through the homepage.
+ *
+ * Nothing here is removed. Every entry still resolves to a route that exists.
+ */
 const NAV = [
   { to: "/", label: "Home", Icon: HomeIcon },
+  { to: "/tools", label: "All Tools", Icon: GridIcon },
   { to: "/ai-summarizer", label: "AI Tools", Icon: SparkIcon },
+  { to: "/study-mode", label: "Study Mode", Icon: BrainIcon },
   { to: "/compress-pdf", label: "Compress", Icon: CompressIcon },
   { to: "/merge-pdf", label: "Merge", Icon: MergeIcon },
   { to: "/split-pdf", label: "Split", Icon: SplitIcon },
@@ -94,7 +108,11 @@ export function SiteHeader() {
           <ToolSearch className="hidden w-52 lg:block xl:w-64" />
           <InstallAppButton />
           <ThemeToggle />
-          <Link to="/tools" className={cx(button("primary", "sm"), "max-sm:!hidden")}>
+          {/* On desktop "All Tools" is already in the nav, so this button is
+              only for phones — where the nav is a scrolling pill row below and
+              the catalogue needs one obvious tap target rather than a hunt
+              through pills. */}
+          <Link to="/tools" className={cx(button("primary", "sm"), "lg:!hidden")}>
             All Tools
           </Link>
         </div>
