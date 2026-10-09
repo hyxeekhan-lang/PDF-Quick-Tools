@@ -46,13 +46,20 @@ describe("POST /api/track", () => {
     expect(recordVisit).toHaveBeenCalledWith("/compress-pdf");
   });
 
-  it("ignores a tool that is not in the catalogue", async () => {
-    // A crafted body must not be able to invent rows. The dashboard is grouped
-    // by tool, so arbitrary strings here would both pollute it and let anyone
-    // grow the table with whatever text they liked.
+  it("refuses a value that does not look like a tool path", async () => {
+    // The endpoint is unauthenticated, so what arrives in `tool` is whatever
+    // the caller chose. The dashboard groups by this column, so arbitrary text
+    // would both pollute it and let anyone grow the table with whatever they
+    // liked.
     for (const tool of [
-      "not-a-tool",
-      "/../etc/passwd",
+      "not-a-tool", // no leading slash
+      "compress-pdf", // no leading slash
+      "/Compress-PDF", // not lowercase
+      "/compress_pdf", // underscore, not hyphen
+      "/compress--pdf", // doubled hyphen
+      "/compress-pdf/", // trailing slash
+      "//etc/passwd", // doubled slash
+      "/../etc/passwd", // traversal
       "'; DROP TABLE tool_visits; --",
       "x".repeat(5000),
       "",
@@ -62,6 +69,19 @@ describe("POST /api/track", () => {
     }
 
     expect(recordVisit).not.toHaveBeenCalled();
+  });
+
+  it("accepts a path shape, including one for a tool that no longer exists", async () => {
+    // Documented limitation rather than an oversight: the serverless bundle
+    // cannot read src/lib/tools.ts, so this is a shape check, not a catalogue
+    // membership check. A stale path costs an inert row in the dashboard and
+    // nothing else.
+    for (const tool of ["/compress-pdf", "/pdf-to-jpg", "/a", "/removed-tool-2024"]) {
+      await POST(post({ tool }));
+    }
+
+    expect(recordVisit).toHaveBeenCalledTimes(4);
+    expect(recordVisit).toHaveBeenLastCalledWith("/removed-tool-2024");
   });
 
   it("ignores a body that is not the expected shape", async () => {

@@ -25,7 +25,6 @@
  * up is not their problem. Answering 204 and moving on is the whole contract.
  */
 
-import { TOOLS } from "#/lib/tools";
 import { recordVisit } from "./_db.js";
 import { clientIp, takeRateLimit } from "./_rate-limit.js";
 
@@ -39,7 +38,33 @@ import { clientIp, takeRateLimit } from "./_rate-limit.js";
  */
 const RATE_LIMIT = { limit: 60, windowMs: 60 * 1000 } as const;
 
-const KNOWN_TOOLS = new Set<string>(TOOLS.map((tool) => tool.href));
+/**
+ * What a tool path has to look like before it is stored.
+ *
+ * The obvious implementation is to import `TOOLS` from `src/lib/tools.ts` and
+ * check membership, which is what the rest of the app does and would keep the
+ * two in step. That does not work here: a Vercel function is bundled from
+ * `api/` alone and never sees `src/`, so the import fails at module load and
+ * takes the whole endpoint down. A serverless bundle that cannot read the app's
+ * own route table is the constraint, and it is worth knowing about before
+ * someone "simplifies" this back into an import.
+ *
+ * So this is a shape check, not a catalogue check. It accepts anything that
+ * reads like one of our tool routes — a leading slash, lowercase words, single
+ * hyphens — and refuses everything else.
+ *
+ * What this still guarantees:
+ *  - the alphabet is fixed, so no arbitrary text can be written into the table;
+ *  - the length is bounded, so the table cannot be grown with padding;
+ *  - the column stays groupable, because every value is a path.
+ *
+ * What it does not: that the path is a route that exists today. A removed tool
+ * would keep accepting writes under its old path. Those rows are inert — they
+ * appear in the dashboard as a name with a count, and nothing links them — and
+ * the dashboard's own tool count is the way to spot one.
+ */
+const TOOL_PATH = /^\/[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const MAX_TOOL_LENGTH = 60;
 
 export async function POST(request: Request): Promise<Response> {
   const limit = takeRateLimit(`track:${clientIp(request)}`, RATE_LIMIT);
@@ -54,10 +79,10 @@ export async function POST(request: Request): Promise<Response> {
     const body = (await request.json()) as { tool?: unknown };
     const tool = typeof body?.tool === "string" ? body.tool : "";
 
-    if (!KNOWN_TOOLS.has(tool)) {
-      // Not an error the caller can act on, and not worth a log line: a wrong
-      // tool name here means the frontend and the catalogue have drifted apart,
-      // which a build-time test catches far more usefully.
+    if (!TOOL_PATH.test(tool) || tool.length > MAX_TOOL_LENGTH) {
+      // Not an error the caller can act on, and not worth a log line: a
+      // rejected path means the caller sent something that is not a tool route,
+      // and the outcome either way is the same — the tool still opens.
       return new Response(null, { status: 204 });
     }
 
