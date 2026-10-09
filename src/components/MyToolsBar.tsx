@@ -247,9 +247,48 @@ function Row({
  *
  * Called from tool pages on mount, so the recent list fills up from actual use
  * rather than from clicks on a homepage link. No-ops outside the browser.
+ *
+ * This is also where the server-side count happens, and the two live together
+ * deliberately: both describe the same event — a tool page was opened — and
+ * hooking a second `useEffect` onto every tool route would mean two places to
+ * forget when a tool is added.
+ *
+ * ## What is sent
+ *
+ * The tool's route path, and nothing else. No file, no filename, no page count,
+ * no referrer, no identifier. The server keeps the path and a timestamp; the IP
+ * is used to rate-limit the write and is discarded. That is what keeps the
+ * privacy page's "we don't track you" accurate rather than aspirational.
+ *
+ * Consent is required before the request is made, and it is required *before*
+ * the fetch rather than by the server: a visitor who declined should have no
+ * network request going out at all, not one that arrives and is ignored.
+ *
+ * Failure is ignored on purpose. If the count cannot be recorded, the tool still
+ * opens — nobody came here to be counted.
  */
 export function useNoteVisit(href: string): void {
   useEffect(() => {
     noteToolVisit(href);
+
+    if (typeof window === "undefined") return;
+    try {
+      if (window.localStorage.getItem("pqt-cookie-consent") !== "accepted") return;
+    } catch {
+      return;
+    }
+
+    void fetch("/api/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tool: href }),
+      // The endpoint answers 204; keepalive lets the request survive the
+      // visitor navigating away the instant the tool renders, which is a
+      // common enough pattern that losing those counts would be noticeable.
+      keepalive: true,
+    }).catch(() => {
+      // Uncounted is an acceptable outcome; a failed analytics write must never
+      // interrupt the tool.
+    });
   }, [href]);
 }

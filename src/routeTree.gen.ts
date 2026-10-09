@@ -14,6 +14,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AddHeaderFooterRouteImport } from './routes/add-header-footer'
 import { Route as AddPageNumbersRouteImport } from './routes/add-page-numbers'
 import { Route as AddPdfBookmarksRouteImport } from './routes/add-pdf-bookmarks'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AiAskPdfRouteImport } from './routes/ai-ask-pdf'
 import { Route as AiChatRouteImport } from './routes/ai-chat'
 import { Route as AiCitationGeneratorRouteImport } from './routes/ai-citation-generator'
@@ -102,6 +103,11 @@ const AddPageNumbersRoute = AddPageNumbersRouteImport.update({
 const AddPdfBookmarksRoute = AddPdfBookmarksRouteImport.update({
   id: '/add-pdf-bookmarks',
   path: '/add-pdf-bookmarks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiAskPdfRoute = AiAskPdfRouteImport.update({
@@ -432,6 +438,7 @@ export interface FileRoutesByFullPath {
   '/add-header-footer': typeof AddHeaderFooterRoute
   '/add-page-numbers': typeof AddPageNumbersRoute
   '/add-pdf-bookmarks': typeof AddPdfBookmarksRoute
+  '/admin': typeof AdminRoute
   '/ai-ask-pdf': typeof AiAskPdfRoute
   '/ai-chat': typeof AiChatRoute
   '/ai-citation-generator': typeof AiCitationGeneratorRoute
@@ -503,6 +510,7 @@ export interface FileRoutesByTo {
   '/add-header-footer': typeof AddHeaderFooterRoute
   '/add-page-numbers': typeof AddPageNumbersRoute
   '/add-pdf-bookmarks': typeof AddPdfBookmarksRoute
+  '/admin': typeof AdminRoute
   '/ai-ask-pdf': typeof AiAskPdfRoute
   '/ai-chat': typeof AiChatRoute
   '/ai-citation-generator': typeof AiCitationGeneratorRoute
@@ -575,6 +583,7 @@ export interface FileRoutesById {
   '/add-header-footer': typeof AddHeaderFooterRoute
   '/add-page-numbers': typeof AddPageNumbersRoute
   '/add-pdf-bookmarks': typeof AddPdfBookmarksRoute
+  '/admin': typeof AdminRoute
   '/ai-ask-pdf': typeof AiAskPdfRoute
   '/ai-chat': typeof AiChatRoute
   '/ai-citation-generator': typeof AiCitationGeneratorRoute
@@ -648,6 +657,7 @@ export interface FileRouteTypes {
     | '/add-header-footer'
     | '/add-page-numbers'
     | '/add-pdf-bookmarks'
+    | '/admin'
     | '/ai-ask-pdf'
     | '/ai-chat'
     | '/ai-citation-generator'
@@ -719,6 +729,7 @@ export interface FileRouteTypes {
     | '/add-header-footer'
     | '/add-page-numbers'
     | '/add-pdf-bookmarks'
+    | '/admin'
     | '/ai-ask-pdf'
     | '/ai-chat'
     | '/ai-citation-generator'
@@ -790,6 +801,7 @@ export interface FileRouteTypes {
     | '/add-header-footer'
     | '/add-page-numbers'
     | '/add-pdf-bookmarks'
+    | '/admin'
     | '/ai-ask-pdf'
     | '/ai-chat'
     | '/ai-citation-generator'
@@ -862,6 +874,7 @@ export interface RootRouteChildren {
   AddHeaderFooterRoute: typeof AddHeaderFooterRoute
   AddPageNumbersRoute: typeof AddPageNumbersRoute
   AddPdfBookmarksRoute: typeof AddPdfBookmarksRoute
+  AdminRoute: typeof AdminRoute
   AiAskPdfRoute: typeof AiAskPdfRoute
   AiChatRoute: typeof AiChatRoute
   AiCitationGeneratorRoute: typeof AiCitationGeneratorRoute
@@ -963,6 +976,13 @@ declare module '@tanstack/react-router' {
       path: '/add-pdf-bookmarks'
       fullPath: '/add-pdf-bookmarks'
       preLoaderRoute: typeof AddPdfBookmarksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai-ask-pdf': {
@@ -1422,6 +1442,7 @@ const rootRouteChildren: RootRouteChildren = {
   AddHeaderFooterRoute: AddHeaderFooterRoute,
   AddPageNumbersRoute: AddPageNumbersRoute,
   AddPdfBookmarksRoute: AddPdfBookmarksRoute,
+  AdminRoute: AdminRoute,
   AiAskPdfRoute: AiAskPdfRoute,
   AiChatRoute: AiChatRoute,
   AiCitationGeneratorRoute: AiCitationGeneratorRoute,

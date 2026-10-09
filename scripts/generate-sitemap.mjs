@@ -127,6 +127,18 @@ function changefreqFor(route) {
  */
 const PLACEHOLDER = /<ToolShell[^>]*>\s*x\s*<\/ToolShell>/;
 
+/**
+ * Pages that exist but must never be advertised.
+ *
+ * A sitemap is a list of pages to ask a crawler to index, so anything that is
+ * marked `noindex` has no business in one — the two instructions contradict each
+ * other and the crawler is entitled to believe either. The owner dashboard is
+ * the case that matters here: it is a real route, it is prerendered, and a
+ * crawler that found it would be told to leave by the robots meta tag rather
+ * than by its absence from this file.
+ */
+const UNLISTED = new Set(["admin"]);
+
 function routes() {
   const files = readdirSync(ROUTES).filter(
     (name) => name.endsWith(".tsx") && !name.startsWith("_"),
@@ -136,6 +148,10 @@ function routes() {
   for (const name of files) {
     const slug = name.slice(0, -".tsx".length);
     const source = readFileSync(path.join(ROUTES, name), "utf8");
+    if (UNLISTED.has(slug)) {
+      console.log(`sitemap.xml — skipping ${slug}, marked noindex`);
+      continue;
+    }
     if (PLACEHOLDER.test(source)) {
       console.log(`sitemap.xml — skipping ${slug}, still a placeholder`);
       continue;

@@ -162,6 +162,51 @@ GROQ_MODEL=openai/gpt-oss-120b
 
 Set `GROQ_API_KEY` for Production, Preview, and Development as needed. The key is read only by the server and must not be added to client-side variables such as `VITE_*`.
 
+### Owner dashboard (`/admin`)
+
+An optional page showing which tools are being used and how often. Sign in with
+the email and password you configure below. There is no account registration and
+no email is sent.
+
+Four environment variables, all server-only:
+
+```env
+ADMIN_EMAIL=you@example.com
+ADMIN_PASSWORD=a-long-password-nobody-can-guess
+ADMIN_SESSION_SECRET=openssl_rand_32_bytes_hex
+POSTGRES_URL=postgresql://user:password@host:5432/dbname?sslmode=require
+```
+
+- `POSTGRES_URL` — any hosted Postgres: Vercel Postgres, Neon, Supabase. Without
+  it the site runs exactly as before; nothing is counted and the dashboard says
+  so. The table is created on first use, so there is no migration to run.
+- `ADMIN_SESSION_SECRET` — generate with
+  `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
+  Changing it signs out every open session.
+- `ADMIN_EMAIL` is checked on every request, not only at login, so changing it
+  invalidates existing sessions.
+
+Generate the secret rather than inventing one: it is what signs the session
+cookie, so a guessable value would make the cookie forgeable by anyone who
+guessed it too.
+
+**What gets stored.** One row per tool page opened: the tool's route path and a
+timestamp. No IP, no user agent, no cookie, no identifier, no filename, no file
+content. The IP is read to rate-limit the write and discarded. This is what keeps
+the privacy page's claim accurate — the dashboard is an owner's view of traffic
+that contains no visitor records, because the site keeps none.
+
+**Access control beyond the password.** `/admin` is `noindex` and is excluded
+from the sitemap. The password is compared in constant time, login attempts are
+rate limited to 8 per 15 minutes per address, and the session cookie is
+`HttpOnly` and `SameSite=Strict`. The rate limiter lives in serverless memory, so
+it is per-instance and resets on cold start — for a hard ceiling, add a Vercel WAF
+rule on `/api/admin`.
+
+**Also check before relying on ad revenue:** if Deployment Protection is enabled
+for the production domain, anonymous visitors get a Vercel login screen and
+AdSense serves nothing.
+
 ### Validation and builds
 
 ```bash

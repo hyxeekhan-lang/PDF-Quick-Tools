@@ -116,6 +116,18 @@ function Privacy() {
           documents. Analytics events are sent only after you choose to allow
           analytics in the consent notice.
         </p>
+        <p>
+          Separately, opening a tool page writes one row to a database we
+          control: the tool's name and the time. This is what the owner&rsquo;s
+          dashboard is built from, and it is why this site can show which tools
+          are being used without holding any record of the people using them.
+          That row has no IP address, no device, no browser, no cookie and no
+          identifier attached to it, and there is no way to tell one visit from
+          the same person visiting twice. Your IP address is read only to rate
+          limit the write, and is not stored. If you have not accepted the
+          consent notice, this row is never written and the request is never
+          made.
+        </p>
       </Block>
 
       <Block title="Cookies and local storage">
