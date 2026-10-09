@@ -92,10 +92,14 @@ export function ErrorMessage({
   return (
     <PanelFocus>
       <div
-        className="animate-shake rounded-2xl bg-red-50 px-5 py-5 ring-1 ring-red-200 dark:bg-red-950/30 dark:ring-red-900/60"
+        className="animate-shake overflow-hidden rounded-2xl bg-white ring-1 ring-red-200 dark:bg-ink-900 dark:ring-red-900/60"
         role="alert"
       >
-      <div className="flex gap-3">
+      {/* A solid red edge rather than a red wash. The tinted background put the
+          body text at roughly 4.5:1 on the tint and the whole panel read as one
+          flat block, so a long message had nowhere to sit. A white card with a
+          red left rule separates the two, and the message keeps full contrast. */}
+      <div className="flex gap-3 border-l-4 border-red-500 bg-red-50/70 px-5 py-5 dark:bg-red-950/25">
         <span className="mt-0.5 shrink-0 text-red-600 dark:text-red-400">
           <AlertIcon className="h-5 w-5" />
         </span>
@@ -103,7 +107,11 @@ export function ErrorMessage({
           <p className="text-sm font-semibold text-red-900 dark:text-red-200">
             That did not work
           </p>
-          <p className="mt-1 text-sm text-red-800 dark:text-red-300">{message}</p>
+          {/* break-words because a provider error or a long filename arriving
+              unbroken is what pushes this card wider than the panel. */}
+          <p className="mt-1.5 text-sm leading-relaxed break-words text-ink-700 dark:text-ink-300">
+            {message}
+          </p>
           {(onRetry || onStartOver) && (
             <div className="mt-4 flex flex-wrap gap-2">
               {onRetry && (

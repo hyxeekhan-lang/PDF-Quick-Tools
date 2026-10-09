@@ -43,6 +43,40 @@ function extractGroqText(payload: unknown): string | null {
   return null;
 }
 
+/**
+ * A failed upstream call, carrying only its status.
+ *
+ * The provider's own message is deliberately not attached. It is kept in the
+ * server log for whoever is debugging, and dropped here so that nothing a
+ * visitor sees can carry a credential, a model name, or a screenful of JSON.
+ */
+class GroqUpstreamError extends Error {
+  constructor(readonly status: number) {
+    super(`Groq upstream responded ${status}`);
+  }
+}
+
+/**
+ * What the visitor is told, per upstream status.
+ *
+ * A 401 is our mistake — a missing or expired key on the deployment — and the
+ * visitor cannot fix it, so it is described as being on our side rather than
+ * asking them to try again. A 429 is theirs to wait out, and a 400 is usually a
+ * document too long for the model, which retrying will not change.
+ */
+function upstreamMessage(status: number): string {
+  if (status === 401 || status === 403) {
+    return "The AI service is not available right now. This is on us, not your file — please try again shortly.";
+  }
+  if (status === 429) {
+    return "The AI service is busy right now. Please wait a moment and try again.";
+  }
+  if (status === 400) {
+    return "This document could not be sent to the AI service. It may be too long — try a shorter file or fewer pages.";
+  }
+  return "The AI service could not be reached. Please try again.";
+}
+
 async function callGroq(prompt: string, attachment: { mimeType: string; data: string } | null) {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
@@ -89,7 +123,13 @@ async function callGroq(prompt: string, attachment: { mimeType: string; data: st
 
   if (!upstream.ok) {
     const errorBody = await upstream.text();
-    throw new Error(`Groq API error: ${upstream.status}: ${errorBody}`);
+    // Logged in full, surfaced as nothing. The raw provider body is echoed
+    // straight back to the browser, and a 401 from Groq includes the credential
+    // we sent as `Bearer …` — enough to leak the key itself into a visitor's
+    // network tab. It is also unbounded in length, which is how the message ends
+    // up a screenful of JSON with the useful part scrolled out of sight.
+    console.error(`[ai] Groq upstream ${upstream.status}: ${errorBody.slice(0, 2000)}`);
+    throw new GroqUpstreamError(upstream.status);
   }
 
   const payload = (await upstream.json()) as unknown;
@@ -174,10 +214,16 @@ export default {
       return json({ text }, 200, rateLimitHeaders(limitResult, limit.limit));
     } catch (error) {
       console.error("[ai] Groq request failed:", error);
+      // An upstream failure the visitor can act on keeps its own wording; an
+      // empty response or a network fault is just "try again". Nothing here
+      // falls through to `error.message`, which is what used to put a raw
+      // provider payload on screen.
       const message =
-        error instanceof Error && error.message
-          ? error.message
-          : "The AI service could not be reached. Please try again.";
+        error instanceof GroqUpstreamError
+          ? upstreamMessage(error.status)
+          : error instanceof Error && error.message === "Missing GROQ_API_KEY"
+            ? "The AI service is not available right now. This is on us, not your file — please try again shortly."
+            : "The AI service could not be reached. Please try again.";
       return json({ error: message }, 502);
     }
   },
