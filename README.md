@@ -7,18 +7,30 @@
 <p align="center">
   <a href="https://pdfpilot.site/">Open the live website</a>
   ·
-  <a href="https://pdfpilot.site/tools">Browse all tools</a>
+  <a href="https://pdfpilot.site/tools">Browse all 58 tools</a>
   ·
-  <a href="https://github.com/jutthamid148-svg/PDF-Tools/releases/tag/v1.0.0">Chrome Extension release</a>
+  <a href="https://github.com/hyxeekhan-lang/PDF-Quick-Tools/releases/tag/v1.0.0">Chrome Extension release</a>
 </p>
 
-PDF Quick Tools is a browser-based PDF workspace for compressing, merging, splitting, converting, editing, organizing, and understanding documents with AI.
+<p align="center">
+  <a href="https://pdfpilot.site/"><img alt="PDF Quick Tools" src="https://raw.githubusercontent.com/hyxeekhan-lang/PDF-Quick-Tools/main/public/icons/icon-512.png" width="96" height="96"></a>
+</p>
 
-> **Live:** [pdfpilot.site](https://pdfpilot.site/)
+[![Live site](https://img.shields.io/badge/live-pdfpilot.site-4f46e5?style=for-the-badge)](https://pdfpilot.site/)
+[![Tools](https://img.shields.io/badge/tools-58-4f46e5?style=for-the-badge)](https://pdfpilot.site/tools)
+[![License: MIT](https://img.shields.io/badge/license-MIT-10b981?style=for-the-badge)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=for-the-badge)](tsconfig.json)
+[![React 19](https://img.shields.io/badge/React-19-087ea4?style=for-the-badge)](package.json)
+[![Vite](https://img.shields.io/badge/Vite-8-646cff?style=for-the-badge)](vite.config.ts)
+[![Vercel](https://img.shields.io/badge/deployed%20on-Vercel-000000?style=for-the-badge)](vercel.json)
+
+A browser-based PDF workspace for compressing, merging, splitting, converting, editing, organizing, and understanding documents with AI.
+
+> **Live:** [pdfpilot.site](https://pdfpilot.site/) · **Chrome extension:** [v1.0.0](https://github.com/hyxeekhan-lang/PDF-Quick-Tools/releases/tag/v1.0.0)
 
 ## Screenshots
 
-Fresh screenshots of the live site, captured in October 2026.
+Captured from the live site, October 2026.
 
 ### Homepage
 
@@ -36,22 +48,27 @@ Fresh screenshots of the live site, captured in October 2026.
 
 ![AI Summarizer on a mobile screen](public/screenshots/ai-summarizer-mobile-2026.png)
 
+### Mobile homepage
+
+![PDF Quick Tools on mobile](public/screenshots/home-mobile.png)
+
 ## What It Includes
+
+58 tools in total. The most-used ones:
 
 ### PDF tools
 
 - Compress PDF
 - Merge PDF
 - Split PDF
-- PDF to JPG
-- JPG to PDF
-- Rotate PDF
-- Rearrange PDF pages
-- Delete pages
-- Extract pages
-- Add page numbers
-- Watermark PDF
-- Sign PDF
+- PDF to JPG · JPG to PDF
+- Rotate PDF · Rearrange pages · Delete pages · Extract pages
+- Add page numbers · Watermark PDF · Sign PDF
+- Redact PDF (real redaction — text is removed, not covered)
+- Unlock PDF · Protect PDF · Repair PDF · Remove metadata
+- Word to PDF · PDF to Word · Excel to PDF · PDF to Excel
+- OCR PDF (scanned pages made searchable)
+- Organize, crop, flatten, repair, and preview pages
 
 ### AI tools
 
@@ -96,7 +113,7 @@ The companion Manifest V3 extension provides quick access to PDF tools from Chro
 ### Download
 
 - [Download the Chrome Extension ZIP](https://pdfpilot.site/downloads/pdf-tool-chrome-extension.zip)
-- [GitHub Release v1.0.0](https://github.com/jutthamid148-svg/PDF-Tools/releases/tag/v1.0.0)
+- [GitHub Release v1.0.0](https://github.com/hyxeekhan-lang/PDF-Quick-Tools/releases/tag/v1.0.0)
 
 ### Install locally
 
@@ -131,8 +148,8 @@ For Chrome Web Store publishing, upload the ZIP through the Chrome Developer Das
 ### Setup
 
 ```bash
-git clone https://github.com/jutthamid148-svg/PDF-Tools.git
-cd PDF-Tools
+git clone https://github.com/hyxeekhan-lang/PDF-Quick-Tools.git
+cd PDF-Quick-Tools
 npm install
 ```
 
