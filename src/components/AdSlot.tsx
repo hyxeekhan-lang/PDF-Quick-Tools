@@ -113,7 +113,7 @@ export function AdSlot({ format = "fluid", label = "Advertisement", className = 
     >
       <div className="flex h-full w-full flex-col items-center justify-center">
         {showLabel && (
-          <span className="text-[11px] font-medium tracking-wide text-ink-400 uppercase dark:text-ink-600">
+          <span className="text-[11px] font-medium tracking-wide text-ink-500 uppercase dark:text-ink-400">
             {label}
           </span>
         )}

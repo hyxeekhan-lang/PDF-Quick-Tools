@@ -124,6 +124,10 @@ export function PrivacyProof() {
                 type="file"
                 accept={PDF_ACCEPT}
                 className="sr-only"
+                // Same reason as the one in QuickCompress: this input is hidden
+                // behind a dropzone, so without a name a screen reader announces
+                // a bare file field rather than something you can act on.
+                aria-label={`Choose a PDF to check (up to ${MAX_FILE_LABEL})`}
                 onChange={(event) => {
                   const file = event.target.files?.[0];
                   event.target.value = "";

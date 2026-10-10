@@ -131,18 +131,28 @@ export function WelcomeTour() {
                 direction rather than only forwards through Next. */}
             <span className="ml-auto flex gap-1.5">
               {steps.map((item, index) => (
+                // The visible dot stays 8px — that is what a step indicator is
+                // meant to look like — but the button around it is 24px with the
+                // dot drawn inside it. Padding does not move the dot, so the
+                // indicator looks unchanged while the target becomes the
+                // minimum a finger needs. Lighthouse measures the button, not
+                // the background colour.
                 <button
                   key={item.title}
                   type="button"
                   onClick={() => setStep(index)}
                   aria-label={`Step ${index + 1}: ${item.title}`}
                   aria-current={index === step ? "step" : undefined}
-                  className={`h-2 w-2 rounded-full transition-colors ${
-                    index === step
-                      ? "bg-brand-600"
-                      : "bg-ink-300 hover:bg-ink-400 dark:bg-ink-700 dark:hover:bg-ink-600"
-                  }`}
-                />
+                  className="group/dot flex h-6 w-6 items-center justify-center rounded-full"
+                >
+                  <span
+                    className={`h-2 w-2 rounded-full transition-colors ${
+                      index === step
+                        ? "bg-brand-600"
+                        : "bg-ink-300 group-hover/dot:bg-ink-400 dark:bg-ink-700 dark:group-hover/dot:bg-ink-600"
+                    }`}
+                  />
+                </button>
               ))}
             </span>
           </div>

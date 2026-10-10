@@ -177,7 +177,7 @@ export function ProblemPicker() {
                       {task.problem}
                     </span>
                     {task.note ? (
-                      <span className="mt-0.5 block text-xs leading-relaxed text-ink-500 dark:text-ink-400">
+                      <span className="mt-0.5 block text-xs leading-relaxed text-ink-600 dark:text-ink-400">
                         {task.note}
                       </span>
                     ) : null}
