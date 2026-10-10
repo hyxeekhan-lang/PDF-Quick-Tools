@@ -147,6 +147,13 @@ export function QuickCompress() {
               type="file"
               accept={PDF_ACCEPT}
               className="sr-only"
+              // The input is visually hidden behind the dropzone, so it is a
+              // labelled form control with no visible label. Screen readers
+              // announce a file input by its value and accept list, which
+              // reads as "no file chosen, application/pdf" rather than as an
+              // action — this name is what makes it operable. Lighthouse flags
+              // it, and correctly.
+              aria-label={`Choose a PDF to compress (up to ${MAX_FILE_LABEL})`}
               onChange={(event) => {
                 const picked = event.target.files?.[0];
                 // Cleared so re-picking the same file still fires `change`.

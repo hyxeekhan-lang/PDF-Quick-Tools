@@ -23,15 +23,31 @@ const whopServerEntry = {
 
 export default defineConfig(({ isSsrBuild }) => ({
   resolve: { tsconfigPaths: true },
-  build: isSsrBuild
-    ? {
-        rollupOptions: {
-          output: {
-            entryFileNames: 'index.js',
-          },
-        },
-      }
-    : undefined,
+  // The stylesheet name must be identical in the client and server builds.
+  //
+  // Vercel's build produced dist/client/assets/styles-<clientHash>.css and
+  // dist/server/assets/styles-<serverHash>.css, and the prerendered HTML
+  // embedded the *server* hash. Vercel serves dist/client, so that file did
+  // not exist there: the SPA rewrite returned index.html instead, the browser
+  // refused it as "MIME type 'text/html' is not a supported stylesheet", and
+  // the site rendered with no CSS at all. That accounts for the CLS of 1.0 and
+  // the hydration error — both are the same 404.
+  //
+  // A stable name makes the two builds agree by construction instead of by
+  // luck. Applied to the stylesheet only — the images and other assets in this
+  // directory are content-addressed for a reason, and stripping their hashes
+  // would leave them cached forever under the /assets/* immutable header.
+  build: {
+    rollupOptions: {
+      output: {
+        ...(isSsrBuild ? { entryFileNames: 'index.js' } : {}),
+        assetFileNames: (assetInfo) =>
+          /styles/.test(assetInfo.names?.[0] ?? '')
+            ? 'assets/[name][extname]'
+            : 'assets/[name]-[hash][extname]',
+      },
+    },
+  },
   plugins: [
     whopServerEntry,
     cloudflare({ viteEnvironment: { name: 'ssr' } }),
