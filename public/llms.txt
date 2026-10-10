@@ -1,53 +1,80 @@
 # PDF Quick Tools
 
-PDF Quick Tools is a free browser-based PDF utility platform. Non-AI PDF tools process files locally in the browser, so the original file is never uploaded. AI tools extract text in the browser and send it to the site's AI endpoint (Google Gemini, falling back to Groq) only when you run an AI action.
+> Browser-based PDF tools: compress, merge, split, convert, edit, sign,
+> organize, and a set of AI tools that read a document you choose. Regular
+> PDF operations run entirely in the visitor's browser and the file is never
+> uploaded. AI tools are the exception: extracted text (or page images for
+> scanned PDFs) is sent to the AI provider only when the visitor runs an AI
+> action. No account is required.
 
-## Main pages
+Every tool is listed below with its own page. There are 55 tool pages.
 
-- [Home](https://pdfpilot.site/): Free online PDF tools.
-- [All tools](https://pdfpilot.site/tools): Browse all PDF utilities.
-- [About](https://pdfpilot.site/about): What the project is and what it stands for.
-- [Privacy Policy](https://pdfpilot.site/privacy): Data handling and advertising disclosure.
-- [Terms of Use](https://pdfpilot.site/terms): Usage terms.
-- [Disclaimer](https://pdfpilot.site/disclaimer): Accuracy and liability notes.
-- [Contact](https://pdfpilot.site/contact): Contact information.
+## Start here
 
-## PDF tools (processed in your browser)
+- [All tools](https://pdfpilot.site/tools): the complete catalogue, filterable by category.
+- [Daily challenge](https://pdfpilot.site/daily-challenge): one suggested PDF task per day.
+- [Study mode](https://pdfpilot.site/study-mode): turn one PDF into notes, a quiz, flashcards, or a summary.
 
-- [Compress PDF](https://pdfpilot.site/compress-pdf)
-- [Merge PDF](https://pdfpilot.site/merge-pdf)
-- [Split PDF](https://pdfpilot.site/split-pdf)
-- [Rotate PDF](https://pdfpilot.site/rotate-pdf)
-- [Delete PDF Pages](https://pdfpilot.site/delete-pdf-pages)
-- [Extract PDF Pages](https://pdfpilot.site/extract-pdf-pages)
-- [Rearrange PDF Pages](https://pdfpilot.site/rearrange-pdf-pages)
-- [Add Page Numbers](https://pdfpilot.site/add-page-numbers)
-- [Watermark PDF](https://pdfpilot.site/watermark-pdf)
-- [Sign PDF](https://pdfpilot.site/sign-pdf)
-- [PDF to JPG](https://pdfpilot.site/pdf-to-jpg)
-- [JPG to PDF](https://pdfpilot.site/jpg-to-pdf)
-- [Crop PDF](https://pdfpilot.site/crop-pdf)
-- [Change Page Size](https://pdfpilot.site/change-page-size)
-- [Flatten PDF](https://pdfpilot.site/flatten-pdf)
-- [Grayscale PDF](https://pdfpilot.site/grayscale-pdf)
-- [Remove PDF Metadata](https://pdfpilot.site/remove-pdf-metadata)
-- [Extract Text from PDF](https://pdfpilot.site/extract-pdf-text)
-- [Insert Blank Page](https://pdfpilot.site/insert-blank-page)
-- [Header and Footer](https://pdfpilot.site/add-header-footer)
+## Policies
 
-## AI tools (text is sent to an AI provider)
+- [Privacy policy](https://pdfpilot.site/privacy): what is and is not collected, and why.
+- [Terms of use](https://pdfpilot.site/terms).
+- [About](https://pdfpilot.site/about) and [contact](https://pdfpilot.site/contact).
 
-- [AI Summarizer](https://pdfpilot.site/ai-summarizer)
-- [AI Chat](https://pdfpilot.site/ai-chat)
-- [AI Quiz](https://pdfpilot.site/ai-quiz)
-- [AI Notes](https://pdfpilot.site/ai-notes)
-- [AI PDF Translator](https://pdfpilot.site/ai-pdf-translator)
-- [AI PDF Rewriter](https://pdfpilot.site/ai-pdf-rewriter)
-- [Ask PDF](https://pdfpilot.site/ai-ask-pdf)
-- [PDF to Presentation](https://pdfpilot.site/ai-pdf-to-presentation)
-- [Flashcard Generator](https://pdfpilot.site/ai-flashcard-generator)
-- [Citation Generator](https://pdfpilot.site/ai-citation-generator)
-- [Grammar Checker](https://pdfpilot.site/ai-grammar-checker)
-- [Document Analyzer](https://pdfpilot.site/ai-document-analyzer)
-- [Resume Analyzer](https://pdfpilot.site/ai-resume-analyzer)
-- [PDF Question Generator](https://pdfpilot.site/ai-pdf-question-generator)
+## Tools
+
+- [Compress PDF](https://pdfpilot.site/compress-pdf): Reduce PDF file size while keeping good quality.
+- [Compress PDF to Exact Size](https://pdfpilot.site/compress-pdf-to-specific-size): Shrink a PDF to fit a specific KB or MB limit.
+- [Merge PDF](https://pdfpilot.site/merge-pdf): Combine multiple PDF files into one.
+- [Split PDF](https://pdfpilot.site/split-pdf): Extract selected pages from your PDF.
+- [PDF to JPG](https://pdfpilot.site/pdf-to-jpg): Turn PDF pages into JPG images.
+- [JPG to PDF](https://pdfpilot.site/jpg-to-pdf): Turn JPG and PNG images into one PDF.
+- [Rotate PDF](https://pdfpilot.site/rotate-pdf): Turn pages 90, 180 or 270 degrees.
+- [Rearrange PDF](https://pdfpilot.site/rearrange-pdf-pages): Drag pages into the order you need.
+- [Delete Pages](https://pdfpilot.site/delete-pdf-pages): Remove pages you no longer need.
+- [Extract Pages](https://pdfpilot.site/extract-pdf-pages): Keep only the pages you select.
+- [Add Page Numbers](https://pdfpilot.site/add-page-numbers): Place clear page numbers exactly where you want them.
+- [Watermark PDF](https://pdfpilot.site/watermark-pdf): Stamp a custom text watermark onto selected pages.
+- [Sign PDF](https://pdfpilot.site/sign-pdf): Draw your signature and place it on selected pages.
+- [AI Summarizer](https://pdfpilot.site/ai-summarizer): Get an AI summary of any PDF.
+- [AI Chat](https://pdfpilot.site/ai-chat): Ask questions about your PDF content.
+- [Multi-PDF AI Chat](https://pdfpilot.site/multi-pdf-chat): Ask questions across several PDFs at once, with sources.
+- [AI Quiz Generator](https://pdfpilot.site/ai-quiz): Generate quizzes from your PDF content.
+- [AI Study Mode](https://pdfpilot.site/study-mode): One upload, four ways to revise it.
+- [AI Notes Generator](https://pdfpilot.site/ai-notes): Turn your PDF into structured notes.
+- [AI PDF Translator](https://pdfpilot.site/ai-pdf-translator): Translate PDF text while keeping its structure clear.
+- [AI PDF Rewriter](https://pdfpilot.site/ai-pdf-rewriter): Rewrite PDF text for clarity, tone or length.
+- [AI Ask PDF](https://pdfpilot.site/ai-ask-pdf): Ask follow-up questions about one PDF in a focused chat.
+- [AI PDF to Presentation](https://pdfpilot.site/ai-pdf-to-presentation): Turn a PDF into a structured presentation outline.
+- [AI Flashcard Generator](https://pdfpilot.site/ai-flashcard-generator): Create study flashcards from your PDF content.
+- [AI Citation Generator](https://pdfpilot.site/ai-citation-generator): Create APA, MLA, Chicago or Harvard citations from a PDF.
+- [AI Grammar & Writing Checker](https://pdfpilot.site/ai-grammar-checker): Find grammar, spelling, clarity and repetition issues.
+- [AI Document Analyzer](https://pdfpilot.site/ai-document-analyzer): Extract topics, dates, entities, sections and useful facts.
+- [AI Resume Analyzer](https://pdfpilot.site/ai-resume-analyzer): Review resume content, structure and job-description alignment.
+- [AI PDF Question Generator](https://pdfpilot.site/ai-pdf-question-generator): Generate document-grounded questions at three difficulty levels.
+- [Crop PDF](https://pdfpilot.site/crop-pdf): Trim the edges off PDF pages.
+- [Change Page Size](https://pdfpilot.site/change-page-size): Switch PDF pages between A4, Letter and Legal.
+- [Flatten PDF](https://pdfpilot.site/flatten-pdf): Lock form fields and annotations into the page.
+- [Grayscale PDF](https://pdfpilot.site/grayscale-pdf): Convert PDF pages to black and white.
+- [Remove PDF Metadata](https://pdfpilot.site/remove-pdf-metadata): Strip author, software and date details from a PDF.
+- [Extract Text from PDF](https://pdfpilot.site/extract-pdf-text): Pull the text out of your PDF into a .txt file.
+- [Insert Blank Page](https://pdfpilot.site/insert-blank-page): Add empty pages at the end or after each page.
+- [Header and Footer](https://pdfpilot.site/add-header-footer): Add a line of text to the top or bottom of pages.
+- [Fill PDF Form](https://pdfpilot.site/fill-pdf-form): Fill in text fields and check boxes.
+- [Redact PDF](https://pdfpilot.site/redact-pdf): Cover sensitive text with black boxes.
+- [Highlight PDF](https://pdfpilot.site/highlight-pdf): Mark text in yellow, green, blue or pink.
+- [Embed File in PDF](https://pdfpilot.site/embed-file-in-pdf): Pack extra files inside your PDF.
+- [Add Bookmarks to PDF](https://pdfpilot.site/add-pdf-bookmarks): Add a table of contents to the PDF.
+- [PDF to Markdown](https://pdfpilot.site/pdf-to-markdown): Turn a PDF's text into clean Markdown.
+- [Compare PDF](https://pdfpilot.site/compare-pdf): See exactly what changed between two PDFs.
+- [Edit PDF](https://pdfpilot.site/edit-pdf): Add your own text onto a PDF page.
+- [Repair PDF](https://pdfpilot.site/repair-pdf): Rebuild a damaged or broken PDF.
+- [Protect PDF](https://pdfpilot.site/protect-pdf): Add a password and lock a PDF.
+- [Unlock PDF](https://pdfpilot.site/unlock-pdf): Remove a password you know.
+- [OCR PDF](https://pdfpilot.site/ocr-pdf): Make scanned PDFs searchable.
+- [Word to PDF](https://pdfpilot.site/word-to-pdf): Turn a Word document into a PDF.
+- [PDF to Word](https://pdfpilot.site/pdf-to-word): Make a PDF editable in Word.
+- [PDF to Excel](https://pdfpilot.site/pdf-to-excel): Pull tables out of a PDF into a spreadsheet.
+- [Excel to PDF](https://pdfpilot.site/excel-to-pdf): Turn a spreadsheet into a PDF.
+- [PDF to PNG](https://pdfpilot.site/pdf-to-png): Save PDF pages as lossless PNG images.
+- [Image to Text](https://pdfpilot.site/image-to-text): Read the text out of a photo or scan.

@@ -37,6 +37,7 @@ import { AiNotice } from "#/components/AiNotice";
 import { button, cx, heading, muted, sectionWrap } from "#/components/ui";
 import { DailyChallengeCard } from "#/components/DailyChallengeCard";
 import { TrustStrip } from "#/components/TrustStrip";
+import { WelcomeTour } from "#/components/WelcomeTour";
 import { ToolSearch } from "#/components/ToolSearch";
 import {
   callGemini,
@@ -249,6 +250,13 @@ function Home() {
       <ExtensionBanner />
 
       <Hero />
+
+      {/* After the hero, before the numbers: the tour is for someone who has
+          just arrived, and it should be readable before they scroll. It hides
+          itself entirely once dismissed, so this costs nothing afterwards. */}
+      <div className={`${sectionWrap} mt-8`}>
+        <WelcomeTour />
+      </div>
 
       <StatsBanner />
 
@@ -1145,7 +1153,7 @@ function AiDemo() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask anything about PDFs..."
               disabled={loading}
-              className="min-w-[12rem] flex-1 rounded-xl bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-ink-500 ring-1 ring-white/[0.08] outline-none transition-all focus:ring-brand-500/50 focus:ring-2 disabled:opacity-50"
+              className="min-w-0 flex-1 rounded-xl bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-ink-500 ring-1 ring-white/[0.08] outline-none transition-all focus:ring-brand-500/50 focus:ring-2 disabled:opacity-50"
             />
             <button
               type="submit"
@@ -1157,7 +1165,10 @@ function AiDemo() {
           </form>
           {attachment && (
             <div className="mt-2 flex items-center justify-between gap-3 rounded-xl bg-brand-500/10 px-3 py-2 text-xs text-brand-200 ring-1 ring-brand-400/20">
-              <span className="truncate">Attached: {attachment.name}</span>
+              {/* truncate alone is not enough — without min-w-0 this flex item's automatic
+                  minimum size is the full filename, so a long one overflowed the
+                  row and pushed Remove off-screen. */}
+                  <span className="min-w-0 truncate">Attached: {attachment.name}</span>
               <button type="button" onClick={() => setAttachment(null)} className="shrink-0 font-semibold text-brand-300 hover:text-white">Remove</button>
             </div>
           )}

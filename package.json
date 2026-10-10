@@ -9,11 +9,12 @@
     "dev": "vite dev --port 3000",
     "generate-routes": "tsr generate",
     "generate-sitemap": "node scripts/generate-sitemap.mjs",
-    "build": "npm run generate-sitemap && vite build",
+    "build": "npm run generate-sitemap && npm run generate-llms-txt && vite build",
     "build:extension": "vite build --config extension/vite.config.ts",
     "preview": "vite preview",
     "deploy": "vercel --prod",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "generate-llms-txt": "node scripts/generate-llms-txt.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",

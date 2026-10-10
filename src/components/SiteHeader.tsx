@@ -14,6 +14,7 @@ import {
 import { BrandMark } from "./BrandMark";
 import { ThemeToggle } from "./ThemeToggle";
 import { ToolSearch } from "./ToolSearch";
+import { Tooltip } from "./Tooltip";
 import { button, cx } from "./ui";
 
 /**
@@ -100,12 +101,13 @@ export function SiteHeader() {
 
         {/* shrink-0 so these four stay rigid while the logo yields the space. */}
         <div className="ml-auto flex shrink-0 items-center justify-end gap-1.5 sm:gap-2">
-          {/* Desktop only. On a phone the bar is already carrying the logo, the
-              install button, the theme toggle and "All Tools" in 390px — there
-              is no room for a field, and the "All Tools" button already reaches
-              every tool, so a cramped field would be worse than none. The
-              mobile nav row below is the phone route in. */}
-          <ToolSearch className="hidden w-52 lg:block xl:w-64" />
+          {/* One component, two triggers. At lg and up it renders the persistent field
+              in place. Below that there is no room for a field in the bar — but
+              rather than leaving search two taps and a page load away on the
+              majority of visitors, the same component renders a search icon that
+              opens the field full-screen. The search stays reachable; only where
+              it lives changes. */}
+          <ToolSearch className="w-52 xl:w-64" />
           <InstallAppButton />
           <ThemeToggle />
           {/* On desktop "All Tools" is already in the nav, so this button is
@@ -196,17 +198,20 @@ function InstallAppButton() {
   return (
     <>
       {/* On a phone the header has room for the install action as an icon only.
-          The accessible name stays full, so a screen reader still announces it. */}
-      <button
-        type="button"
-        onClick={() => void install()}
-        className={cx(button("secondary", "sm"), "h-9 w-9 shrink-0 justify-center p-0 sm:h-auto sm:w-auto sm:px-4")}
-        aria-label="Install app"
-        title="Install app"
-      >
-        <DownloadIcon className="h-4 w-4 shrink-0" />
-        <span className="hidden sm:inline">Install App</span>
-      </button>
+          The accessible name stays full, so a screen reader still announces it.
+          The Tooltip is what a sighted phone user gets instead: a `title`
+          attribute only exists on hover, and a phone has no hover. */}
+      <Tooltip label="Install this site as an app">
+        <button
+          type="button"
+          onClick={() => void install()}
+          className={cx(button("secondary", "sm"), "h-11 w-11 shrink-0 justify-center p-0 sm:h-auto sm:w-auto sm:px-4")}
+          aria-label="Install app"
+        >
+          <DownloadIcon className="h-4 w-4 shrink-0" />
+          <span className="hidden sm:inline">Install App</span>
+        </button>
+      </Tooltip>
       {message && (
         <span className="sr-only" role="status" aria-live="polite">
           {message}

@@ -46,6 +46,8 @@ export const KEYS = {
   challengeDone: "challenge-done",
   challengeSkipped: "challenge-skipped",
   challengeReminder: "challenge-reminder",
+  /** Whether the one-time homepage introduction has been seen or skipped. */
+  seenTour: "seen-tour",
 } as const;
 
 /**

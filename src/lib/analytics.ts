@@ -30,7 +30,39 @@ export const toolEvents = {
   failed: (tool: string, reason: string) =>
     track("processing_failed", { tool, reason }),
   downloaded: (tool: string) => track("download_clicked", { tool }),
+  /**
+   * A visitor sent someone else to this tool.
+   *
+   * `via` distinguishes the system share sheet from copy-link and email,
+   * because the three have very different rates and only the first one tells
+   * you anything about how a visit arrives.
+   */
+  shared: (tool: string, via: "native" | "copy" | "email") =>
+    track("tool_shared", { tool, via }),
 };
+
+/**
+ * What a visitor said about a tool.
+ *
+ * Sent only to our own endpoint, and only when they press the button — unlike
+ * the events above, this one carries something a person chose to type, so it
+ * never goes through the third-party pixel. The consent check in `track` is
+ * deliberately not the gate here: refusing to let someone give feedback unless
+ * they agree to advertising is its own small cruelty.
+ */
+export function sendFeedback(tool: string, sentiment: 1 | -1, comment: string): void {
+  if (typeof window === "undefined") return;
+  // keepalive, because the visitor may close the tab the moment they press it
+  // and a cancelled request means they can never leave the same comment twice.
+  fetch("/api/feedback", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ tool, sentiment, comment }),
+    keepalive: true,
+  }).catch(() => {
+    // Nobody needs to be told that feedback did not save.
+  });
+}
 
 /**
  * Events for the journey that happens *before* a tool opens.

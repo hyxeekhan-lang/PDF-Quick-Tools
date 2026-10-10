@@ -118,9 +118,15 @@ export function ReorderPageTool({ toolName }: { toolName: string }) {
                       >
                         <img src={thumb.url} alt={`Page ${pageIndex + 1}`} className="aspect-[3/4] w-full rounded-lg object-contain bg-ink-100 dark:bg-ink-800" />
                         <p className="mt-2 text-center text-xs font-semibold text-ink-700 dark:text-ink-200">Page {pageIndex + 1}</p>
-                        <div className="mt-2 flex justify-center gap-1">
-                          <button type="button" disabled={busy || position === 0} onClick={() => move(position, position - 1)} className="rounded-md px-2 py-1 text-xs font-bold text-ink-600 ring-1 ring-ink-200 disabled:opacity-30 dark:text-ink-300 dark:ring-ink-700" aria-label={`Move page ${pageIndex + 1} left`}>←</button>
-                          <button type="button" disabled={busy || position === order.length - 1} onClick={() => move(position, position + 1)} className="rounded-md px-2 py-1 text-xs font-bold text-ink-600 ring-1 ring-ink-200 disabled:opacity-30 dark:text-ink-300 dark:ring-ink-700" aria-label={`Move page ${pageIndex + 1} right`}>→</button>
+                        <div className="mt-2 flex justify-center gap-1.5">
+                          {/* 44px tall rather than the px-2 py-1 it used to be.
+                              These are the whole interaction on a phone — dragging
+                              is not available there — and at ~26x20 they were
+                              nearly unhittable with a thumb. flex-1 rather than a
+                              fixed width so they fill the two-column card evenly
+                              instead of sitting as small squares in the middle. */}
+                          <button type="button" disabled={busy || position === 0} onClick={() => move(position, position - 1)} className="flex h-11 flex-1 items-center justify-center rounded-lg text-sm font-bold text-ink-600 ring-1 ring-ink-200 transition-colors hover:bg-ink-50 active:bg-ink-100 disabled:opacity-30 dark:text-ink-300 dark:ring-ink-700 dark:hover:bg-ink-800" aria-label={`Move page ${pageIndex + 1} earlier`}>←</button>
+                          <button type="button" disabled={busy || position === order.length - 1} onClick={() => move(position, position + 1)} className="flex h-11 flex-1 items-center justify-center rounded-lg text-sm font-bold text-ink-600 ring-1 ring-ink-200 transition-colors hover:bg-ink-50 active:bg-ink-100 disabled:opacity-30 dark:text-ink-300 dark:ring-ink-700 dark:hover:bg-ink-800" aria-label={`Move page ${pageIndex + 1} later`}>→</button>
                         </div>
                       </div>
                     );

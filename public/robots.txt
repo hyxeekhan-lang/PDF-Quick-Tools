@@ -1,4 +1,16 @@
+# All crawlers are welcome. Nothing here is behind a login.
+
 User-agent: *
 Allow: /
+Disallow: /admin
+
+# The owner dashboard is password-protected and marked noindex. Saying so here
+# as well means a crawler is told twice, rather than relying on the page's meta
+# tag being read correctly.
 
 Sitemap: https://pdfpilot.site/sitemap.xml
+
+# llms.txt is a plain-text map of the site for AI assistants — the equivalent
+# of a sitemap for a language model rather than a crawler. Listed under the
+# general rule above rather than with a per-agent block, because it is meant to
+# be read by everything and there is nothing on it that should not be.

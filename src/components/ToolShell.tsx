@@ -16,6 +16,7 @@ import { useNoteVisit } from "./MyToolsBar";
 import { PageDropzone } from "./PageDropzone";
 import { ToolErrorBoundary } from "./ToolErrorBoundary";
 import { ToolIconTile } from "./ToolIconTile";
+import { ToolFeedbackWidget } from "./ToolFeedbackWidget";
 import { heading, muted } from "./ui";
 
 interface ToolShellProps {
@@ -141,6 +142,8 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
           <Faq items={faq} title={`${tool.name} questions`} />
 
           <NextSteps from={tool.href as ToolHref} />
+
+          <ToolFeedbackWidget toolPath={tool.href} toolName={tool.name} />
 
           <InstallPrompt />
 

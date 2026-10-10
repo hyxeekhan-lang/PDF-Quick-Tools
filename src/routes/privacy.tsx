@@ -128,6 +128,18 @@ function Privacy() {
           consent notice, this row is never written and the request is never
           made.
         </p>
+        <p>
+          If you choose to answer the question at the bottom of a tool page, a
+          second row is written with the tool&rsquo;s name, whether you said it
+          worked, any comment you typed (up to 500 characters), and the time.
+          That comment is the only free text this site stores from anyone, so it
+          is worth being precise about it: it is kept as plain text with markup
+          stripped out, it is shown only to the site owner, and it is stored
+          with no identifier, email address, or device information attached.
+          There is deliberately no way for us to reply to you or to connect a
+          comment back to a person &mdash; the trade-off is that we can see what
+          went wrong, but not who it went wrong for.
+        </p>
       </Block>
 
       <Block title="Cookies and local storage">

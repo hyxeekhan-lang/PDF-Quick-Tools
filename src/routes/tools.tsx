@@ -91,7 +91,9 @@ function AllTools() {
             <button
               type="button"
               onClick={() => setQuery("")}
-              className="absolute right-2 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl text-ink-500 hover:bg-ink-100 hover:text-ink-900 dark:hover:bg-ink-800 dark:hover:text-white"
+              // h-11 clears the 40px minimum tap target. right-1 rather than right-2 so the
+              // wider box stays inside the field; the input's pr-12 has room for it.
+              className="absolute right-1 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl text-ink-500 hover:bg-ink-100 hover:text-ink-900 dark:hover:bg-ink-800 dark:hover:text-white"
               aria-label="Clear tool search"
             >
               <CloseIcon className="h-4 w-4" />

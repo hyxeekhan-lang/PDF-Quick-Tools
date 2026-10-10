@@ -37,7 +37,7 @@ function StarButton({ href }: { href: string }) {
         event.stopPropagation();
         setStarred(toggleFavourite(href).includes(href));
       }}
-      className="relative z-10 -mr-1 -mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-300 transition-colors hover:bg-ink-100 hover:text-amber-500 dark:text-ink-600 dark:hover:bg-ink-800 dark:hover:text-amber-400"
+      className="relative z-10 -mr-2 -mt-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-ink-300 transition-colors hover:bg-ink-100 hover:text-amber-500 dark:text-ink-600 dark:hover:bg-ink-800 dark:hover:text-amber-400"
     >
       <StarIcon filled={starred} className="h-5 w-5" />
     </button>

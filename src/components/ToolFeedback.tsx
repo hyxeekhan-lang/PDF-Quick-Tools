@@ -4,6 +4,8 @@ import { toolEvents } from "#/lib/analytics";
 import { formatBytes, triggerDownload, type ResultFile } from "#/lib/files";
 import type { Progress } from "#/hooks/useToolRun";
 import { PanelFocus } from "./PanelFocus";
+import { ShareResults } from "./ShareResults";
+import { useCurrentTool } from "#/lib/useCurrentTool";
 export type { ResultFile };
 
 export function ProgressBar({
@@ -181,6 +183,9 @@ export function SuccessPanel({
   startOverLabel: string;
   note?: string;
 }) {
+  // Resolved from the URL rather than passed down, so all 23 call sites get the
+  // share row without any of them having to remember a prop.
+  const current = useCurrentTool();
   const many = results.length > 1;
 
   function download(result: ResultFile) {
@@ -280,6 +285,8 @@ export function SuccessPanel({
           {startOverLabel}
         </button>
       </div>
+
+      {current && <ShareResults toolName={toolName} toolPath={current.href} hasResult />}
       </div>
     </PanelFocus>
   );

@@ -23,6 +23,10 @@ export function ToolSearch({
   className,
   placeholder = "Search tools",
   label = "Search PDF tools",
+  /** The hero's field is already full-width and visible; it does not need the
+   * icon trigger below lg that the header does, and showing one there would put
+   * a search icon next to a search field. */
+  iconTrigger = true,
 }: {
   className?: string;
   /** The hero states the question a visitor actually arrives with; the header
@@ -31,6 +35,7 @@ export function ToolSearch({
   /** The accessible name. Left as the short form in the header, where the
    * label would be redundant with the placeholder beside it. */
   label?: string;
+  iconTrigger?: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -116,8 +121,40 @@ export function ToolSearch({
     }
   }
 
-  return (
-    <div ref={containerRef} className={cx("relative", className)}>
+  // Phones have no keyboard shortcut and no room for a persistent field, so
+  // search was two taps and a page load away — on the majority of this site's
+  // visitors. A single icon opens the same field as a sheet, so the typeahead
+  // that desktop gets for free is one tap away everywhere.
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  useEffect(() => {
+    if (!sheetOpen) return;
+    // Only on a phone: the sheet must not stay mounted if the viewport grows
+    // past the breakpoint, or a desktop visitor resizing would be left with
+    // the page scroll locked and the search hidden.
+    const query = window.matchMedia("(min-width: 1024px)");
+    if (query.matches) {
+      setSheetOpen(false);
+      return;
+    }
+    const previous = document.activeElement as HTMLElement | null;
+    document.body.style.overflow = "hidden";
+    // Focusing without the delay makes the keyboard animate in over the sheet.
+    const timer = setTimeout(() => inputRef.current?.focus(), 60);
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setSheetOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+      clearTimeout(timer);
+      previous?.focus();
+    };
+  }, [sheetOpen]);
+
+  const field = (
+    <div ref={containerRef} className="relative">
       <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
       <input
         ref={inputRef}
@@ -141,7 +178,12 @@ export function ToolSearch({
       />
 
       {open && hasQuery && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-ink-200 dark:bg-ink-900 dark:ring-ink-700">
+        // w-[min(20rem,calc(100vw-2rem))] rather than a flat w-80. A fixed 320px
+        // panel is fine in the header on desktop, but the same component is used
+        // in the hero where it can start near the left edge of a 360px phone —
+        // where 320px plus its offset ran the results off the side of the
+        // screen. min() tracks the viewport and collapses to it on a phone.
+        <div className="absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-ink-200 dark:bg-ink-900 dark:ring-ink-700">
           {hits.length === 0 ? (
             <p className="px-4 py-4 text-sm text-ink-500 dark:text-ink-400">
               No tool matches “{query.trim()}”.{" "}
@@ -204,5 +246,45 @@ export function ToolSearch({
         </div>
       )}
     </div>
+  );
+
+  return (
+    <>
+      {/* The persistent field, for everything lg and up. The icon below is the
+          only other trigger, so nothing here is reachable from a phone — which
+          is the point of the sheet. */}
+      <div className={cx(iconTrigger ? "hidden lg:block" : "block", className)}>
+        {field}
+      </div>
+
+      {iconTrigger && (
+        <button
+          type="button"
+          onClick={() => setSheetOpen(true)}
+          aria-label="Search tools"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-ink-500 transition-colors hover:bg-ink-100 hover:text-ink-900 lg:hidden dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-white"
+        >
+          <SearchIcon className="h-[18px] w-[18px]" />
+        </button>
+      )}
+
+      {/* Rendered only when open, so the DOM stays clean and the results list
+          is not duplicated for a screen reader on every page of the site. */}
+      {sheetOpen && (
+        <div className="fixed inset-0 z-[90] bg-ink-950/50 p-3 backdrop-blur-sm lg:hidden">
+          <div className="mx-auto mt-2 w-full max-w-md">
+            {field}
+            <button
+              type="button"
+              onClick={() => setSheetOpen(false)}
+              className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-white/10 text-sm font-semibold text-white transition-colors hover:bg-white/20"
+            >
+              <CloseIcon className="h-4 w-4" />
+              Close search
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

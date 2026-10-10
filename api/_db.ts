@@ -20,6 +20,22 @@
  * There is deliberately no UNIQUE constraint on anything. An aggregate count is
  * derived at query time, so a visitor who runs compress three times reads as
  * three runs — which is the truthful answer to "how much is this tool used".
+ *
+ * ## The feedback table
+ *
+ * A second table holds what people wrote about a tool. It is worth separating
+ * from `tool_visits` rather than adding columns, because the two have different
+ * rules: a visit row is written automatically on every page open and stores
+ * nothing, while a feedback row stores something a person typed. That text is
+ * the one piece of this site that ever contains words from a human, so it gets
+ * its own table, its own validation, and its own explicit limits.
+ *
+ * What is stored: the tool path, whether it was a thumbs up or down, an optional
+ * short comment, and the time. No IP, no email, no cookie, no identifier — same
+ * position as the visits table. The comment is the exception to "only names and
+ * timestamps" and is the reason the length limit below is strict: an unbounded
+ * free-text column on an unauthenticated endpoint is a place people put things
+ * they should not.
  */
 
 import postgres from "postgres";
@@ -84,6 +100,25 @@ export async function ensureSchema(): Promise<void> {
     CREATE INDEX IF NOT EXISTS tool_visits_tool_happened_at_idx
       ON tool_visits (tool, happened_at DESC)
   `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS tool_feedback (
+      id         bigserial PRIMARY KEY,
+      tool       text        NOT NULL,
+      sentiment  smallint    NOT NULL,
+      comment    text,
+      happened_at timestamptz NOT NULL DEFAULT now()
+    )
+  `;
+  // One query reads the newest feedback; the other aggregates it by tool.
+  await sql`
+    CREATE INDEX IF NOT EXISTS tool_feedback_happened_at_idx
+      ON tool_feedback (happened_at DESC)
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS tool_feedback_tool_idx
+      ON tool_feedback (tool, happened_at DESC)
+  `;
 }
 
 /**
@@ -101,6 +136,42 @@ export async function recordVisit(tool: string): Promise<boolean> {
   return true;
 }
 
+/**
+ * Records one piece of feedback.
+ *
+ * The comment is trimmed and length-capped here as well as at the endpoint, so
+ * that the limit holds no matter which caller gets there first. `null` rather
+ * than an empty string for "no comment", so the two cases stay distinguishable
+ * when counting how many people actually wrote something.
+ */
+export async function recordFeedback(
+  tool: string,
+  sentiment: number,
+  comment: string | null,
+): Promise<boolean> {
+  const sql = db();
+  if (!sql) return false;
+  await ensureSchema();
+  await sql`
+    INSERT INTO tool_feedback (tool, sentiment, comment)
+    VALUES (${tool}, ${sentiment}, ${comment})
+  `;
+  return true;
+}
+
+export interface FeedbackRow {
+  tool: string;
+  sentiment: number;
+  comment: string | null;
+  at: string;
+}
+
+export interface FeedbackSummary {
+  tool: string;
+  up: number;
+  down: number;
+}
+
 export interface DashboardData {
   /** False when POSTGRES_URL is absent, so the panel can say so plainly. */
   configured: boolean;
@@ -115,6 +186,13 @@ export interface DashboardData {
   byTool: Array<{ tool: string; count: number }>;
   /** Most recent rows, newest first. Tool name and time only. */
   recent: Array<{ tool: string; at: string }>;
+  feedback: {
+    total: number;
+    up: number;
+    down: number;
+    byTool: FeedbackSummary[];
+    recent: FeedbackRow[];
+  };
 }
 
 const DAY = "day";
@@ -135,12 +213,14 @@ export async function dashboard(days: number): Promise<DashboardData> {
       byDay: [],
       byTool: [],
       recent: [],
+      feedback: { total: 0, up: 0, down: 0, byTool: [], recent: [] },
     };
   }
 
   await ensureSchema();
 
-  const [totals, byDay, byTool, recent] = await Promise.all([
+  const [totals, byDay, byTool, recent, feedbackTotals, feedbackByTool, feedbackRecent] =
+    await Promise.all([
     sql<
       Array<{ today: string; yesterday: string; last7: string; previous7: string; all_time: string }>
     >`
@@ -174,9 +254,34 @@ export async function dashboard(days: number): Promise<DashboardData> {
       ORDER BY happened_at DESC
       LIMIT 25
     `,
+    sql<Array<{ total: string; up: string; down: string }>>`
+      SELECT
+        count(*)::text                                            AS total,
+        count(*) FILTER (WHERE sentiment > 0)::text               AS up,
+        count(*) FILTER (WHERE sentiment < 0)::text               AS down
+      FROM tool_feedback
+      WHERE happened_at >= now() - make_interval(days => ${days})
+    `,
+    sql<Array<{ tool: string; up: string; down: string }>>`
+      SELECT tool,
+             count(*) FILTER (WHERE sentiment > 0)::text AS up,
+             count(*) FILTER (WHERE sentiment < 0)::text AS down
+      FROM tool_feedback
+      WHERE happened_at >= now() - make_interval(days => ${days})
+      GROUP BY tool
+      ORDER BY count(*) DESC, tool ASC
+    `,
+    sql<Array<{ tool: string; sentiment: number; comment: string | null; at: Date }>>`
+      SELECT tool, sentiment, comment, happened_at AS at
+      FROM tool_feedback
+      WHERE happened_at >= now() - make_interval(days => ${days})
+      ORDER BY happened_at DESC
+      LIMIT 25
+    `,
   ]);
 
   const t = totals[0];
+  const f = feedbackTotals[0];
 
   return {
     configured: true,
@@ -190,5 +295,21 @@ export async function dashboard(days: number): Promise<DashboardData> {
     byDay: byDay.map((r) => ({ day: r.day, count: Number(r.count) })),
     byTool: byTool.map((r) => ({ tool: r.tool, count: Number(r.count) })),
     recent: recent.map((r) => ({ tool: r.tool, at: r.at.toISOString() })),
+    feedback: {
+      total: Number(f?.total ?? 0),
+      up: Number(f?.up ?? 0),
+      down: Number(f?.down ?? 0),
+      byTool: feedbackByTool.map((r) => ({
+        tool: r.tool,
+        up: Number(r.up),
+        down: Number(r.down),
+      })),
+      recent: feedbackRecent.map((r) => ({
+        tool: r.tool,
+        sentiment: Number(r.sentiment),
+        comment: r.comment,
+        at: r.at.toISOString(),
+      })),
+    },
   };
 }

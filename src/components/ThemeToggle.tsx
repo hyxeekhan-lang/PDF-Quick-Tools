@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { MoonIcon, SunIcon } from "./Icons";
-import { cx } from "./ui";
+import { Tooltip } from "./Tooltip";
 
 export const THEME_KEY = "pqt-theme";
 
@@ -32,22 +32,26 @@ export function ThemeToggle({ className }: { className?: string }) {
     }
   }
 
+  const label = dark ? "Switch to light mode" : "Switch to dark mode";
+
   return (
-    <button
-      type="button"
-      onClick={toggle}
-      aria-pressed={ready ? dark : undefined}
-      aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-      className={cx(
-        "inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink-500 transition-colors hover:bg-ink-100 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-white",
-        className,
-      )}
-    >
-      {ready && dark ? (
-        <SunIcon className="h-[18px] w-[18px]" />
-      ) : (
-        <MoonIcon className="h-[18px] w-[18px]" />
-      )}
-    </button>
+    // Wrapped rather than given a `title`: a title attribute only appears on
+    // hover, and a phone has no hover — where a moon-and-sun glyph with no
+    // label is the one control in the header nobody can guess.
+    <Tooltip label={label} className={className}>
+      <button
+        type="button"
+        onClick={toggle}
+        aria-pressed={ready ? dark : undefined}
+        aria-label={label}
+        className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-ink-500 transition-colors hover:bg-ink-100 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-white"
+      >
+        {ready && dark ? (
+          <SunIcon className="h-[18px] w-[18px]" />
+        ) : (
+          <MoonIcon className="h-[18px] w-[18px]" />
+        )}
+      </button>
+    </Tooltip>
   );
 }

@@ -44,7 +44,10 @@ export function ExtensionBanner() {
         <button
           type="button"
           onClick={() => setVisible(false)}
-          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-lg text-ink-500 hover:bg-white/60 hover:text-ink-900 focus:outline-none focus:ring-2 focus:ring-brand-400 dark:hover:bg-ink-700/60 dark:hover:text-white sm:static sm:inline-flex"
+          // h-10 w-10 rather than h-8 w-8: 32px is under the minimum tap target, and
+          // this is a phone-first dismissal. absolute on mobile, static from sm
+          // so it does not overlap the text at the size it was placed for.
+          className="absolute right-2 top-2 inline-flex h-10 w-10 items-center justify-center rounded-lg text-ink-500 hover:bg-white/60 hover:text-ink-900 focus:outline-none focus:ring-2 focus:ring-brand-400 dark:hover:bg-ink-700/60 dark:hover:text-white sm:static sm:inline-flex"
           aria-label="Close Chrome Extension banner"
         >
           <CloseIcon className="h-4 w-4" />

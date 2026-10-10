@@ -222,7 +222,10 @@ function Row({
                 onClick={() => onRemove(tool.href)}
                 aria-label={`Remove ${tool.name} from your tools`}
                 title={`Remove ${tool.name}`}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-white/90 p-1.5 text-ink-500 ring-1 ring-ink-200 transition hover:text-red-600 hover:ring-red-300 dark:bg-ink-800/90 dark:text-ink-400 dark:ring-ink-700 dark:hover:text-red-400"
+                // p-2 rather than p-1.5: 16px icon + 2x8 padding = 32px, under the
+                // minimum tap target. This is a destructive action, and the
+                // worst possible one to miss on a phone.
+                className="absolute right-1 top-1/2 -translate-y-1/2 rounded-lg bg-white/90 p-2 text-ink-500 ring-1 ring-ink-200 transition hover:text-red-600 hover:ring-red-300 dark:bg-ink-800/90 dark:text-ink-400 dark:ring-ink-700 dark:hover:text-red-400"
               >
                 <CloseIcon className="h-4 w-4" />
               </button>

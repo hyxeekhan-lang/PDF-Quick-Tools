@@ -209,12 +209,16 @@ function AddBookmarksPage() {
                 Bookmarks ({bookmarks.length})
               </p>
               {bookmarks.map((b, idx) => (
-                <div key={idx} className="flex items-center justify-between rounded-xl border border-ink-200 bg-white p-3 dark:border-ink-800 dark:bg-ink-950">
-                  <div className="flex items-center gap-3">
-                    <span className="rounded-md bg-brand-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-700 dark:bg-brand-900 dark:text-brand-300">
+                <div key={idx} className="flex items-center justify-between gap-3 rounded-xl border border-ink-200 bg-white p-3 dark:border-ink-800 dark:bg-ink-950">
+                  {/* min-w-0 on the flex parent is what makes the truncation work:
+                      without it the inner flex item's automatic minimum size is
+                      its content width, so a long bookmark title refused to
+                      shrink and pushed Remove off the right edge of the card. */}
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="shrink-0 rounded-md bg-brand-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-700 dark:bg-brand-900 dark:text-brand-300">
                       Page {b.page + 1}
                     </span>
-                    <span className="text-sm font-semibold text-ink-900 dark:text-white">{b.title}</span>
+                    <span className="truncate text-sm font-semibold text-ink-900 dark:text-white">{b.title}</span>
                   </div>
                   <button
                     type="button"

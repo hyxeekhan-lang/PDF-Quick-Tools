@@ -49,12 +49,26 @@ interface Totals {
   allTime: number;
 }
 
+interface FeedbackRow {
+  tool: string;
+  sentiment: number;
+  comment: string | null;
+  at: string;
+}
+
 interface Dashboard {
   configured: boolean;
   totals: Totals;
   byDay: Array<{ day: string; count: number }>;
   byTool: Array<{ tool: string; count: number }>;
   recent: Array<{ tool: string; at: string }>;
+  feedback: {
+    total: number;
+    up: number;
+    down: number;
+    byTool: Array<{ tool: string; up: number; down: number }>;
+    recent: FeedbackRow[];
+  };
 }
 
 const RANGES = [
@@ -322,6 +336,88 @@ export function AdminPage() {
                 session and no cookie behind these rows, so the same person
                 opening the same tool twice appears twice — which is the honest
                 count of how much the tool is used.
+              </p>
+            </section>
+
+            <section aria-labelledby="feedback-heading" className={`mt-6 ${card} p-6`}>
+              <h2 id="feedback-heading" className={heading.h3}>
+                What people said
+              </h2>
+
+              {data.feedback.total === 0 ? (
+                <p className={`mt-4 text-sm ${muted}`}>
+                  No feedback yet. Visitors see one question at the bottom of
+                  each tool page, once per tool.
+                </p>
+              ) : (
+                <>
+                  <p className={`mt-2 text-sm ${muted}`}>
+                    <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                      {data.feedback.up}
+                    </span>{" "}
+                    worked ·{" "}
+                    <span className="font-semibold text-red-600 dark:text-red-400">
+                      {data.feedback.down}
+                    </span>{" "}
+                    did not
+                  </p>
+
+                  {data.feedback.byTool.some((row) => row.down > 0) && (
+                    <div className="mt-5">
+                      <h3 className="text-sm font-semibold text-ink-900 dark:text-white">
+                        Tools with complaints
+                      </h3>
+                      <ul className="mt-2 flex flex-wrap gap-2">
+                        {data.feedback.byTool
+                          .filter((row) => row.down > 0)
+                          .map((row) => (
+                            <li
+                              key={row.tool}
+                              className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-800 dark:bg-red-950/40 dark:text-red-200"
+                            >
+                              {row.tool} — {row.down} down, {row.up} up
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {data.feedback.recent.filter((row) => row.comment).length > 0 && (
+                    <ul className="mt-6 divide-y divide-ink-100 text-sm dark:divide-ink-800">
+                      {data.feedback.recent
+                        .filter((row) => row.comment)
+                        .map((row, index) => (
+                          <li key={`${row.at}-${index}`} className="py-3">
+                            <div className="flex items-baseline justify-between gap-3">
+                              <span className="truncate font-medium text-ink-900 dark:text-white">
+                                {row.sentiment > 0 ? "Worked" : "Broke"} · {row.tool}
+                              </span>
+                              <time
+                                dateTime={row.at}
+                                className="shrink-0 text-xs text-ink-500 dark:text-ink-400"
+                              >
+                                {new Date(row.at).toLocaleString()}
+                              </time>
+                            </div>
+                            {/* Rendered as text, never as markup. The comment is
+                                already stripped of angle brackets and quotes on
+                                the server, and this is the second line of
+                                defence rather than the only one. */}
+                            <p className="mt-1 leading-relaxed break-words text-ink-700 dark:text-ink-200">
+                              {row.comment}
+                            </p>
+                          </li>
+                        ))}
+                    </ul>
+                  )}
+                </>
+              )}
+
+              <p className="mt-5 text-xs leading-relaxed text-ink-500 dark:text-ink-400">
+                Feedback is anonymous by design: no email, no name, no device, no
+                cookie. If someone cannot describe what went wrong, there is
+                nobody to ask for details — that is the cost of not keeping
+                visitor records.
               </p>
             </section>
           </>
