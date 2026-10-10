@@ -192,13 +192,25 @@ function InstallAppButton() {
   async function install() {
     const prompt = installPrompt;
     if (!prompt) {
-      setMessage("Use your browser menu and choose Install PDF Quick Tools.");
+      setMessage("Install from your browser menu: ⋮ → Install app.");
       return;
     }
     await prompt.prompt();
-    await prompt.userChoice;
+    const choice = await prompt.userChoice;
+    setMessage(choice.outcome === "accepted" ? "Installed. Look for it on your home screen." : null);
     setInstallPrompt(null);
   }
+
+  // The notice has to be visible. It used to be announced through an sr-only
+  // live region, which a sighted visitor — the person who just pressed the
+  // button — never sees, so pressing it appeared to do nothing. A sighted user
+  // who clicks and gets silence concludes the button is broken, which is the
+  // exact impression this button must not give.
+  useEffect(() => {
+    if (!message) return;
+    const timer = setTimeout(() => setMessage(null), 6000);
+    return () => clearTimeout(timer);
+  }, [message]);
 
   return (
     <>
@@ -218,7 +230,11 @@ function InstallAppButton() {
         </button>
       </Tooltip>
       {message && (
-        <span className="sr-only" role="status" aria-live="polite">
+        <span
+          role="status"
+          aria-live="polite"
+          className="pointer-events-none fixed left-1/2 top-20 z-[80] -translate-x-1/2 rounded-xl bg-ink-900 px-4 py-2.5 text-sm font-medium text-white shadow-xl dark:bg-white dark:text-ink-950"
+        >
           {message}
         </span>
       )}
