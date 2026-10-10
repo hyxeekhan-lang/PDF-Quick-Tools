@@ -71,6 +71,11 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:gap-3 sm:px-6">
         <Link
           to="/"
+          /* The mark is aria-hidden, and the wordmark beside it is hidden below
+             sm, so on a phone this link had no accessible name at all — a
+             screen reader announced just "link". The label is always present;
+             only the visible word is withheld. */
+          aria-label={`${SITE_NAME} — home`}
           className="flex min-w-0 flex-1 items-center gap-2 rounded-lg text-ink-900 lg:flex-none dark:text-white"
         >
           <span className="shrink-0"><BrandMark /></span>
