@@ -29,9 +29,8 @@
  *    keep it is that the alternative is a table of complaints sitting next to
  *    visitors' identities.
  *
- * The response is 204 with no body whether or not the row was written. The
- * visitor pressed a button; whether it counted is not something they need to be
- * told, and a body would only give a prober something to learn from.
+ * A successful response has no body; storage failures are reported so a review
+ * form never tells the visitor that an unsaved comment was published.
  */
 
 import { recordFeedback } from "./_db.js";
@@ -84,36 +83,61 @@ function cleanComment(raw: string): string {
 
 export async function POST(request: Request): Promise<Response> {
   const limit = takeRateLimit(`feedback:${clientIp(request)}`, RATE_LIMIT);
-  if (!limit.ok) return new Response(null, { status: 202 });
+  if (!limit.ok) {
+    return new Response("Too many feedback submissions. Please try again tomorrow.", {
+      status: 429,
+      headers: { "Cache-Control": "no-store" },
+    });
+  }
 
-  try {
-    const body = (await request.json()) as {
+  let body: {
       tool?: unknown;
       sentiment?: unknown;
+      rating?: unknown;
       comment?: unknown;
     };
-
-    const tool = typeof body?.tool === "string" ? body.tool : "";
-    if (!TOOL_PATH.test(tool) || tool.length > MAX_TOOL_LENGTH) {
-      return new Response(null, { status: 204 });
-    }
-
-    // Only plus or minus one. A float, a huge integer, or a boolean would all
-    // otherwise reach the column and have to be defended against in every
-    // aggregate that reads it, so the check happens once here and the value
-    // stays clean everywhere downstream.
-    const sentiment = body.sentiment === 1 ? 1 : body.sentiment === -1 ? -1 : 0;
-    if (sentiment === 0) return new Response(null, { status: 204 });
-
-    const comment =
-      typeof body.comment === "string" && body.comment.trim()
-        ? cleanComment(body.comment)
-        : null;
-
-    await recordFeedback(tool, sentiment, comment);
+  try {
+    body = (await request.json()) as typeof body;
   } catch {
-    // Same contract as /api/track: a database that is down costs one row, not
-    // the visitor's click.
+    return new Response("Invalid JSON body.", {
+      status: 400,
+      headers: { "Cache-Control": "no-store" },
+    });
+  }
+
+  const tool = typeof body?.tool === "string" ? body.tool : "";
+  if ((tool !== "/" && !TOOL_PATH.test(tool)) || tool.length > MAX_TOOL_LENGTH) {
+    return new Response(null, { status: 204 });
+  }
+
+  const rating =
+    Number.isInteger(body.rating) && Number(body.rating) >= 1 && Number(body.rating) <= 5
+      ? Number(body.rating)
+      : null;
+  const sentiment = rating !== null
+    ? rating >= 3 ? 1 : -1
+    : body.sentiment === 1 ? 1 : body.sentiment === -1 ? -1 : 0;
+  if (sentiment === 0) return new Response(null, { status: 204 });
+
+  const comment =
+    typeof body.comment === "string" && body.comment.trim()
+      ? cleanComment(body.comment)
+      : null;
+  if (tool === "/" && !comment) return new Response(null, { status: 204 });
+
+  try {
+    const stored = await recordFeedback(tool, sentiment, comment, rating);
+    if (!stored) {
+      return new Response("Feedback storage is unavailable.", {
+        status: 503,
+        headers: { "Cache-Control": "no-store" },
+      });
+    }
+  } catch {
+    return new Response("Feedback could not be saved. Please try again.", {
+      status: 503,
+      headers: { "Cache-Control": "no-store" },
+    });
   }
 
   return new Response(null, { status: 204 });

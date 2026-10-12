@@ -70,7 +70,9 @@ function AiNotesPage() {
     if (!file) return;
     await run.run(async (report) => {
       report(10, "Extracting text...");
-      const text = await extractPdfText(file.file);
+      const text = await extractPdfText(file.file, (percent, label) =>
+        report(5 + percent * 0.25, label),
+      );
       if (!text.trim()) {
         throw new FriendlyError("Could not extract text from this PDF. It may be a scanned document.");
       }

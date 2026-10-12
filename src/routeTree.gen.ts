@@ -36,6 +36,7 @@ import { Route as CompressPdfRouteImport } from './routes/compress-pdf'
 import { Route as CompressPdfToSpecificSizeRouteImport } from './routes/compress-pdf-to-specific-size'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ConvertPdfRouteImport } from './routes/convert-pdf'
+import { Route as CreatePdfFormRouteImport } from './routes/create-pdf-form'
 import { Route as CropPdfRouteImport } from './routes/crop-pdf'
 import { Route as DailyChallengeRouteImport } from './routes/daily-challenge'
 import { Route as DeletePdfPagesRouteImport } from './routes/delete-pdf-pages'
@@ -64,18 +65,21 @@ import { Route as PdfToJpgRouteImport } from './routes/pdf-to-jpg'
 import { Route as PdfToMarkdownRouteImport } from './routes/pdf-to-markdown'
 import { Route as PdfToPngRouteImport } from './routes/pdf-to-png'
 import { Route as PdfToWordRouteImport } from './routes/pdf-to-word'
+import { Route as PdfWorkflowRouteImport } from './routes/pdf-workflow'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProtectPdfRouteImport } from './routes/protect-pdf'
 import { Route as RearrangePdfPagesRouteImport } from './routes/rearrange-pdf-pages'
 import { Route as RedactPdfRouteImport } from './routes/redact-pdf'
 import { Route as RemovePdfMetadataRouteImport } from './routes/remove-pdf-metadata'
 import { Route as RepairPdfRouteImport } from './routes/repair-pdf'
+import { Route as RequestSignatureRouteImport } from './routes/request-signature'
 import { Route as RotatePdfRouteImport } from './routes/rotate-pdf'
 import { Route as SignPdfRouteImport } from './routes/sign-pdf'
 import { Route as SplitPdfRouteImport } from './routes/split-pdf'
 import { Route as StudyModeRouteImport } from './routes/study-mode'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ToolsRouteImport } from './routes/tools'
+import { Route as TrackSignatureRouteImport } from './routes/track-signature'
 import { Route as UnlockPdfRouteImport } from './routes/unlock-pdf'
 import { Route as WatermarkPdfRouteImport } from './routes/watermark-pdf'
 import { Route as WordToPdfRouteImport } from './routes/word-to-pdf'
@@ -214,6 +218,11 @@ const ContactRoute = ContactRouteImport.update({
 const ConvertPdfRoute = ConvertPdfRouteImport.update({
   id: '/convert-pdf',
   path: '/convert-pdf',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreatePdfFormRoute = CreatePdfFormRouteImport.update({
+  id: '/create-pdf-form',
+  path: '/create-pdf-form',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CropPdfRoute = CropPdfRouteImport.update({
@@ -356,6 +365,11 @@ const PdfToWordRoute = PdfToWordRouteImport.update({
   path: '/pdf-to-word',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PdfWorkflowRoute = PdfWorkflowRouteImport.update({
+  id: '/pdf-workflow',
+  path: '/pdf-workflow',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -386,6 +400,11 @@ const RepairPdfRoute = RepairPdfRouteImport.update({
   path: '/repair-pdf',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RequestSignatureRoute = RequestSignatureRouteImport.update({
+  id: '/request-signature',
+  path: '/request-signature',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RotatePdfRoute = RotatePdfRouteImport.update({
   id: '/rotate-pdf',
   path: '/rotate-pdf',
@@ -414,6 +433,11 @@ const TermsRoute = TermsRouteImport.update({
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
   path: '/tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrackSignatureRoute = TrackSignatureRouteImport.update({
+  id: '/track-signature',
+  path: '/track-signature',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UnlockPdfRoute = UnlockPdfRouteImport.update({
@@ -460,6 +484,7 @@ export interface FileRoutesByFullPath {
   '/compress-pdf-to-specific-size': typeof CompressPdfToSpecificSizeRoute
   '/contact': typeof ContactRoute
   '/convert-pdf': typeof ConvertPdfRoute
+  '/create-pdf-form': typeof CreatePdfFormRoute
   '/crop-pdf': typeof CropPdfRoute
   '/daily-challenge': typeof DailyChallengeRoute
   '/delete-pdf-pages': typeof DeletePdfPagesRoute
@@ -488,18 +513,21 @@ export interface FileRoutesByFullPath {
   '/pdf-to-markdown': typeof PdfToMarkdownRoute
   '/pdf-to-png': typeof PdfToPngRoute
   '/pdf-to-word': typeof PdfToWordRoute
+  '/pdf-workflow': typeof PdfWorkflowRoute
   '/privacy': typeof PrivacyRoute
   '/protect-pdf': typeof ProtectPdfRoute
   '/rearrange-pdf-pages': typeof RearrangePdfPagesRoute
   '/redact-pdf': typeof RedactPdfRoute
   '/remove-pdf-metadata': typeof RemovePdfMetadataRoute
   '/repair-pdf': typeof RepairPdfRoute
+  '/request-signature': typeof RequestSignatureRoute
   '/rotate-pdf': typeof RotatePdfRoute
   '/sign-pdf': typeof SignPdfRoute
   '/split-pdf': typeof SplitPdfRoute
   '/study-mode': typeof StudyModeRoute
   '/terms': typeof TermsRoute
   '/tools': typeof ToolsRoute
+  '/track-signature': typeof TrackSignatureRoute
   '/unlock-pdf': typeof UnlockPdfRoute
   '/watermark-pdf': typeof WatermarkPdfRoute
   '/word-to-pdf': typeof WordToPdfRoute
@@ -532,6 +560,7 @@ export interface FileRoutesByTo {
   '/compress-pdf-to-specific-size': typeof CompressPdfToSpecificSizeRoute
   '/contact': typeof ContactRoute
   '/convert-pdf': typeof ConvertPdfRoute
+  '/create-pdf-form': typeof CreatePdfFormRoute
   '/crop-pdf': typeof CropPdfRoute
   '/daily-challenge': typeof DailyChallengeRoute
   '/delete-pdf-pages': typeof DeletePdfPagesRoute
@@ -560,18 +589,21 @@ export interface FileRoutesByTo {
   '/pdf-to-markdown': typeof PdfToMarkdownRoute
   '/pdf-to-png': typeof PdfToPngRoute
   '/pdf-to-word': typeof PdfToWordRoute
+  '/pdf-workflow': typeof PdfWorkflowRoute
   '/privacy': typeof PrivacyRoute
   '/protect-pdf': typeof ProtectPdfRoute
   '/rearrange-pdf-pages': typeof RearrangePdfPagesRoute
   '/redact-pdf': typeof RedactPdfRoute
   '/remove-pdf-metadata': typeof RemovePdfMetadataRoute
   '/repair-pdf': typeof RepairPdfRoute
+  '/request-signature': typeof RequestSignatureRoute
   '/rotate-pdf': typeof RotatePdfRoute
   '/sign-pdf': typeof SignPdfRoute
   '/split-pdf': typeof SplitPdfRoute
   '/study-mode': typeof StudyModeRoute
   '/terms': typeof TermsRoute
   '/tools': typeof ToolsRoute
+  '/track-signature': typeof TrackSignatureRoute
   '/unlock-pdf': typeof UnlockPdfRoute
   '/watermark-pdf': typeof WatermarkPdfRoute
   '/word-to-pdf': typeof WordToPdfRoute
@@ -605,6 +637,7 @@ export interface FileRoutesById {
   '/compress-pdf-to-specific-size': typeof CompressPdfToSpecificSizeRoute
   '/contact': typeof ContactRoute
   '/convert-pdf': typeof ConvertPdfRoute
+  '/create-pdf-form': typeof CreatePdfFormRoute
   '/crop-pdf': typeof CropPdfRoute
   '/daily-challenge': typeof DailyChallengeRoute
   '/delete-pdf-pages': typeof DeletePdfPagesRoute
@@ -633,18 +666,21 @@ export interface FileRoutesById {
   '/pdf-to-markdown': typeof PdfToMarkdownRoute
   '/pdf-to-png': typeof PdfToPngRoute
   '/pdf-to-word': typeof PdfToWordRoute
+  '/pdf-workflow': typeof PdfWorkflowRoute
   '/privacy': typeof PrivacyRoute
   '/protect-pdf': typeof ProtectPdfRoute
   '/rearrange-pdf-pages': typeof RearrangePdfPagesRoute
   '/redact-pdf': typeof RedactPdfRoute
   '/remove-pdf-metadata': typeof RemovePdfMetadataRoute
   '/repair-pdf': typeof RepairPdfRoute
+  '/request-signature': typeof RequestSignatureRoute
   '/rotate-pdf': typeof RotatePdfRoute
   '/sign-pdf': typeof SignPdfRoute
   '/split-pdf': typeof SplitPdfRoute
   '/study-mode': typeof StudyModeRoute
   '/terms': typeof TermsRoute
   '/tools': typeof ToolsRoute
+  '/track-signature': typeof TrackSignatureRoute
   '/unlock-pdf': typeof UnlockPdfRoute
   '/watermark-pdf': typeof WatermarkPdfRoute
   '/word-to-pdf': typeof WordToPdfRoute
@@ -679,6 +715,7 @@ export interface FileRouteTypes {
     | '/compress-pdf-to-specific-size'
     | '/contact'
     | '/convert-pdf'
+    | '/create-pdf-form'
     | '/crop-pdf'
     | '/daily-challenge'
     | '/delete-pdf-pages'
@@ -707,18 +744,21 @@ export interface FileRouteTypes {
     | '/pdf-to-markdown'
     | '/pdf-to-png'
     | '/pdf-to-word'
+    | '/pdf-workflow'
     | '/privacy'
     | '/protect-pdf'
     | '/rearrange-pdf-pages'
     | '/redact-pdf'
     | '/remove-pdf-metadata'
     | '/repair-pdf'
+    | '/request-signature'
     | '/rotate-pdf'
     | '/sign-pdf'
     | '/split-pdf'
     | '/study-mode'
     | '/terms'
     | '/tools'
+    | '/track-signature'
     | '/unlock-pdf'
     | '/watermark-pdf'
     | '/word-to-pdf'
@@ -751,6 +791,7 @@ export interface FileRouteTypes {
     | '/compress-pdf-to-specific-size'
     | '/contact'
     | '/convert-pdf'
+    | '/create-pdf-form'
     | '/crop-pdf'
     | '/daily-challenge'
     | '/delete-pdf-pages'
@@ -779,18 +820,21 @@ export interface FileRouteTypes {
     | '/pdf-to-markdown'
     | '/pdf-to-png'
     | '/pdf-to-word'
+    | '/pdf-workflow'
     | '/privacy'
     | '/protect-pdf'
     | '/rearrange-pdf-pages'
     | '/redact-pdf'
     | '/remove-pdf-metadata'
     | '/repair-pdf'
+    | '/request-signature'
     | '/rotate-pdf'
     | '/sign-pdf'
     | '/split-pdf'
     | '/study-mode'
     | '/terms'
     | '/tools'
+    | '/track-signature'
     | '/unlock-pdf'
     | '/watermark-pdf'
     | '/word-to-pdf'
@@ -823,6 +867,7 @@ export interface FileRouteTypes {
     | '/compress-pdf-to-specific-size'
     | '/contact'
     | '/convert-pdf'
+    | '/create-pdf-form'
     | '/crop-pdf'
     | '/daily-challenge'
     | '/delete-pdf-pages'
@@ -851,18 +896,21 @@ export interface FileRouteTypes {
     | '/pdf-to-markdown'
     | '/pdf-to-png'
     | '/pdf-to-word'
+    | '/pdf-workflow'
     | '/privacy'
     | '/protect-pdf'
     | '/rearrange-pdf-pages'
     | '/redact-pdf'
     | '/remove-pdf-metadata'
     | '/repair-pdf'
+    | '/request-signature'
     | '/rotate-pdf'
     | '/sign-pdf'
     | '/split-pdf'
     | '/study-mode'
     | '/terms'
     | '/tools'
+    | '/track-signature'
     | '/unlock-pdf'
     | '/watermark-pdf'
     | '/word-to-pdf'
@@ -896,6 +944,7 @@ export interface RootRouteChildren {
   CompressPdfToSpecificSizeRoute: typeof CompressPdfToSpecificSizeRoute
   ContactRoute: typeof ContactRoute
   ConvertPdfRoute: typeof ConvertPdfRoute
+  CreatePdfFormRoute: typeof CreatePdfFormRoute
   CropPdfRoute: typeof CropPdfRoute
   DailyChallengeRoute: typeof DailyChallengeRoute
   DeletePdfPagesRoute: typeof DeletePdfPagesRoute
@@ -924,18 +973,21 @@ export interface RootRouteChildren {
   PdfToMarkdownRoute: typeof PdfToMarkdownRoute
   PdfToPngRoute: typeof PdfToPngRoute
   PdfToWordRoute: typeof PdfToWordRoute
+  PdfWorkflowRoute: typeof PdfWorkflowRoute
   PrivacyRoute: typeof PrivacyRoute
   ProtectPdfRoute: typeof ProtectPdfRoute
   RearrangePdfPagesRoute: typeof RearrangePdfPagesRoute
   RedactPdfRoute: typeof RedactPdfRoute
   RemovePdfMetadataRoute: typeof RemovePdfMetadataRoute
   RepairPdfRoute: typeof RepairPdfRoute
+  RequestSignatureRoute: typeof RequestSignatureRoute
   RotatePdfRoute: typeof RotatePdfRoute
   SignPdfRoute: typeof SignPdfRoute
   SplitPdfRoute: typeof SplitPdfRoute
   StudyModeRoute: typeof StudyModeRoute
   TermsRoute: typeof TermsRoute
   ToolsRoute: typeof ToolsRoute
+  TrackSignatureRoute: typeof TrackSignatureRoute
   UnlockPdfRoute: typeof UnlockPdfRoute
   WatermarkPdfRoute: typeof WatermarkPdfRoute
   WordToPdfRoute: typeof WordToPdfRoute
@@ -1130,6 +1182,13 @@ declare module '@tanstack/react-router' {
       path: '/convert-pdf'
       fullPath: '/convert-pdf'
       preLoaderRoute: typeof ConvertPdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/create-pdf-form': {
+      id: '/create-pdf-form'
+      path: '/create-pdf-form'
+      fullPath: '/create-pdf-form'
+      preLoaderRoute: typeof CreatePdfFormRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/crop-pdf': {
@@ -1328,6 +1387,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PdfToWordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pdf-workflow': {
+      id: '/pdf-workflow'
+      path: '/pdf-workflow'
+      fullPath: '/pdf-workflow'
+      preLoaderRoute: typeof PdfWorkflowRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -1370,6 +1436,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RepairPdfRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/request-signature': {
+      id: '/request-signature'
+      path: '/request-signature'
+      fullPath: '/request-signature'
+      preLoaderRoute: typeof RequestSignatureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rotate-pdf': {
       id: '/rotate-pdf'
       path: '/rotate-pdf'
@@ -1410,6 +1483,13 @@ declare module '@tanstack/react-router' {
       path: '/tools'
       fullPath: '/tools'
       preLoaderRoute: typeof ToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/track-signature': {
+      id: '/track-signature'
+      path: '/track-signature'
+      fullPath: '/track-signature'
+      preLoaderRoute: typeof TrackSignatureRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/unlock-pdf': {
@@ -1464,6 +1544,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompressPdfToSpecificSizeRoute: CompressPdfToSpecificSizeRoute,
   ContactRoute: ContactRoute,
   ConvertPdfRoute: ConvertPdfRoute,
+  CreatePdfFormRoute: CreatePdfFormRoute,
   CropPdfRoute: CropPdfRoute,
   DailyChallengeRoute: DailyChallengeRoute,
   DeletePdfPagesRoute: DeletePdfPagesRoute,
@@ -1492,18 +1573,21 @@ const rootRouteChildren: RootRouteChildren = {
   PdfToMarkdownRoute: PdfToMarkdownRoute,
   PdfToPngRoute: PdfToPngRoute,
   PdfToWordRoute: PdfToWordRoute,
+  PdfWorkflowRoute: PdfWorkflowRoute,
   PrivacyRoute: PrivacyRoute,
   ProtectPdfRoute: ProtectPdfRoute,
   RearrangePdfPagesRoute: RearrangePdfPagesRoute,
   RedactPdfRoute: RedactPdfRoute,
   RemovePdfMetadataRoute: RemovePdfMetadataRoute,
   RepairPdfRoute: RepairPdfRoute,
+  RequestSignatureRoute: RequestSignatureRoute,
   RotatePdfRoute: RotatePdfRoute,
   SignPdfRoute: SignPdfRoute,
   SplitPdfRoute: SplitPdfRoute,
   StudyModeRoute: StudyModeRoute,
   TermsRoute: TermsRoute,
   ToolsRoute: ToolsRoute,
+  TrackSignatureRoute: TrackSignatureRoute,
   UnlockPdfRoute: UnlockPdfRoute,
   WatermarkPdfRoute: WatermarkPdfRoute,
   WordToPdfRoute: WordToPdfRoute,

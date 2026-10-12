@@ -42,12 +42,14 @@ export function Tooltip({
   label,
   children,
   className,
+  align = "center",
   /** Places the bubble below instead of above — for controls near the top edge. */
   side = "top",
 }: {
   label: string;
   children: ReactNode;
   className?: string;
+  align?: "center" | "end";
   side?: "top" | "bottom";
 }) {
   return (
@@ -59,7 +61,8 @@ export function Tooltip({
         aria-hidden="true"
         role="presentation"
         className={cx(
-          "pointer-events-none absolute left-1/2 z-50 w-max max-w-56 -translate-x-1/2 rounded-lg px-2.5 py-1.5",
+          "pointer-events-none absolute z-50 w-max max-w-56 rounded-lg px-2.5 py-1.5",
+          align === "end" ? "right-0" : "left-1/2 -translate-x-1/2",
           "bg-ink-900 text-[11px] font-medium leading-snug text-white shadow-lg",
           "opacity-0 transition-opacity duration-150",
           "group-hover/tip:opacity-100 group-focus-within/tip:opacity-100",

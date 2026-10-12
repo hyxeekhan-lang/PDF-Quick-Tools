@@ -18,7 +18,7 @@ function Privacy() {
     <ArticlePage
       title="Privacy Policy"
       intro={`How ${SITE_NAME} handles your files, and what we do and do not collect.`}
-      updated="8 October 2026"
+      updated="11 October 2026"
     >
       <Block title="Your files stay on your device">
         <p>
@@ -37,6 +37,28 @@ function Privacy() {
           The finished document lives in your browser's memory until you close or
           reload the tab. There is no server copy of the original file to store,
           delete, or retain.
+        </p>
+      </Block>
+
+      <Block title="Optional Google Drive and signature features">
+        <p>
+          Google Drive import and export are optional. Only after you choose
+          Google Drive do we ask Google for permission to access files created
+          or opened by this site (the <code>drive.file</code> scope). A PDF you
+          select is downloaded directly into your browser for the chosen tool;
+          a result is uploaded to your Drive only when you press “Save to Google
+          Drive”. Google OAuth access tokens remain in browser memory and are
+          not sent to our application server.
+        </p>
+        <p>
+          The separate “Request PDF Signature” workflow uploads the PDF and
+          signer name and email to Dropbox Sign only after you confirm that
+          sharing in the form. Dropbox Sign emails the signer and processes the
+          signing workflow under its own terms and privacy policy. We retain
+          only the provider request identifier and a hash of the private status
+          token, for up to 30 days; we do not store the PDF or signer email in
+          our application database. The existing “Sign PDF” tool remains
+          browser-only.
         </p>
       </Block>
 
@@ -63,9 +85,10 @@ function Privacy() {
           with long text-based PDFs, then combine the results. A single AI run
           supports up to 14 parts; exceptionally long documents may need to be
           split into smaller PDFs.
-          If a PDF has no extractable text and looks
-          scanned, only the first few pages are currently rendered to images
-          and sent instead of text.
+          If a PDF has scanned pages, up to 20 scanned pages per AI run are
+          rendered to images and sent instead of text, including scans mixed
+          into text-based documents. Any additional scanned pages are identified
+          in the AI input; use the local OCR PDF tool to process the full file.
         </p>
         <p>
           AI responses can be incomplete or incorrect. We do not use uploaded

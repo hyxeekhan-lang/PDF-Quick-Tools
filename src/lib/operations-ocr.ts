@@ -28,6 +28,15 @@ import {
 
 const PDF_MIME = "application/pdf";
 
+export const OCR_LANGUAGES = [
+  { code: "eng", label: "English" },
+  { code: "ara", label: "Arabic" },
+  { code: "hin", label: "Hindi" },
+  { code: "urd", label: "Urdu" },
+] as const;
+
+export type OcrLanguage = (typeof OCR_LANGUAGES)[number]["code"];
+
 /**
  * Resolution for the page image handed to the recogniser.
  *
@@ -91,6 +100,7 @@ export async function ocrPdf(
   indexes: number[],
   report: Report,
   onProgress?: (done: number, total: number, page: number) => void,
+  language: OcrLanguage = "eng",
 ): Promise<OcrOutcome> {
   if (indexes.length === 0) {
     return friendly("Select at least one page to run OCR on.");
@@ -118,7 +128,7 @@ export async function ocrPdf(
   let confidenceSum = 0;
 
   try {
-    worker = await createWorker("eng", 1, {
+    worker = await createWorker(language, 1, {
       // Served from this site rather than a CDN. The recogniser is several
       // megabytes and the whole point of this tool is that a scan never
       // reaches a third party, which would be hard to claim while fetching the

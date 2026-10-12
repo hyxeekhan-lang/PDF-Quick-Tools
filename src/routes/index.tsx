@@ -27,8 +27,11 @@ import {
 import { AdSlot } from "#/components/AdSlot";
 import { navEvents } from "#/lib/analytics";
 import { ToolCard } from "#/components/ToolCard";
+import { ToolIconTile } from "#/components/ToolIconTile";
 import { ExtensionBanner } from "#/components/ExtensionBanner";
 import { HeroDropzone } from "#/components/HeroDropzone";
+import { AiSummaryExample } from "#/components/AiSummaryExample";
+import { HomeReviews } from "#/components/HomeReviews";
 import { ProblemPicker } from "#/components/ProblemPicker";
 import { StepIllustration, type StepArt } from "#/components/StepIllustration";
 import { PrivacyProof } from "#/components/PrivacyProof";
@@ -37,6 +40,7 @@ import { AiNotice } from "#/components/AiNotice";
 import { button, cx, heading, muted, sectionWrap } from "#/components/ui";
 import { DailyChallengeCard } from "#/components/DailyChallengeCard";
 import { TrustStrip } from "#/components/TrustStrip";
+import { UseCasePaths } from "#/components/UseCasePaths";
 import { WelcomeTour } from "#/components/WelcomeTour";
 import { ToolSearch } from "#/components/ToolSearch";
 import {
@@ -91,7 +95,7 @@ const FAQ: FaqItem[] = [
   {
     question: "What happens to my files?",
     answer:
-      "Most regular PDF tools process your file directly in your browser on your device. AI features may send extracted text to our AI processing provider to generate the result, while the original PDF remains on your device.",
+      "Most regular PDF tools process your file directly in your browser on your device. AI features may send extracted text and, for scanned pages, page images to our AI processing provider, while the original PDF remains on your device.",
   },
 ];
 
@@ -171,7 +175,7 @@ const PRECISION_TOOLS = [
  * Every value here is checked against the code rather than chosen for effect —
  * `TOOLS.length` is rendered directly, so the count cannot drift out of sync
  * with the catalogue again. This band previously read "13+" while the same page
- * rendered "See all 55 tools" two sections below it, which is the kind of
+ * rendered a stale hard-coded tool count two sections below it, which is the kind of
  * inaccuracy a visitor who is deciding whether to trust a tool with their file
  * notices immediately.
  *
@@ -193,12 +197,12 @@ const STATS = [
 
 function StatsBanner() {
   return (
-    <section className={`${sectionWrap} mt-12 mb-4`}>
-      <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+    <section className={`${sectionWrap} mt-8 mb-4 sm:mt-10`}>
+      <div className="grid grid-cols-2 items-stretch gap-3 sm:gap-5 lg:grid-cols-4">
         {STATS.map((stat) => (
           <div
             key={stat.label}
-            className="group relative overflow-hidden rounded-2xl bg-white/70 p-6 text-center ring-1 ring-ink-200/80 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-500/10 hover:ring-brand-300 dark:bg-ink-900/70 dark:ring-ink-800 dark:hover:ring-brand-500/40"
+            className="group relative flex min-h-32 flex-col items-center justify-center overflow-hidden rounded-2xl bg-white/70 p-4 text-center ring-1 ring-ink-200/80 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-500/10 hover:ring-brand-300 sm:p-5 dark:bg-ink-900/70 dark:ring-ink-800 dark:hover:ring-brand-500/40"
           >
             <div className="text-3xl font-black tracking-tight text-brand-600 sm:text-4xl dark:text-brand-400 group-hover:scale-105 transition-transform duration-300">
               {stat.value}
@@ -224,6 +228,39 @@ function Home() {
     navEvents.landing();
   }, []);
 
+  useEffect(() => {
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      !("IntersectionObserver" in window)
+    ) {
+      return;
+    }
+
+    const sections = document.querySelectorAll<HTMLElement>(
+      "[data-scroll-reveal]",
+    );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.remove("scroll-reveal-pending");
+          entry.target.classList.add("scroll-reveal-visible");
+          observer.unobserve(entry.target);
+        }
+      },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.08 },
+    );
+
+    for (const section of sections) {
+      if (section.getBoundingClientRect().top >= window.innerHeight * 0.92) {
+        section.classList.add("scroll-reveal-pending");
+        observer.observe(section);
+      }
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <>
       <script
@@ -247,14 +284,17 @@ function Home() {
         <AdSlot format="skyscraper" className="my-0" />
       </aside>
 
-      <ExtensionBanner />
+      <div className="lg:flex lg:min-h-[calc(100svh-4.375rem)] lg:flex-col">
+        <Hero />
+        <PopularToolLinks />
+      </div>
 
-      <Hero />
+      <ExtensionBanner />
 
       {/* After the hero, before the numbers: the tour is for someone who has
           just arrived, and it should be readable before they scroll. It hides
           itself entirely once dismissed, so this costs nothing afterwards. */}
-      <div className={`${sectionWrap} mt-8`}>
+      <div className={`${sectionWrap} mt-6 empty:hidden sm:mt-8`}>
         <WelcomeTour />
       </div>
 
@@ -263,6 +303,8 @@ function Home() {
       <TrustStrip />
 
       <ProblemPicker />
+
+      <UseCasePaths />
 
       <MyToolsBar />
 
@@ -487,6 +529,10 @@ function Home() {
       {/* ── Live AI Demo ── */}
       <AiDemo />
 
+      <AiSummaryExample />
+
+      <HomeReviews />
+
       <HowItWorks />
 
       <WhyUs />
@@ -528,11 +574,48 @@ function Home() {
   );
 }
 
+function PopularToolLinks() {
+  return (
+    <section
+      aria-label="Popular PDF tools"
+      className={`${sectionWrap} border-t border-ink-200/70 py-3 dark:border-ink-800 sm:py-4 lg:flex lg:items-center lg:gap-6`}
+    >
+      <div className="mb-3 shrink-0 lg:mb-0">
+        <h2 className="text-sm font-semibold text-ink-900 dark:text-white">
+          Popular tools
+        </h2>
+      </div>
+      <ul className="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:pb-0">
+        {popular.slice(0, 4).map((tool) => (
+          <li key={tool.href} className="shrink-0">
+            <Link
+              to={tool.href}
+              className="flex h-12 items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-ink-700 ring-1 ring-ink-200 transition-colors hover:bg-brand-50 hover:text-brand-700 hover:ring-brand-200 dark:bg-ink-900 dark:text-ink-200 dark:ring-ink-700 dark:hover:bg-brand-600/10 dark:hover:text-brand-300 dark:hover:ring-brand-600/30"
+            >
+              <ToolIconTile name={tool.icon} size="sm" />
+              {tool.name}
+            </Link>
+          </li>
+        ))}
+        <li className="shrink-0">
+          <Link
+            to="/tools"
+            className="inline-flex h-12 items-center rounded-xl px-3 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-50 dark:text-brand-300 dark:hover:bg-brand-600/10"
+          >
+            All {TOOLS.length} tools
+            <ArrowRightIcon className="ml-1 h-4 w-4" />
+          </Link>
+        </li>
+      </ul>
+    </section>
+  );
+}
+
 function Hero() {
   return (
-    <section className="relative overflow-hidden border-b border-ink-200/70 bg-gradient-to-br from-white via-ink-50 to-brand-50/40 dark:border-[#172554] dark:bg-gradient-to-br dark:from-[#000000] dark:via-[#020617] dark:to-[#13264a]">
-      <div className={`${sectionWrap} relative py-20 sm:py-24 lg:py-28 xl:py-32`}>
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-8 xl:gap-16">
+    <section className="relative overflow-hidden border-b border-ink-200/70 bg-gradient-to-br from-white via-ink-50 to-brand-50/40 dark:border-[#172554] dark:bg-gradient-to-br dark:from-[#000000] dark:via-[#020617] dark:to-[#13264a] lg:flex lg:flex-1 lg:items-center">
+      <div className="relative mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:py-8 xl:py-10">
+        <div className="grid items-center gap-9 lg:grid-cols-[1.08fr_0.92fr] lg:gap-6 xl:gap-10">
           {/* ── Left — Text content ── */}
           <div className="max-w-2xl animate-slide-in-left">
             {/* Badge */}
@@ -544,14 +627,14 @@ function Hero() {
               Private by default — files stay on your device
             </div>
 
-            <h1 className="mt-8 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl xl:text-[4rem]">
+            <h1 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl lg:mt-4 lg:text-5xl xl:text-[3.5rem]">
               <span className="text-ink-900 dark:text-white">Your PDFs. </span>
-              <span className="bg-gradient-to-r from-brand-600 via-brand-500 to-purple-600 bg-clip-text text-transparent dark:from-brand-400 dark:via-brand-300 dark:to-purple-400">
+              <span className="hero-gradient-text bg-gradient-to-r from-brand-600 via-brand-500 to-purple-600 bg-clip-text text-transparent dark:from-brand-400 dark:via-brand-300 dark:to-purple-400">
                 Smarter, Faster, Easier.
               </span>
             </h1>
 
-            <p className="mt-6 max-w-xl text-lg/relaxed text-ink-600 sm:text-xl/relaxed dark:text-ink-400">
+            <p className="mt-4 max-w-lg text-base/7 text-ink-600 sm:text-lg/7 dark:text-ink-400">
               Free PDF tools and AI-powered document productivity in one place.
               Most tools run in your browser on your device; AI features send
               extracted text to an AI provider when you use them.
@@ -561,7 +644,7 @@ function Hero() {
                 arrives knowing the name of the job they want done ("merge two
                 files") never intended to drop anything, and a dropzone alone
                 asks them to do the one thing they came here to avoid. */}
-            <div className="mt-8 max-w-xl">
+            <div className="mt-6 max-w-xl lg:mt-5">
               <ToolSearch
                 placeholder="What do you want to do with your PDF?"
                 label="Search PDF tools"
@@ -572,11 +655,11 @@ function Hero() {
             <HeroDropzone />
 
             {/* CTA buttons */}
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row lg:mt-4">
               <Link
                 to="/tools"
                 onClick={() => navEvents.cta("hero", "Explore PDF Tools")}
-                className="btn-press group relative inline-flex items-center gap-2.5 overflow-hidden rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition-all hover:shadow-xl hover:shadow-brand-600/30 hover:from-brand-500 hover:to-brand-600 dark:from-brand-500 dark:to-brand-600 dark:shadow-brand-600/20"
+                className="btn-press group relative inline-flex items-center justify-center gap-2.5 overflow-hidden rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition-all hover:shadow-xl hover:shadow-brand-600/30 hover:from-brand-500 hover:to-brand-600 dark:from-brand-500 dark:to-brand-600 dark:shadow-brand-600/20 max-sm:w-full lg:py-2.5"
               >
                 <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
                 Explore PDF Tools
@@ -585,7 +668,7 @@ function Hero() {
               <Link
                 to="/compress-pdf"
                 onClick={() => navEvents.cta("hero", "Compress a PDF")}
-                className="btn-press inline-flex items-center gap-2 rounded-xl bg-white/80 px-7 py-3.5 text-sm font-semibold text-ink-700 ring-1 ring-ink-200 backdrop-blur-sm transition-all hover:bg-white hover:ring-ink-300 hover:shadow-md dark:bg-ink-800/60 dark:text-ink-200 dark:ring-ink-700 dark:hover:bg-ink-800 dark:hover:ring-ink-600"
+                className="btn-press inline-flex items-center justify-center gap-2 rounded-xl bg-white/80 px-7 py-3.5 text-sm font-semibold text-ink-700 ring-1 ring-ink-200 backdrop-blur-sm transition-all hover:bg-white hover:ring-ink-300 hover:shadow-md dark:bg-ink-800/60 dark:text-ink-200 dark:ring-ink-700 dark:hover:bg-ink-800 dark:hover:ring-ink-600 max-sm:w-full lg:py-2.5"
               >
                 <BoltIcon className="h-4 w-4 text-brand-600 dark:text-brand-400" />
                 Compress a PDF
@@ -597,7 +680,7 @@ function Hero() {
                 page that backs it. Repeating them here in badge form was making
                 the same promise twice in two different voices, and a badge is
                 the weaker of the two forms. */}
-            <p className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-ink-600 dark:text-ink-400">
+            <p className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink-600 dark:text-ink-400 lg:mt-4">
               <span className="flex items-center gap-2.5">
                 <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
                   <LockIcon className="h-3.5 w-3.5" />
@@ -611,15 +694,16 @@ function Hero() {
                 <span className="font-medium">Works on your phone</span>
               </span>
             </p>
+
           </div>
 
           {/* ── Right — Laptop mockup with floating icons ── */}
-          <div className="relative mx-auto hidden w-full max-w-lg lg:block animate-slide-in-right" style={{ perspective: "1200px" }}>
+          <div className="relative mx-auto hidden w-full max-w-sm lg:block xl:max-w-md animate-slide-in-right" style={{ perspective: "1200px" }}>
             {/* Ambient glow behind laptop */}
-            <div className="absolute -inset-8 rounded-3xl bg-gradient-to-br from-brand-500/10 via-purple-500/5 to-cyan-500/10 blur-2xl" />
+            <div className="hero-ambient-glow absolute -inset-8 rounded-3xl bg-gradient-to-br from-brand-500/10 via-purple-500/5 to-cyan-500/10 blur-2xl" />
 
             {/* Main desk surface */}
-            <div className="relative rounded-3xl bg-gradient-to-br from-[#12121e] via-[#161625] to-[#1a1a2e] p-6 sm:p-8 ring-1 ring-white/[0.06] shadow-2xl shadow-black/40">
+            <div className="hero-mockup-float relative rounded-3xl bg-gradient-to-br from-[#12121e] via-[#161625] to-[#1a1a2e] p-6 sm:p-8 ring-1 ring-white/[0.06] shadow-2xl shadow-black/40">
               {/* Screen reflection on desk */}
               <div className="pointer-events-none absolute bottom-0 left-1/2 h-24 w-3/4 -translate-x-1/2 rounded-full bg-brand-500/[0.04] blur-2xl" />
 
@@ -1041,7 +1125,7 @@ function AiDemo() {
   }
 
   return (
-    <section id="ai-live-demo" className={`${sectionWrap} mt-20`}>
+    <section id="ai-live-demo" data-scroll-reveal className={`${sectionWrap} mt-20`}>
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0c0c1a] via-[#10102a] to-[#0a0f1e] p-6 sm:p-8 lg:p-10 ring-1 ring-white/[0.06] shadow-2xl shadow-brand-900/20">
         {/* Background glow */}
         <div className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-brand-500/10 blur-3xl" />
@@ -1325,14 +1409,6 @@ function WhyUs() {
   );
 }
 
-const PRIVACY_POINTS = [
-  "Most regular PDF tools run in your browser on your own device.",
-  "AI features may send extracted text to the AI provider when you choose an AI action.",
-  "The original PDF remains on your device unless you explicitly upload it as part of an AI workflow.",
-  "The finished file stays in browser memory until you close the tab or refresh the page.",
-  "No account is required for the main PDF tools, and analytics are kept limited to basic usage events.",
-];
-
 function Privacy() {
   return (
     <section
@@ -1349,9 +1425,8 @@ function Privacy() {
               Your files stay private
             </h2>
             <p className="mt-4 text-ink-300">
-              Most regular PDF tools run directly in your browser on your device.
-              AI features may send extracted text to our AI provider when you
-              choose an AI action, while the original PDF stays on your device.
+              Your file is handled differently depending on the tool you choose.
+              Here is the distinction before you upload.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link to="/privacy" className={button("primary", "md")}>
@@ -1366,16 +1441,24 @@ function Privacy() {
             </div>
           </div>
 
-          <ul className="space-y-3.5">
-            {PRIVACY_POINTS.map((point) => (
-              <li key={point} className="flex gap-3 text-sm text-ink-200">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
-                  <CheckIcon className="h-3.5 w-3.5" />
-                </span>
-                {point}
-              </li>
-            ))}
-          </ul>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl bg-white/[0.06] p-5 ring-1 ring-white/10">
+              <h3 className="font-semibold text-white">Regular PDF tools</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-300">
+                Compress, merge, split, and most other standard PDF jobs run in
+                your browser. Your PDF stays on your device; it is not uploaded
+                to our server for processing.
+              </p>
+            </div>
+            <div className="rounded-2xl bg-white/[0.06] p-5 ring-1 ring-white/10">
+              <h3 className="font-semibold text-white">AI tools</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-300">
+                When you choose an AI feature, document text may be sent to our
+                AI provider to create your answer. For scanned pages, images
+                may also be sent. The original PDF stays on your device.
+              </p>
+            </div>
+          </div>
         </div>
 
         <p className="mt-10 border-t border-white/10 pt-6 text-sm text-ink-400">

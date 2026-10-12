@@ -93,7 +93,7 @@ export function MyToolsBar() {
        renders full-bleed and its cards run to the screen edges while the rest
        of the page stays inside the container — the misalignment is the first
        thing the eye catches. */
-    <section aria-labelledby="my-tools-heading" className={`${sectionWrap} mt-16`}>
+    <section aria-labelledby="my-tools-heading" className={`${sectionWrap} mt-16 animate-fade-in-up`}>
       {favouriteTools.length > 0 && (
         <Row
           id="my-tools-heading"

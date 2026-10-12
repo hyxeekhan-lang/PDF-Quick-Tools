@@ -19,7 +19,7 @@ import { TOOLS, type ToolHref } from "#/lib/tools";
  * Two reasons this is the highest-value thing on the homepage rather than
  * another marketing band:
  *
- *  - It is the only homepage section that answers "which of your 55 tools do I
+ *  - It is the only homepage section that answers "which tool do I
  *    want?". Everything above it (hero, stats) explains *what the site is*;
  *    this one starts the actual task.
  *  - It is honest. Every option is phrased as a job, not as a benefit, and

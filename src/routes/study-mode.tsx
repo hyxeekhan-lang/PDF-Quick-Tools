@@ -146,7 +146,9 @@ function StudyModePage() {
       if (!file) return;
       void run.run(async (report) => {
         report(8, "Reading your document");
-        const text = await extractPdfText(file.file);
+        const text = await extractPdfText(file.file, (percent, label) =>
+          report(5 + percent * 0.25, label),
+        );
         if (!text.trim()) {
           throw new FriendlyError(
             "Could not read text from this PDF, so there is nothing to generate from. If it is a scan, run it through OCR PDF first and try again.",

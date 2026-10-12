@@ -7,7 +7,7 @@ import { KEYS, readFlag, writeFlag } from "#/lib/storage";
  *
  * This is a tool site a person comes back to — "compress this one too" — and
  * an installed app is the strongest form of that: a home screen icon, no
- * address bar, and the service worker already has the shell cached.
+ * address bar, and previously visited pages may be cached by the service worker.
  *
  * The awkward part is that the browser only allows the real install dialog to
  * be triggered from a user gesture that it remembers. Once `beforeinstallprompt`
@@ -73,8 +73,9 @@ export function InstallPrompt() {
           Add this to your home screen
         </h2>
         <p className="mt-1.5 text-sm leading-relaxed text-ink-600 dark:text-ink-400">
-          Opens straight to a tool, with the pages already downloaded — useful on a phone, where
-          you are compressing between other things.
+          Opens like an app and can show pages you have already visited when
+          offline. Browser-based tools may work offline after their files are
+          cached; AI and online services still need internet.
         </p>
         {hintOpen ? (
           <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-sm text-ink-600 dark:text-ink-400">
@@ -102,7 +103,8 @@ export function InstallPrompt() {
         Keep this one on your home screen
       </h2>
       <p className="mt-1.5 text-sm leading-relaxed text-ink-600 dark:text-ink-400">
-        One tap to compress, merge or convert next time — no typing, no loading.
+        Open it like an app. Previously visited pages may be available offline
+        after they have been cached.
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button

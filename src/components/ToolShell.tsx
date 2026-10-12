@@ -17,6 +17,7 @@ import { PageDropzone } from "./PageDropzone";
 import { ToolErrorBoundary } from "./ToolErrorBoundary";
 import { ToolIconTile } from "./ToolIconTile";
 import { ToolFeedbackWidget } from "./ToolFeedbackWidget";
+import { ReviewsSection } from "./ReviewsSection";
 import { heading, muted } from "./ui";
 
 interface ToolShellProps {
@@ -44,13 +45,18 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
   const isAiTool = tool.category === "AI Tools";
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
+    // Wide enough to use the screen instead of leaving a dead column either side,
+    // and the same cap as the header and footer so the page lines up vertically.
+    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       {/* Anywhere on this page, not just the box in the middle. */}
       <PageDropzone />
+      {/* The ad goes in the margin the content no longer occupies, so widening the
+          page never puts it on top of the tool. `1152px` is `max-w-6xl`; it has to
+          match the container above or the ad drifts in over the copy. */}
       <aside
         aria-label="Advertisement"
         className="fixed top-1/2 z-20 hidden -translate-y-1/2 xl:block"
-        style={{ right: "max(16px, calc((100vw - 896px) / 2 - 176px))" }}
+        style={{ right: "max(16px, calc((100vw - 1152px) / 2 - 176px))" }}
       >
         <AdSlot format="skyscraper" className="my-0" />
       </aside>
@@ -94,7 +100,7 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
           <p className="mt-5 flex items-center justify-center gap-2 text-center text-sm text-ink-500 dark:text-ink-500">
             <LockIcon className="h-4 w-4 shrink-0" />
             {isAiTool
-              ? "Your original PDF stays in this browser. Extracted text may be sent to the AI provider when you run an AI action."
+              ? "Your original PDF stays in this browser. Extracted text and, for scanned pages, page images may be sent to the AI provider when you run an AI action."
               : "Most regular PDF tools run in this browser tab on your device. They are not uploaded to a server as part of the standard workflow."}
           </p>
 
@@ -142,6 +148,11 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
           <Faq items={faq} title={`${tool.name} questions`} />
 
           <NextSteps from={tool.href as ToolHref} />
+
+          {/* Existing reviews first, then the box to add one. A visitor decides
+              whether to trust the tool by reading what others wrote, and only
+              then decides whether to add their own. */}
+          <ReviewsSection tool={tool.href} toolName={tool.name} />
 
           <ToolFeedbackWidget toolPath={tool.href} toolName={tool.name} />
 
@@ -206,7 +217,7 @@ export function ToolShell({ tool, children, about, faq }: ToolShellProps) {
                 ]),
                 howTo.length > 0
                   ? howToJsonLd({
-                      name: `How to ${tool.name}`,
+                      name: `How to use ${tool.name}`,
                       description: tool.blurb,
                       path: tool.href,
                       steps: howTo,

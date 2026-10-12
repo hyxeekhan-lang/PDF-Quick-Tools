@@ -6,6 +6,7 @@ import type { Progress } from "#/hooks/useToolRun";
 import { PanelFocus } from "./PanelFocus";
 import { ShareResults } from "./ShareResults";
 import { useCurrentTool } from "#/lib/useCurrentTool";
+import { GoogleDriveSaveButton } from "./GoogleDriveSaveButton";
 export type { ResultFile };
 
 export function ProgressBar({
@@ -238,6 +239,15 @@ export function SuccessPanel({
         <p className="mt-3 text-xs text-emerald-800/90 dark:text-emerald-300/80">{note}</p>
       )}
 
+      {!many && results[0] && isPreviewable(results[0].filename) && (
+        <details className="mt-4 rounded-xl bg-white/80 p-3 dark:bg-ink-900/60">
+          <summary className="cursor-pointer text-sm font-semibold text-brand-700 dark:text-brand-300">
+            Preview result
+          </summary>
+          <PreviewResult result={results[0]} />
+        </details>
+      )}
+
       {many ? (
         <ul className="mt-4 flex flex-col gap-2">
           {results.map((result) => (
@@ -261,6 +271,7 @@ export function SuccessPanel({
                 <DownloadIcon className="h-4 w-4" />
                 Download
               </button>
+              <GoogleDriveSaveButton result={result} />
             </li>
           ))}
         </ul>
@@ -268,14 +279,17 @@ export function SuccessPanel({
 
       <div className="mt-5 flex flex-wrap gap-2">
         {!many && results[0] && (
-          <button
-            type="button"
-            onClick={() => download(results[0])}
-            className={button("primary", "lg")}
-          >
-            <DownloadIcon className="h-5 w-5" />
-            Download {results[0].filename.endsWith(".pdf") ? "PDF" : "File"}
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => download(results[0])}
+              className={button("primary", "lg")}
+            >
+              <DownloadIcon className="h-5 w-5" />
+              Download {results[0].filename.endsWith(".pdf") ? "PDF" : "File"}
+            </button>
+            <GoogleDriveSaveButton result={results[0]} />
+          </>
         )}
         <button
           type="button"
@@ -289,5 +303,34 @@ export function SuccessPanel({
       {current && <ShareResults toolName={toolName} toolPath={current.href} hasResult />}
       </div>
     </PanelFocus>
+  );
+}
+
+function isPreviewable(filename: string): boolean {
+  return /\.(pdf|png|jpe?g|webp|txt|md)$/i.test(filename);
+}
+
+function PreviewResult({ result }: { result: ResultFile }) {
+  const filename = result.filename.toLowerCase();
+  if (/\.(png|jpe?g|webp)$/.test(filename)) {
+    return (
+      <img
+        src={result.url}
+        alt={`Preview of ${result.filename}`}
+        className="mt-3 max-h-[32rem] w-full rounded-lg bg-ink-50 object-contain dark:bg-ink-950"
+      />
+    );
+  }
+
+  const isText = /\.(txt|md)$/.test(filename);
+  return (
+    <a
+      href={result.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={button("secondary", "sm", "mt-3")}
+    >
+      Open {isText ? "text" : "PDF"} preview
+    </a>
   );
 }

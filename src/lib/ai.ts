@@ -1,11 +1,17 @@
 import { loadPdfJs } from "./pdf";
 import { FriendlyError } from "./files";
+import { OPS } from "pdfjs-dist";
 
 /**
  * Extract text content from a PDF file using pdfjs-dist.
  * Returns the full text content of all pages.
  */
-export async function extractPdfText(file: File): Promise<string> {
+export const MAX_AI_OCR_PAGES = 20;
+
+export async function extractPdfText(
+  file: File,
+  report?: (percent: number, message: string) => void,
+): Promise<string> {
   const pdfjsLib = await loadPdfJs();
   const arrayBuffer = await file.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
@@ -17,8 +23,13 @@ export async function extractPdfText(file: File): Promise<string> {
   // the browser to start killing the tab.
   try {
     const textParts: string[] = [];
+    const scannedPages: number[] = [];
 
     for (let i = 1; i <= pdf.numPages; i++) {
+      report?.(
+        5 + (i / pdf.numPages) * 15,
+        `Reading PDF text on page ${i} of ${pdf.numPages}`,
+      );
       const page = await pdf.getPage(i);
       try {
         const content = await page.getTextContent();
@@ -28,19 +39,32 @@ export async function extractPdfText(file: File): Promise<string> {
           .join(" ");
         if (pageText.trim()) {
           textParts.push(`[Page ${i}]\n${pageText.trim()}`);
+        } else {
+          const operators = await page.getOperatorList();
+          const hasImage = operators.fnArray.some((operator) =>
+            [
+              OPS.paintImageXObject,
+              OPS.paintImageXObjectRepeat,
+              OPS.paintInlineImageXObject,
+              OPS.paintInlineImageXObjectGroup,
+              OPS.paintImageMaskXObject,
+              OPS.paintImageMaskXObjectRepeat,
+            ].includes(operator),
+          );
+          if (hasImage) scannedPages.push(i);
         }
       } finally {
         page.cleanup();
       }
     }
 
-    if (textParts.length > 0) {
-      return textParts.join("\n\n");
-    }
-
-    const maxOcrPages = Math.min(pdf.numPages, 4);
-    for (let i = 1; i <= maxOcrPages; i++) {
-      const page = await pdf.getPage(i);
+    const ocrPages = scannedPages.slice(0, MAX_AI_OCR_PAGES);
+    for (const [index, pageNumber] of ocrPages.entries()) {
+      report?.(
+        20 + ((index + 1) / Math.max(ocrPages.length, 1)) * 15,
+        `Reading scanned page ${pageNumber} of ${pdf.numPages}`,
+      );
+      const page = await pdf.getPage(pageNumber);
       const viewport = page.getViewport({ scale: 1.5 });
       const canvas = document.createElement("canvas");
       canvas.width = Math.max(1, Math.floor(viewport.width));
@@ -65,7 +89,7 @@ export async function extractPdfText(file: File): Promise<string> {
 
         const cleaned = response.replace(/\s*NO_TEXT\s*/i, "").trim();
         if (cleaned) {
-          textParts.push(`[Page ${i}]\n${cleaned}`);
+          textParts.push(`[Page ${pageNumber}]\n${cleaned}`);
         }
       } finally {
         // A canvas this size is tens of megabytes; dropping its dimensions is
@@ -74,6 +98,14 @@ export async function extractPdfText(file: File): Promise<string> {
         canvas.height = 0;
         page.cleanup();
       }
+    }
+
+    const skippedPages = scannedPages.length - ocrPages.length;
+    if (skippedPages > 0) {
+      textParts.push(
+        `[Coverage note: ${skippedPages} additional scanned page${skippedPages === 1 ? " was" : "s were"} not read by this AI run. The next unread page is ${scannedPages[MAX_AI_OCR_PAGES]}. The scanned-page OCR limit is ${MAX_AI_OCR_PAGES}. Run the local OCR PDF tool on the remaining pages for complete coverage.]`,
+      );
+      report?.(35, `Stopped after ${MAX_AI_OCR_PAGES} scanned pages; more pages need OCR`);
     }
 
     return textParts.join("\n\n");

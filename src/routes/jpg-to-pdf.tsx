@@ -109,6 +109,7 @@ function JpgToPdfPage() {
           <FileUploader
             kind="image"
             multiple
+            cameraCapture
             toolName={tool.name}
             onFiles={add}
             onRejected={run.fail}

@@ -210,19 +210,34 @@ html.dark :focus-visible {
   .generate-button:hover { transform: none; }
 }
 
+/* The banner was a 28rem card pinned bottom-right, which on /tools covered
+   the third tool card's name and description and on tool pages clipped the
+   privacy footer line. It is now a single low bar along the bottom edge: it
+   still asks before any analytics or ad storage, but it cannot sit on top of
+   content a visitor is mid-way through reading. */
 .cookie-banner {
   position: fixed;
-  right: 1rem;
-  bottom: 1rem;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 60;
-  width: min(28rem, calc(100vw - 2rem));
-  padding: 1rem;
-  border: 1px solid var(--color-ink-200);
-  border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+  padding: 0.625rem 1rem;
+  border-top: 1px solid var(--color-ink-200);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.12);
   backdrop-filter: blur(14px);
   animation: toast-in 0.3s ease-out both;
+}
+@media (min-width: 640px) {
+  .cookie-banner {
+    left: auto;
+    right: 1rem;
+    bottom: 1rem;
+    width: min(26rem, calc(100vw - 2rem));
+    border: 1px solid var(--color-ink-200);
+    border-radius: 1rem;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+  }
 }
 html.dark .cookie-banner { border-color: var(--color-ink-700); background: rgba(15, 23, 42, 0.96); }
 .cookie-banner-icon { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; border-radius: 0.75rem; background: var(--color-brand-50); color: var(--color-brand-700); }
@@ -231,17 +246,16 @@ html.dark .cookie-banner-icon { background: rgba(79, 70, 229, 0.2); color: var(-
 .cookie-banner-close:hover { background: var(--color-ink-100); color: var(--color-ink-900); }
 html.dark .cookie-banner-close:hover { background: var(--color-ink-800); color: white; }
 
-/* On a phone the banner sat over the hero as a tall card and the two full
-   labels ("Continue without analytics" / "Allow anonymous analytics") stacked
-   into it, hiding the first screen of the site. Below sm it becomes a compact
-   bar: one short line of copy, the two actions side by side. */
+/* Below sm the bar is one row: copy on the left, the two actions on the right.
+   Stacking them put a 140px panel over the bottom of the first screen. */
 @media (max-width: 639px) {
-  .cookie-banner { padding: 0.75rem; }
+  .cookie-banner { padding: 0.625rem 0.75rem; }
+  .cookie-banner-inner { display: flex; align-items: center; gap: 0.625rem; }
   .cookie-banner-icon { width: 1.75rem; height: 1.75rem; border-radius: 0.5rem; }
   .cookie-banner-icon svg { width: 1rem; height: 1rem; }
-  .cookie-banner-text { margin-top: 0.25rem; font-size: 0.6875rem; line-height: 1.4; }
-  .cookie-banner-actions { margin-top: 0.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-  .cookie-banner-actions > button { width: 100%; padding-left: 0.5rem; padding-right: 0.5rem; font-size: 0.75rem; line-height: 1.2; }
+  .cookie-banner-text { margin-top: 0.125rem; font-size: 0.6875rem; line-height: 1.35; }
+  .cookie-banner-actions { margin-top: 0; display: flex; flex: 0 0 auto; gap: 0.375rem; }
+  .cookie-banner-actions > button { padding-left: 0.5rem; padding-right: 0.5rem; font-size: 0.6875rem; line-height: 1.2; white-space: nowrap; }
 }
 
 /* ── Premium Micro-Animations ────────────────────────────────────── */
@@ -414,6 +428,35 @@ html.dark .cookie-banner-close:hover { background: var(--color-ink-800); color: 
    phone. They are wrapped in `no-preference` so they stop entirely for anyone
    who asked for reduced motion - not just on mobile. */
 @media (prefers-reduced-motion: no-preference) {
+  @keyframes hero-gradient-drift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes hero-mockup-drift {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  @keyframes hero-glow-breathe {
+    0%, 100% { opacity: 0.65; }
+    50% { opacity: 1; }
+  }
+
+  .hero-gradient-text {
+    background-size: 200% auto;
+    animation: hero-gradient-drift 9s ease-in-out infinite;
+  }
+
+  .hero-mockup-float {
+    animation: hero-mockup-drift 7s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .hero-ambient-glow {
+    animation: hero-glow-breathe 6s ease-in-out infinite;
+  }
+
   @keyframes dropzone-breathe {
     0%, 100% { border-color: var(--color-ink-300); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
     50% { border-color: var(--color-brand-300); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.06); }
@@ -559,6 +602,21 @@ html.dark .glass {
 .stagger-slide > *:nth-child(4) { animation-delay: 210ms; }
 .stagger-slide > *:nth-child(5) { animation-delay: 280ms; }
 .stagger-slide > *:nth-child(6) { animation-delay: 350ms; }
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-scroll-reveal].scroll-reveal-pending {
+    opacity: 0;
+    transform: translateY(1.25rem);
+    transition:
+      opacity 560ms ease-out,
+      transform 560ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  [data-scroll-reveal].scroll-reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 /* Lift on hover */
 .hover-lift {

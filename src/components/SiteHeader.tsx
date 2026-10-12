@@ -31,7 +31,10 @@ import { button, cx } from "./ui";
 const NAV = [
   { to: "/", label: "Home", Icon: HomeIcon },
   { to: "/tools", label: "All Tools", Icon: GridIcon },
-  { to: "/ai-summarizer", label: "AI Tools", Icon: SparkIcon },
+  // The label said "AI Tools" but the link went to /ai-summarizer, so a visitor
+  // who clicked the category name landed on one tool with no way back to the
+  // category. /ai-pdf-tools is the actual AI category hub.
+  { to: "/ai-pdf-tools", label: "AI Tools", Icon: SparkIcon },
   { to: "/study-mode", label: "Study Mode", Icon: BrainIcon },
   { to: "/compress-pdf", label: "Compress", Icon: CompressIcon },
   { to: "/merge-pdf", label: "Merge", Icon: MergeIcon },
@@ -86,8 +89,8 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <nav aria-label="Main" className="ml-4 hidden lg:block">
-          <ul className="flex items-center gap-1">
+        <nav aria-label="Main" className="ml-3 hidden xl:block">
+          <ul className="flex items-center gap-0">
             {NAV.map((item) => (
               <li key={item.to}>
                 <Link
@@ -95,7 +98,7 @@ export function SiteHeader() {
                   activeOptions={{ exact: item.to === "/" }}
                   /* Same reason as the mobile pills: activeProps merges at equal
                      specificity, so its colors can lose to the base class list. */
-                  className="block rounded-lg px-3 py-2 text-sm font-medium text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900 dark:text-ink-300 dark:hover:bg-ink-800 dark:hover:text-white line-grow aria-[current=page]:bg-brand-50 aria-[current=page]:font-semibold aria-[current=page]:text-brand-700 dark:aria-[current=page]:bg-brand-600/15 dark:aria-[current=page]:text-brand-300"
+                  className="block whitespace-nowrap rounded-lg px-1.5 py-2 text-[13px] font-medium text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900 dark:text-ink-300 dark:hover:bg-ink-800 dark:hover:text-white line-grow aria-[current=page]:bg-brand-50 aria-[current=page]:font-semibold aria-[current=page]:text-brand-700 dark:aria-[current=page]:bg-brand-600/15 dark:aria-[current=page]:text-brand-300 xl:px-2"
                 >
                   {item.label}
                 </Link>
@@ -112,14 +115,14 @@ export function SiteHeader() {
               majority of visitors, the same component renders a search icon that
               opens the field full-screen. The search stays reachable; only where
               it lives changes. */}
-          <ToolSearch className="w-52 xl:w-64" />
+          <ToolSearch className="w-44 xl:w-48" />
           <InstallAppButton />
-          <ThemeToggle />
+          <ThemeToggle tooltipAlign="end" />
           {/* On desktop "All Tools" is already in the nav, so this button is
               only for phones — where the nav is a scrolling pill row below and
               the catalogue needs one obvious tap target rather than a hunt
               through pills. */}
-          <Link to="/tools" className={cx(button("primary", "sm"), "lg:!hidden")}>
+          <Link to="/tools" className={cx(button("primary", "sm"), "xl:!hidden")}>
             All Tools
           </Link>
         </div>
@@ -133,7 +136,7 @@ export function SiteHeader() {
           container nested inside the page flow leaks its content width upward.
           Scrolling one level up, on an element with no overflowing content of
           its own, keeps the leak from happening. */}
-      <div className="min-w-0 overflow-x-clip border-t border-ink-200 bg-white/95 lg:hidden dark:border-ink-800 dark:bg-ink-950/95">
+      <div className="min-w-0 overflow-x-clip border-t border-ink-200 bg-white/95 xl:hidden dark:border-ink-800 dark:bg-ink-950/95">
         <nav
           aria-label="Mobile"
           className="animate-mobile-nav-in min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"

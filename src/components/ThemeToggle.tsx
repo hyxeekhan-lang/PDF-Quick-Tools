@@ -12,7 +12,13 @@ export const themeBootScript = `(function(){try{var s=localStorage.getItem(${JSO
   THEME_KEY,
 )});var d=s==="dark"||(!s&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);}catch(e){}})();`;
 
-export function ThemeToggle({ className }: { className?: string }) {
+export function ThemeToggle({
+  className,
+  tooltipAlign,
+}: {
+  className?: string;
+  tooltipAlign?: "center" | "end";
+}) {
   const [dark, setDark] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -38,7 +44,7 @@ export function ThemeToggle({ className }: { className?: string }) {
     // Wrapped rather than given a `title`: a title attribute only appears on
     // hover, and a phone has no hover — where a moon-and-sun glyph with no
     // label is the one control in the header nobody can guess.
-    <Tooltip label={label} className={className}>
+    <Tooltip label={label} className={className} align={tooltipAlign}>
       <button
         type="button"
         onClick={toggle}

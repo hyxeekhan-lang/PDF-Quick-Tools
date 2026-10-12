@@ -8,13 +8,16 @@ import { ErrorMessage, ProgressBar, SuccessPanel } from "#/components/ToolFeedba
 import { OptionGroup, ToolPanel, ToolShell } from "#/components/ToolShell";
 import { button } from "#/components/ui";
 import { useToolRun } from "#/hooks/useToolRun";
-import { FriendlyError, type AcceptedFile } from "#/lib/files";
+import { FriendlyError, formatBytes, revokeResults, type AcceptedFile } from "#/lib/files";
+import { MAX_BATCH_BYTES, MAX_BATCH_FILES, validateBatch } from "#/lib/batch";
 import { pdfToJpg, type ImageQuality } from "#/lib/operations";
 import { getPageCount } from "#/lib/pdf";
+import { readImageQuality, writeImageQuality } from "#/lib/storage";
 import { pageHead } from "#/lib/seo";
 import { toolByHref } from "#/lib/tools";
 
 const tool = toolByHref("/pdf-to-jpg");
+const MAX_BATCH_PAGES = 200;
 
 export const Route = createFileRoute("/pdf-to-jpg")({
   head: () =>
@@ -49,6 +52,11 @@ const FAQ = [
       "When you convert more than one page, the images come back together in a single zip file so it is one download rather than twenty.",
   },
   {
+    question: "Can I convert multiple PDFs in one go?",
+    answer:
+      "Yes. Choose up to five PDFs with a combined size of 100 MB and up to 200 pages total. Each document is converted into its own ZIP of page images, one file at a time.",
+  },
+  {
     question: "Is the text still selectable in a JPG?",
     answer:
       "No. A JPG is a picture of the page, so text inside it cannot be selected or searched. That is normal for any PDF to image conversion.",
@@ -61,33 +69,48 @@ const FAQ = [
 ];
 
 function PdfToJpgPage() {
-  const [file, setFile] = useState<AcceptedFile | null>(null);
+  const [files, setFiles] = useState<AcceptedFile[]>([]);
   const [pageCount, setPageCount] = useState(0);
   const [reading, setReading] = useState(false);
   const [range, setRange] = useState("");
-  const [quality, setQuality] = useState<ImageQuality>("medium");
+  const [quality, setQuality] = useState<ImageQuality>(readImageQuality);
+  const [batchPages, setBatchPages] = useState(0);
+  const file = files[0] ?? null;
   const run = useToolRun(tool.name);
   const busy = run.status === "working";
   const { pages, problem } = usePageRange(range, pageCount);
 
   const startOver = useCallback(() => {
-    setFile(null);
+    setFiles([]);
     setPageCount(0);
     setRange("");
+    setBatchPages(0);
     run.reset();
   }, [run]);
 
-  async function pick(files: AcceptedFile[]) {
-    const chosen = files[0];
-    setFile(chosen);
+  async function pick(incoming: AcceptedFile[]) {
+    const issue = validateBatch(incoming);
+    if (issue) {
+      run.fail(issue);
+      return;
+    }
+    setFiles(incoming);
     run.reset();
+    setPageCount(0);
+    setRange("");
+    if (incoming.length > 1) {
+      setReading(false);
+      return;
+    }
+    const chosen = incoming[0];
+    if (!chosen) return;
     setReading(true);
     try {
       const count = await getPageCount(chosen.file);
       setPageCount(count);
       setRange(count > 1 ? `1-${count}` : "1");
     } catch (error) {
-      setFile(null);
+      setFiles([]);
       run.fail(
         error instanceof FriendlyError
           ? error.message
@@ -100,42 +123,100 @@ function PdfToJpgPage() {
 
   async function convert() {
     if (!file) return;
-    await run.run((report) =>
-      pdfToJpg(file.file, pages, quality, pages.length > 1, report),
-    );
+    await run.run(async (report) => {
+      if (files.length === 1) {
+        return pdfToJpg(file.file, pages, quality, pages.length > 1, report);
+      }
+
+      const outputs = [];
+      let convertedPages = 0;
+      try {
+        const pageCounts: number[] = [];
+        for (const [index, item] of files.entries()) {
+          const count = await getPageCount(item.file);
+          convertedPages += count;
+          if (convertedPages > MAX_BATCH_PAGES) {
+            throw new FriendlyError(
+              `This batch has more than ${MAX_BATCH_PAGES} pages. Choose fewer pages or convert one PDF at a time.`,
+            );
+          }
+          pageCounts.push(count);
+          report(((index + 1) / files.length) * 5, `Checking ${item.name}`);
+        }
+        convertedPages = 0;
+        for (const [index, item] of files.entries()) {
+          const count = pageCounts[index]!;
+          const result = await pdfToJpg(
+            item.file,
+            Array.from({ length: count }, (_, page) => page),
+            quality,
+            true,
+            (percent, label) =>
+              report(
+                ((index + percent / 100) / files.length) * 100,
+                `${item.name}: ${label ?? "Converting"}`,
+              ),
+          );
+          outputs.push(...result);
+          convertedPages += count;
+        }
+      } catch (error) {
+        revokeResults(outputs);
+        throw error;
+      }
+      setBatchPages(convertedPages);
+      return outputs;
+    });
   }
 
-  const canConvert = Boolean(file) && pages.length > 0 && problem === null && !reading;
+  const canConvert =
+    Boolean(file) &&
+    !reading &&
+    (files.length > 1 || (pages.length > 0 && problem === null));
 
   return (
     <ToolShell tool={tool} faq={FAQ} about={<About />}>
       <ToolPanel>
-        {!file && (
+        {files.length === 0 && (
           <FileUploader
             kind="pdf"
+            multiple
             toolName={tool.name}
             onFiles={pick}
             onRejected={run.fail}
+            label={`Choose up to ${MAX_BATCH_FILES} PDFs to convert together`}
+            hint={`Up to ${MAX_BATCH_FILES} files and ${formatBytes(MAX_BATCH_BYTES)} combined. Each PDF may be up to 50 MB.`}
           />
         )}
 
-        {file && run.status !== "done" && (
+        {files.length > 0 && run.status !== "done" && (
           <>
             <FileList
-              files={[file]}
+              files={files}
               kind="pdf"
               disabled={busy}
               status={
-                reading
+                files.length > 1
+                  ? "Ready for batch conversion"
+                  : reading
                   ? "Reading pages"
                   : pageCount > 0
                     ? `${pageCount} page${pageCount === 1 ? "" : "s"}`
                     : undefined
               }
-              onRemove={startOver}
+              onRemove={(id) => {
+                const remaining = files.filter((item) => item.id !== id);
+                if (remaining.length === 0) startOver();
+                else void pick(remaining);
+              }}
             />
+            {files.length > 1 && (
+              <p className="text-xs text-ink-500 dark:text-ink-400">
+                All pages will be converted; each PDF downloads as its own ZIP. Batch limit: {MAX_BATCH_FILES} files, {formatBytes(MAX_BATCH_BYTES)} combined, {MAX_BATCH_PAGES} pages total.
+              </p>
+            )}
 
-            {pageCount > 0 && (
+            {files.length === 1 && pageCount > 0 && (
               <>
                 <PageRangeInput
                   value={range}
@@ -155,7 +236,10 @@ function PdfToJpgPage() {
                     name="quality"
                     options={QUALITIES}
                     value={quality}
-                    onChange={setQuality}
+                    onChange={(value) => {
+                      setQuality(value);
+                      writeImageQuality(value);
+                    }}
                     disabled={busy}
                   />
                 </OptionGroup>
@@ -179,7 +263,7 @@ function PdfToJpgPage() {
                 disabled={!canConvert}
                 className={button("primary", "lg")}
               >
-                Convert to JPG
+                {files.length > 1 ? `Convert ${files.length} PDFs to JPG` : "Convert to JPG"}
               </button>
             )}
           </>
@@ -188,23 +272,31 @@ function PdfToJpgPage() {
         {run.status === "done" && run.results.length > 0 && (
           <SuccessPanel
             title="Pages converted successfully"
-            stats={[
-              { label: "Pages converted", value: String(pages.length), highlight: true },
-              { label: "Quality", value: QUALITIES.find((q) => q.value === quality)!.label },
-            ]}
+            stats={files.length > 1
+              ? [
+                  { label: "PDFs converted", value: String(files.length), highlight: true },
+                  { label: "Pages converted", value: String(batchPages) },
+                  { label: "Quality", value: QUALITIES.find((q) => q.value === quality)!.label },
+                ]
+              : [
+                  { label: "Pages converted", value: String(pages.length), highlight: true },
+                  { label: "Quality", value: QUALITIES.find((q) => q.value === quality)!.label },
+                ]}
             note={
-              pages.length > 1
-                ? "All of the images are inside the zip, named by page number."
+              files.length > 1
+                ? "Each PDF has its own ZIP of page images, named by page number."
+                : pages.length > 1
+                  ? "All of the images are inside the zip, named by page number."
                 : undefined
             }
             results={run.results}
             toolName={tool.name}
             onStartOver={startOver}
-            startOverLabel="Convert Another PDF"
+            startOverLabel="Convert More PDFs"
           />
         )}
 
-        {run.status === "error" && !file && run.error && (
+        {run.status === "error" && run.error && (
           <ErrorMessage message={run.error} onStartOver={startOver} />
         )}
       </ToolPanel>

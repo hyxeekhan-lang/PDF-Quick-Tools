@@ -10,6 +10,7 @@ import { StickyCtaBar } from "#/components/StickyCtaBar";
 import { SiteHeader } from "#/components/SiteHeader";
 import { CookieConsent } from "#/components/CookieConsent";
 import { ScrollToTop } from "#/components/ScrollToTop";
+import { OfflineStatus } from "#/components/OfflineStatus";
 import { themeBootScript } from "#/components/ThemeToggle";
 import { button } from "#/components/ui";
 import { organizationJsonLd, pageHead } from "#/lib/seo";
@@ -71,6 +72,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         </a>
         <div className="flex min-h-screen flex-col">
           <SiteHeader />
+          <OfflineStatus />
           <main id="main" className="flex-1">
             {children}
           </main>

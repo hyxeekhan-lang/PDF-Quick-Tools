@@ -50,18 +50,24 @@ export const toolEvents = {
  * deliberately not the gate here: refusing to let someone give feedback unless
  * they agree to advertising is its own small cruelty.
  */
-export function sendFeedback(tool: string, sentiment: 1 | -1, comment: string): void {
-  if (typeof window === "undefined") return;
-  // keepalive, because the visitor may close the tab the moment they press it
-  // and a cancelled request means they can never leave the same comment twice.
-  fetch("/api/feedback", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ tool, sentiment, comment }),
-    keepalive: true,
-  }).catch(() => {
-    // Nobody needs to be told that feedback did not save.
-  });
+export async function sendFeedback(
+  tool: string,
+  sentiment: 1 | -1,
+  comment: string,
+  rating?: number,
+): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  try {
+    const response = await fetch("/api/feedback", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ tool, sentiment, comment, rating }),
+      keepalive: true,
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
 }
 
 /**

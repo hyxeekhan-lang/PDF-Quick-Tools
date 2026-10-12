@@ -18,7 +18,7 @@ interface AiSummaryPanelProps {
 
 export function AiSummaryPanel({ result, onRegenerate, onCopy, copied }: AiSummaryPanelProps) {
   return (
-    <div className="animate-blur-in space-y-5">
+    <div className="animate-blur-in space-y-5 animate-float">
       <div className="rounded-2xl bg-brand-50/50 p-5 ring-1 ring-brand-100 dark:bg-brand-600/10 dark:ring-brand-600/25">
         <div className="flex items-start gap-3">
           <span className="mt-0.5 shrink-0 text-brand-600 dark:text-brand-400">

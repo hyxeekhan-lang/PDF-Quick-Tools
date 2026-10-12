@@ -6,8 +6,12 @@ import {
   noteToolVisit,
   readFavourites,
   readRecent,
+  readCompressionLevel,
+  readImageQuality,
   removeFavourite,
   toggleFavourite,
+  writeCompressionLevel,
+  writeImageQuality,
   KEYS,
 } from "./storage";
 
@@ -83,6 +87,32 @@ describe("recent tools", () => {
       const recent = readRecent();
       expect(recent).toHaveLength(6);
       expect(recent[0]).toBe("/tool-8");
+    });
+  });
+});
+
+describe("saved tool settings", () => {
+  it("remembers compression level and image quality locally", () => {
+    withStore(() => {
+      expect(readCompressionLevel()).toBe("recommended");
+      expect(readImageQuality()).toBe("medium");
+
+      writeCompressionLevel("strong");
+      writeImageQuality("small");
+
+      expect(readCompressionLevel()).toBe("strong");
+      expect(readImageQuality()).toBe("small");
+      expect(window.localStorage.getItem(`pqt:${KEYS.compressionLevel}`)).toBe('"strong"');
+      expect(window.localStorage.getItem(`pqt:${KEYS.imageQuality}`)).toBe('"small"');
+    });
+  });
+
+  it("falls back safely for invalid saved settings", () => {
+    withStore(() => {
+      window.localStorage.setItem(`pqt:${KEYS.compressionLevel}`, '"invalid"');
+      window.localStorage.setItem(`pqt:${KEYS.imageQuality}`, '"invalid"');
+      expect(readCompressionLevel()).toBe("recommended");
+      expect(readImageQuality()).toBe("medium");
     });
   });
 });

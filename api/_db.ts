@@ -30,10 +30,10 @@
  * the one piece of this site that ever contains words from a human, so it gets
  * its own table, its own validation, and its own explicit limits.
  *
- * What is stored: the tool path, whether it was a thumbs up or down, an optional
- * short comment, and the time. No IP, no email, no cookie, no identifier — same
- * position as the visits table. The comment is the exception to "only names and
- * timestamps" and is the reason the length limit below is strict: an unbounded
+ * What is stored: the tool path, a legacy sentiment vote, an optional star
+ * rating, a short comment, and the time. No IP, no email, no cookie, no
+ * identifier — same position as the visits table. The comment is the exception
+ * to "only names and timestamps" and is the reason the length limit below is strict: an unbounded
  * free-text column on an unauthenticated endpoint is a place people put things
  * they should not.
  */
@@ -106,9 +106,27 @@ export async function ensureSchema(): Promise<void> {
       id         bigserial PRIMARY KEY,
       tool       text        NOT NULL,
       sentiment  smallint    NOT NULL,
+      rating     smallint,
       comment    text,
       happened_at timestamptz NOT NULL DEFAULT now()
     )
+  `;
+  await sql`
+    ALTER TABLE tool_feedback
+      ADD COLUMN IF NOT EXISTS rating smallint
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS signature_requests (
+      id bigserial PRIMARY KEY,
+      provider_request_id text NOT NULL UNIQUE,
+      token_hash text NOT NULL UNIQUE,
+      created_at timestamptz NOT NULL DEFAULT now(),
+      expires_at timestamptz NOT NULL
+    )
+  `;
+  await sql`
+    CREATE INDEX IF NOT EXISTS signature_requests_expiry_idx
+      ON signature_requests (expires_at)
   `;
   // One query reads the newest feedback; the other aggregates it by tool.
   await sql`
@@ -119,6 +137,37 @@ export async function ensureSchema(): Promise<void> {
     CREATE INDEX IF NOT EXISTS tool_feedback_tool_idx
       ON tool_feedback (tool, happened_at DESC)
   `;
+}
+
+export async function saveSignatureRequest(
+  providerRequestId: string,
+  tokenHash: string,
+): Promise<boolean> {
+  const sql = db();
+  if (!sql) return false;
+  await ensureSchema();
+  await sql`
+    DELETE FROM signature_requests
+    WHERE expires_at < now()
+  `;
+  await sql`
+    INSERT INTO signature_requests (provider_request_id, token_hash, expires_at)
+    VALUES (${providerRequestId}, ${tokenHash}, now() + interval '30 days')
+  `;
+  return true;
+}
+
+export async function findSignatureRequest(tokenHash: string): Promise<string | null> {
+  const sql = db();
+  if (!sql) return null;
+  await ensureSchema();
+  const rows = await sql<{ provider_request_id: string }[]>`
+    SELECT provider_request_id
+    FROM signature_requests
+    WHERE token_hash = ${tokenHash} AND expires_at > now()
+    LIMIT 1
+  `;
+  return rows[0]?.provider_request_id ?? null;
 }
 
 /**
@@ -148,13 +197,14 @@ export async function recordFeedback(
   tool: string,
   sentiment: number,
   comment: string | null,
+  rating: number | null = null,
 ): Promise<boolean> {
   const sql = db();
   if (!sql) return false;
   await ensureSchema();
   await sql`
-    INSERT INTO tool_feedback (tool, sentiment, comment)
-    VALUES (${tool}, ${sentiment}, ${comment})
+    INSERT INTO tool_feedback (tool, sentiment, rating, comment)
+    VALUES (${tool}, ${sentiment}, ${rating}, ${comment})
   `;
   return true;
 }
@@ -164,6 +214,64 @@ export interface FeedbackRow {
   sentiment: number;
   comment: string | null;
   at: string;
+}
+
+/**
+ * Public, per-tool review data for the homepage and tool pages.
+ *
+ * This is the first place anything recorded by an anonymous visitor is read
+ * back out, so it is deliberately narrower than `dashboard()`:
+ *
+ *  - Comments only, never a bare thumbs up/down. A one-bit vote with no text is
+ *    not a review, and publishing "Anonymous · 2 days ago" for someone who
+ *    pressed a button would be inventing a testimonial they did not write.
+ *  - Sentiment is **not** returned. A negative comment is real feedback and is
+ *    shown as written; hiding the downvotes to make the page look better than
+ *    the feedback would be the dishonest version of a review section.
+ *  - Rows are selected by tool path, capped, and shaped at the column level —
+ *    there is no `SELECT *` here to accidentally grow an identifier into.
+ *  - With no database configured this returns `null` so the caller renders
+ *    nothing, rather than rendering an empty section that looks broken.
+ */
+export async function publicFeedback(
+  tool: string,
+  limit = 12,
+): Promise<{ total: number; comments: { text: string; at: string; rating: number | null }[] } | null> {
+  const sql = db();
+  if (!sql) return null;
+  await ensureSchema();
+
+  const rows = (await sql`
+    SELECT
+      COUNT(comment)::text AS total,
+      COALESCE(
+        json_agg(json_build_object('text', comment, 'at', happened_at, 'rating', rating))
+          FILTER (WHERE comment IS NOT NULL),
+        '[]'::json
+      ) AS comments
+    FROM (
+      SELECT comment, happened_at, rating
+      FROM tool_feedback
+      WHERE tool = ${tool} AND comment IS NOT NULL
+      ORDER BY happened_at DESC
+      LIMIT ${limit}
+    ) recent
+  `) as unknown as { total: string; comments: { text: string; at: string; rating: number | null }[] }[];
+
+  const row = rows[0];
+  if (!row) return null;
+
+  // json_agg over a subquery that matched nothing returns an empty array with a
+  // count of 0, which is a real answer: this tool has no written reviews yet.
+  const comments = Array.isArray(row.comments)
+    ? row.comments.map((c: { text: string; at: string; rating?: number | null }) => ({
+        text: String(c.text ?? ""),
+        at: String(c.at ?? ""),
+        rating: c.rating == null ? null : Number(c.rating),
+      }))
+    : [];
+
+  return { total: Number(row.total ?? 0), comments };
 }
 
 export interface FeedbackSummary {

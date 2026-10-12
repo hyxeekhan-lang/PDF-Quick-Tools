@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { OcrLanguageSelect } from "#/components/OcrLanguageSelect";
 import { VisualPageTool } from "#/components/VisualPageTool";
 import { ToolShell } from "#/components/ToolShell";
 import type { ResultStat } from "#/components/ToolFeedback";
-import { ocrPdf, type OcrOutcome } from "#/lib/operations-ocr";
+import { ocrPdf, type OcrLanguage, type OcrOutcome } from "#/lib/operations-ocr";
 import { pageHead } from "#/lib/seo";
 import { toolByHref } from "#/lib/tools";
 
@@ -38,7 +39,7 @@ const FAQ = [
   {
     question: "What languages can it read?",
     answer:
-      "English only at the moment. Urdu, Arabic, Chinese and Hindi need their own recognition model, which would add several more megabytes to the download.",
+      "Choose English, Arabic, Hindi or Urdu. The selected recognition model is downloaded from this site and used on your device.",
   },
   {
     question: "My PDF already has text — will it break it?",
@@ -54,6 +55,7 @@ const FAQ = [
 
 function OcrPage() {
   const [outcome, setOutcome] = useState<OcrOutcome | null>(null);
+  const [language, setLanguage] = useState<OcrLanguage>("eng");
 
   return (
     <ToolShell tool={tool} faq={FAQ} about={<About />}>
@@ -66,8 +68,16 @@ function OcrPage() {
         successTitle="Your PDF is now searchable"
         selectAllByDefault
         emptySelectionMessage="Select at least one page to read."
+        options={({ disabled }) => (
+          <OcrLanguageSelect
+            id="ocr-pdf-language"
+            value={language}
+            onChange={setLanguage}
+            disabled={disabled}
+          />
+        )}
         run={async (file, indexes, report) => {
-          const result = await ocrPdf(file, indexes, report);
+          const result = await ocrPdf(file, indexes, report, undefined, language);
           setOutcome(result);
           return [result.result];
         }}
@@ -97,8 +107,8 @@ function About() {
         looks untouched; it just happens to be searchable now.
       </p>
       <p>
-        Being honest about the limits: this reads English, and it reads typed
-        text. Handwriting, a page photographed at an angle, faint or low-contrast
+        Being honest about the limits: this reads typed text in English, Arabic,
+        Hindi or Urdu. Handwriting, a page photographed at an angle, faint or low-contrast
         print, and small text in dense tables are where it struggles — the same
         places any scanner does. The confidence score it reports tells you how
         well it actually went on your particular file.

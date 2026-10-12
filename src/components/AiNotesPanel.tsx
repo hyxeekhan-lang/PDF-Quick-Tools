@@ -36,7 +36,7 @@ export function AiNotesPanel({ result, onRegenerate, onCopy, copied }: AiNotesPa
   }, []);
 
   return (
-    <div className="animate-blur-in space-y-5">
+    <div className="animate-blur-in space-y-5 animate-float">
       {/* Title & Overview */}
       <div className="rounded-2xl bg-brand-50/50 p-5 ring-1 ring-brand-100 dark:bg-brand-600/10 dark:ring-brand-600/25">
         <h3 className="text-lg font-bold text-brand-900 dark:text-brand-200">

@@ -258,7 +258,9 @@ export function AiDocumentToolPage({ href }: AiDocumentToolProps) {
     if (!file || task === "ask") return;
     await run.run(async (report) => {
       report(15, "Extracting text from PDF...");
-      const text = await extractPdfText(file.file);
+      const text = await extractPdfText(file.file, (percent, label) =>
+        report(5 + percent * 0.25, label),
+      );
       if (!text.trim()) throw new FriendlyError("Could not extract text from this PDF. It may be scanned or image-only.");
       const response = await processAiDocument(
         text,
@@ -300,7 +302,7 @@ export function AiDocumentToolPage({ href }: AiDocumentToolProps) {
 
   const loadForChat = useCallback(async () => {
     if (!file || task !== "ask") return;
-    await run.run(async (report) => { report(20, "Extracting text from PDF..."); const text = await extractPdfText(file.file); if (!text.trim()) throw new FriendlyError("Could not extract text from this PDF. It may be scanned or image-only."); setPdfText(text); report(100, "Ready to chat"); return []; });
+    await run.run(async (report) => { report(5, "Extracting text from PDF..."); const text = await extractPdfText(file.file, (percent, label) => report(5 + percent * 0.25, label)); if (!text.trim()) throw new FriendlyError("Could not extract text from this PDF. It may be scanned or image-only."); setPdfText(text); report(100, "Ready to chat"); return []; });
   }, [file, run, task]);
 
   const ask = useCallback(async (question: string, addMessage = true) => {

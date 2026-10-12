@@ -59,6 +59,7 @@ export type ToolCategory =
 
 export type ToolHref =
   | "/compress-pdf"
+  | "/pdf-workflow"
   | "/compress-pdf-to-specific-size"
   | "/merge-pdf"
   | "/split-pdf"
@@ -112,7 +113,9 @@ export type ToolHref =
   | "/pdf-to-excel"
   | "/excel-to-pdf"
   | "/pdf-to-png"
-  | "/image-to-text";
+  | "/image-to-text"
+  | "/create-pdf-form"
+  | "/request-signature";
 
 export interface Tool {
   href: ToolHref;
@@ -129,6 +132,18 @@ export interface Tool {
 }
 
 export const TOOLS: Tool[] = [
+  {
+    href: "/pdf-workflow",
+    name: "PDF Workflow",
+    blurb: "Compress and number a PDF in one guided run.",
+    subtitle: "Chain useful PDF steps into one simple workflow.",
+    icon: "wand",
+    category: "Optimize",
+    title: "PDF Workflow — Combine PDF Steps Online Free",
+    description:
+      "Build a simple PDF workflow by combining compression and page numbering in one run. Work locally in your browser, free and without an account.",
+    popular: false,
+  },
   {
     href: "/compress-pdf",
     name: "Compress PDF",
@@ -777,6 +792,30 @@ export const TOOLS: Tool[] = [
     title: "Image to Text — OCR Image to Text Online Free",
     description:
       "Extract text from a JPG, PNG or WebP image using OCR in your browser. Copy the result or download it as a text file. Nothing is uploaded. Free and no signup.",
+    popular: false,
+  },
+  {
+    href: "/create-pdf-form",
+    name: "Create PDF Form",
+    blurb: "Place fillable text boxes and checkboxes on your PDF.",
+    subtitle: "Turn a flat PDF into an interactive form.",
+    icon: "form",
+    category: "Edit PDF",
+    title: "Create a Fillable PDF Form Online",
+    description:
+      "Add interactive text fields and checkboxes to a PDF by placing them on a page preview. Processed in your browser, no account needed.",
+    popular: false,
+  },
+  {
+    href: "/request-signature",
+    name: "Request PDF Signature",
+    blurb: "Email a PDF to a signer and track its progress.",
+    subtitle: "Send a signature request and check its status.",
+    icon: "sign",
+    category: "Edit PDF",
+    title: "Request and Track a PDF Signature",
+    description:
+      "Send a PDF signature request through Dropbox Sign and get a private status-tracking link. Requires provider configuration.",
     popular: false,
   },
 ];

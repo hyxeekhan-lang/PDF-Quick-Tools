@@ -14,12 +14,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 // for the stored comment. An untyped `vi.fn(async () => true)` has a call
 // signature of `[]`, and indexing past its end is an error rather than an
 // `undefined` at runtime.
-const recordFeedback = vi.fn(async (_tool: string, _sentiment: number, _comment: string | null) => true);
+const recordFeedback = vi.fn(
+  async (_tool: string, _sentiment: number, _comment: string | null, _rating: number | null) => true,
+);
 const ensureSchema = vi.fn(async () => {});
 
 vi.mock("./_db", () => ({
-  recordFeedback: (tool: string, sentiment: number, comment: string | null) =>
-    recordFeedback(tool, sentiment, comment),
+  recordFeedback: (tool: string, sentiment: number, comment: string | null, rating: number | null) =>
+    recordFeedback(tool, sentiment, comment, rating),
   ensureSchema: (...args: unknown[]) => ensureSchema(...(args as [])),
   db: () => null,
   dashboard: vi.fn(),
@@ -33,7 +35,7 @@ const { POST, GET } = await import("./feedback");
  * The limiter is module-level state shared by every test in the file, and the
  * limit here is ten a day — so tests reusing one address would exhaust the
  * bucket partway through and every later assertion would see the rate-limited
- * 202 instead of the 204 it is checking. Each call getting its own address
+ * 429 instead of the 204 it is checking. Each call getting its own address
  * keeps the tests independent of each other's order.
  */
 let nextIp = 1;
@@ -63,8 +65,23 @@ describe("POST /api/feedback", () => {
     await POST(post({ tool: "/compress-pdf", sentiment: 1 }));
     await POST(post({ tool: "/merge-pdf", sentiment: -1 }));
 
-    expect(recordFeedback).toHaveBeenNthCalledWith(1, "/compress-pdf", 1, null);
-    expect(recordFeedback).toHaveBeenNthCalledWith(2, "/merge-pdf", -1, null);
+    expect(recordFeedback).toHaveBeenNthCalledWith(1, "/compress-pdf", 1, null, null);
+    expect(recordFeedback).toHaveBeenNthCalledWith(2, "/merge-pdf", -1, null, null);
+  });
+
+  it("stores a valid star rating and the homepage comment", async () => {
+    const response = await POST(post({ tool: "/", rating: 4, comment: "Easy to use." }));
+
+    expect(response.status).toBe(204);
+    expect(recordFeedback).toHaveBeenCalledWith("/", 1, "Easy to use.", 4);
+  });
+
+  it("rejects an out-of-range rating when no legacy sentiment is provided", async () => {
+    for (const rating of [0, 6, 2.5, "5", true]) {
+      const response = await POST(post({ tool: "/", rating, comment: "A review." }));
+      expect(response.status).toBe(204);
+    }
+    expect(recordFeedback).not.toHaveBeenCalled();
   });
 
   it("refuses anything that is not exactly plus or minus one", async () => {
@@ -110,6 +127,7 @@ describe("POST /api/feedback", () => {
       "/compress-pdf",
       -1,
       "img src=x onerror=alert(1) won't open",
+      null,
     );
   });
 
@@ -148,12 +166,12 @@ describe("POST /api/feedback", () => {
     for (const comment of [undefined, null, "", "   ", 42]) {
       recordFeedback.mockClear();
       await POST(post({ tool: "/compress-pdf", sentiment: 1, comment }));
-      expect(recordFeedback).toHaveBeenCalledWith("/compress-pdf", 1, null);
+      expect(recordFeedback).toHaveBeenCalledWith("/compress-pdf", 1, null, null);
     }
   });
 
   it("ignores a body that is not the expected shape", async () => {
-    for (const body of [{}, { sentiment: 1 }, "not json", [1, 2, 3]]) {
+    for (const body of [{}, { sentiment: 1 }, [1, 2, 3]]) {
       const response = await POST(post(body));
       expect(response.status).toBe(204);
     }
@@ -161,12 +179,25 @@ describe("POST /api/feedback", () => {
     expect(recordFeedback).not.toHaveBeenCalled();
   });
 
-  it("answers 204 even when the database write fails", async () => {
+  it("reports malformed JSON as a client error", async () => {
+    expect((await POST(post("not json"))).status).toBe(400);
+    expect(recordFeedback).not.toHaveBeenCalled();
+  });
+
+  it("reports a database write failure", async () => {
     recordFeedback.mockRejectedValue(new Error("ECONNREFUSED"));
 
     const response = await POST(post({ tool: "/compress-pdf", sentiment: 1 }));
 
-    expect(response.status).toBe(204);
+    expect(response.status).toBe(503);
+  });
+
+  it("reports unavailable storage instead of claiming a review was saved", async () => {
+    recordFeedback.mockResolvedValue(false);
+
+    const response = await POST(post({ tool: "/", rating: 5, comment: "Great." }));
+
+    expect(response.status).toBe(503);
   });
 
   it("rate limits by address without ever storing it", async () => {
@@ -177,7 +208,7 @@ describe("POST /api/feedback", () => {
       expect((await POST(post({ tool: "/compress-pdf", sentiment: 1 }, ip))).status).toBe(204);
     }
 
-    expect((await POST(post({ tool: "/compress-pdf", sentiment: 1 }, ip))).status).toBe(202);
+    expect((await POST(post({ tool: "/compress-pdf", sentiment: 1 }, ip))).status).toBe(429);
     expect(recordFeedback).toHaveBeenCalledTimes(10);
   });
 

@@ -22,7 +22,10 @@ export function HowTo({ toolName, steps }: { toolName: string; steps: HowToStep[
   return (
     <section aria-labelledby="how-to-heading" className="mt-12">
       <h2 id="how-to-heading" className={heading.h2}>
-        How to {toolName}
+        {/* "How to {toolName}" read as "How to AI Summarizer" — the tool name is
+            a noun phrase, so the sentence needs the verb. It now reads "How to
+            use AI Summarizer" on every tool page. */}
+        How to use {toolName}
       </h2>
       <ol className="mt-5 space-y-4">
         {steps.map((step, index) => (

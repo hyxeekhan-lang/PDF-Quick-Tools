@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FileList } from "#/components/FileList";
 import { FileUploader } from "#/components/FileUploader";
 import { OptionCards } from "#/components/OptionCards";
+import { OcrLanguageSelect } from "#/components/OcrLanguageSelect";
 import { ErrorMessage, ProgressBar, SuccessPanel } from "#/components/ToolFeedback";
 import { OptionGroup, ToolPanel, ToolShell } from "#/components/ToolShell";
 import { button } from "#/components/ui";
@@ -13,6 +14,7 @@ import {
   type ImageToTextFormat,
   type ImageToTextResult,
 } from "#/lib/operations-image-to-text";
+import type { OcrLanguage } from "#/lib/operations-ocr";
 import { pageHead } from "#/lib/seo";
 import { toolByHref } from "#/lib/tools";
 
@@ -60,6 +62,10 @@ const FAQ = [
       "Up to 30. Each takes a few seconds because the recognition happens in your browser, and all the images are read in one go and put into a single text file.",
   },
   {
+    question: "Which languages can it read?",
+    answer: "Choose English, Arabic, Hindi or Urdu. The selected recognition model is downloaded from this site and used on your device.",
+  },
+  {
     question: "Are my images uploaded?",
     answer:
       "No. The recognition runs on this page, in this tab, using a model served from this same site. Nothing about the image is sent anywhere — which matters if it is a passport, a receipt or a document with your details on it.",
@@ -69,13 +75,35 @@ const FAQ = [
 function ImageToTextPage() {
   const [files, setFiles] = useState<AcceptedFile[]>([]);
   const [format, setFormat] = useState<ImageToTextFormat>("txt");
+  const [language, setLanguage] = useState<OcrLanguage>("eng");
+  const [improveContrast, setImproveContrast] = useState(false);
   const run = useToolRun(tool.name);
   const busy = run.status === "working";
   const [outcome, setOutcome] = useState<ImageToTextResult | null>(null);
+  const [extractedText, setExtractedText] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
+  const [previewIndex, setPreviewIndex] = useState(0);
+  const previewFile = files[previewIndex] ?? files[0] ?? null;
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!previewFile) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(previewFile.file);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [previewFile]);
 
   const startOver = useCallback(() => {
     setFiles([]);
+    setPreviewIndex(0);
     setOutcome(null);
+    setExtractedText("");
+    setCopied(false);
+    setCopyError(null);
     run.reset();
   }, [run]);
 
@@ -86,10 +114,26 @@ function ImageToTextPage() {
         files.map((item) => item.file),
         format,
         report,
+        language,
+        improveContrast,
       );
       setOutcome(result);
+      setExtractedText(result.text);
+      setCopied(false);
+      setCopyError(null);
       return [result.result];
     });
+  }
+
+  async function copyText() {
+    try {
+      await navigator.clipboard.writeText(extractedText);
+      setCopied(true);
+      setCopyError(null);
+    } catch {
+      setCopied(false);
+      setCopyError("Could not copy automatically. Select the text above and copy it manually.");
+    }
   }
 
   return (
@@ -99,31 +143,134 @@ function ImageToTextPage() {
           <FileUploader
             kind="image"
             multiple
+            cameraCapture
             toolName={tool.name}
             onFiles={(incoming) => {
               run.reset();
               setOutcome(null);
+              setExtractedText("");
+              setCopied(false);
+              setCopyError(null);
+              setPreviewIndex(0);
               setFiles(incoming);
             }}
             onRejected={run.fail}
           />
         )}
 
-        {files.length > 0 && run.status !== "done" && (
+        {files.length > 0 && (
           <>
             <FileList files={files} kind="image" disabled={busy} onRemove={startOver} />
 
-            <OptionGroup legend="Output format" hint="Markdown keeps each image under its own heading.">
-              <OptionCards
-                name="format"
-                options={FORMATS}
-                value={format}
-                onChange={setFormat}
-                disabled={busy}
-              />
-            </OptionGroup>
+            <div className="mt-5 grid min-w-0 gap-4 lg:grid-cols-2">
+              <section className="min-w-0 rounded-2xl bg-white p-4 ring-1 ring-ink-200 dark:bg-ink-900 dark:ring-ink-700">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="text-sm font-semibold text-ink-900 dark:text-white">Scan image</h2>
+                  {files.length > 1 && (
+                    <label className="sr-only" htmlFor="image-to-text-preview-select">
+                      Choose image preview
+                    </label>
+                  )}
+                  {files.length > 1 && (
+                    <select
+                      id="image-to-text-preview-select"
+                      value={previewIndex}
+                      onChange={(event) => setPreviewIndex(Number(event.target.value))}
+                      className="max-w-[65%] rounded-lg bg-ink-50 px-2 py-1.5 text-xs text-ink-700 ring-1 ring-ink-200 dark:bg-ink-950 dark:text-ink-200 dark:ring-ink-700"
+                    >
+                      {files.map((item, index) => (
+                        <option key={item.id} value={index}>{item.name}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+                <div className="relative mt-3 flex min-h-72 items-center justify-center overflow-hidden rounded-xl border border-dashed border-ink-300 bg-ink-50 p-3 dark:border-ink-700 dark:bg-ink-950">
+                  {previewUrl ? (
+                    <img
+                      src={previewUrl}
+                      alt={previewFile?.name ?? "Selected image to scan"}
+                      className="max-h-[28rem] w-full rounded-lg object-contain"
+                    />
+                  ) : (
+                    <p className="text-sm text-ink-500 dark:text-ink-400">Choose an image to preview it here.</p>
+                  )}
+                  {busy && (
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-1 animate-pulse bg-brand-500 shadow-[0_0_18px_4px_rgba(79,70,229,0.55)]" />
+                  )}
+                </div>
+                <OptionGroup legend="Output format" hint="Markdown keeps each image under its own heading.">
+                  <OptionCards
+                    name="format"
+                    options={FORMATS}
+                    value={format}
+                    onChange={setFormat}
+                    disabled={busy}
+                  />
+                </OptionGroup>
+                <div className="mt-4">
+                  <OcrLanguageSelect
+                    id="image-to-text-language"
+                    value={language}
+                    onChange={setLanguage}
+                    disabled={busy}
+                  />
+                </div>
+                <label className="mt-4 flex cursor-pointer items-start gap-2.5 text-sm text-ink-700 dark:text-ink-300">
+                  <input
+                    type="checkbox"
+                    checked={improveContrast}
+                    disabled={busy}
+                    onChange={(event) => setImproveContrast(event.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-ink-300 text-brand-600 focus:ring-brand-500 dark:border-ink-600 dark:bg-ink-800"
+                  />
+                  <span>
+                    Improve scan contrast
+                    <span className="mt-0.5 block text-xs text-ink-500 dark:text-ink-400">
+                      Grayscale and normalize the photo before recognition. The original image is unchanged.
+                    </span>
+                  </span>
+                </label>
+                {busy ? (
+                  <ProgressBar progress={run.progress} onCancel={run.cancel} />
+                ) : (
+                  <button type="button" onClick={convert} className={button("primary", "lg")} disabled={run.status === "done"}>
+                    {run.status === "done" ? "Scan complete" : "Scan image"}
+                  </button>
+                )}
+              </section>
 
-            {busy && <ProgressBar progress={run.progress} onCancel={run.cancel} />}
+              <section className="min-w-0 rounded-2xl bg-white p-4 ring-1 ring-ink-200 dark:bg-ink-900 dark:ring-ink-700">
+                <label
+                  htmlFor="image-to-text-output"
+                  className="block text-sm font-semibold text-ink-900 dark:text-white"
+                >
+                  Extracted text
+                </label>
+                <textarea
+                  id="image-to-text-output"
+                  value={extractedText}
+                  onChange={(event) => {
+                    setExtractedText(event.target.value);
+                    setCopied(false);
+                    setCopyError(null);
+                  }}
+                  placeholder={busy ? "Reading text from your image…" : "Scanned text will appear here. Choose an image and press Scan image."}
+                  rows={18}
+                  spellCheck={false}
+                  className="mt-3 block min-h-72 w-full resize-y rounded-xl bg-ink-50 px-3.5 py-3 font-mono text-sm leading-relaxed text-ink-900 ring-1 ring-ink-200 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-ink-950 dark:text-white dark:ring-ink-700"
+                />
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  {run.status === "done" && (
+                    <button type="button" onClick={copyText} className={button("secondary", "md")}>
+                      {copied ? "Copied!" : "Copy text"}
+                    </button>
+                  )}
+                  {copyError && (
+                    <p role="alert" className="text-sm text-red-700 dark:text-red-300">{copyError}</p>
+                  )}
+                </div>
+              </section>
+            </div>
 
             {run.status === "error" && run.error && (
               <ErrorMessage
@@ -133,35 +280,29 @@ function ImageToTextPage() {
               />
             )}
 
-            {!busy && (
-              <button type="button" onClick={convert} className={button("primary", "lg")}>
-                Extract Text
-              </button>
+            {run.status === "done" && run.results.length > 0 && (
+            <SuccessPanel
+              title="Text extracted successfully"
+              stats={[
+                { label: "Images read", value: String(outcome?.images ?? files.length), highlight: true },
+                { label: "Words", value: String(outcome?.words ?? "0") },
+                { label: "Characters", value: String(outcome?.characters ?? "0") },
+                { label: "Confidence", value: `${outcome?.confidence ?? 0}%` },
+              ]}
+              note={
+                outcome && outcome.confidence < 80
+                  ? "That confidence is on the low side — read the text before you rely on it."
+                  : outcome && outcome.blank.length > 0
+                    ? `No text was found in ${outcome.blank.length} image${outcome.blank.length === 1 ? "" : "s"}.`
+                    : undefined
+              }
+              results={run.results}
+              toolName={tool.name}
+              onStartOver={startOver}
+              startOverLabel="Read More Images"
+            />
             )}
           </>
-        )}
-
-        {run.status === "done" && run.results.length > 0 && (
-          <SuccessPanel
-            title="Text extracted successfully"
-            stats={[
-              { label: "Images read", value: String(outcome?.images ?? files.length), highlight: true },
-              { label: "Words", value: String(outcome?.words ?? "0") },
-              { label: "Characters", value: String(outcome?.characters ?? "0") },
-              { label: "Confidence", value: `${outcome?.confidence ?? 0}%` },
-            ]}
-            note={
-              outcome && outcome.confidence < 80
-                ? "That confidence is on the low side — read the text before you rely on it."
-                : outcome && outcome.blank.length > 0
-                  ? `No text was found in ${outcome.blank.length} image${outcome.blank.length === 1 ? "" : "s"}.`
-                  : undefined
-            }
-            results={run.results}
-            toolName={tool.name}
-            onStartOver={startOver}
-            startOverLabel="Read More Images"
-          />
         )}
 
         {run.status === "error" && files.length === 0 && run.error && (
@@ -192,6 +333,10 @@ function About() {
         All of this happens on this page, in this tab. The image is never
         uploaded, which is the only reason this is worth using for anything
         private.
+      </p>
+      <p>
+        Choose English, Arabic, Hindi or Urdu, and optionally improve contrast
+        on a faint or uneven photo before reading it.
       </p>
     </>
   );

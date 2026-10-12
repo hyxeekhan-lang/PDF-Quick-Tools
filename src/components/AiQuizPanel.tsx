@@ -53,7 +53,7 @@ export function AiQuizPanel({ questions, onRegenerate }: AiQuizPanelProps) {
   const skipped = questions.length - scored.length;
 
   return (
-    <div className="animate-blur-in space-y-5">
+    <div className="animate-blur-in space-y-5 animate-float">
       {showResults && (
         <div className="rounded-2xl bg-brand-50/50 p-5 ring-1 ring-brand-100 dark:bg-brand-600/10 dark:ring-brand-600/25">
           <div className="flex items-center gap-3">

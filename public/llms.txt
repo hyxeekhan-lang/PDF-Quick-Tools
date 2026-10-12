@@ -7,7 +7,7 @@
 > scanned PDFs) is sent to the AI provider only when the visitor runs an AI
 > action. No account is required.
 
-Every tool is listed below with its own page. There are 55 tool pages.
+Every tool is listed below with its own page. There are 58 tool pages.
 
 ## Start here
 
@@ -23,6 +23,7 @@ Every tool is listed below with its own page. There are 55 tool pages.
 
 ## Tools
 
+- [PDF Workflow](https://pdfpilot.site/pdf-workflow): Compress and number a PDF in one guided run.
 - [Compress PDF](https://pdfpilot.site/compress-pdf): Reduce PDF file size while keeping good quality.
 - [Compress PDF to Exact Size](https://pdfpilot.site/compress-pdf-to-specific-size): Shrink a PDF to fit a specific KB or MB limit.
 - [Merge PDF](https://pdfpilot.site/merge-pdf): Combine multiple PDF files into one.
@@ -78,3 +79,5 @@ Every tool is listed below with its own page. There are 55 tool pages.
 - [Excel to PDF](https://pdfpilot.site/excel-to-pdf): Turn a spreadsheet into a PDF.
 - [PDF to PNG](https://pdfpilot.site/pdf-to-png): Save PDF pages as lossless PNG images.
 - [Image to Text](https://pdfpilot.site/image-to-text): Read the text out of a photo or scan.
+- [Create PDF Form](https://pdfpilot.site/create-pdf-form): Place fillable text boxes and checkboxes on your PDF.
+- [Request PDF Signature](https://pdfpilot.site/request-signature): Email a PDF to a signer and track its progress.

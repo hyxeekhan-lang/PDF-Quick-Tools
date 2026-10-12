@@ -150,6 +150,72 @@ export async function readFormFields(
   return out;
 }
 
+export interface NewFormField {
+  name: string;
+  page: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  type: "text" | "checkbox";
+}
+
+export async function createFillablePdf(
+  file: File,
+  fields: NewFormField[],
+  report: Report,
+): Promise<ResultFile> {
+  if (fields.length === 0) return friendly("Place at least one field on a page.");
+  if (fields.length > 100) return friendly("A form can have no more than 100 fields.");
+  const names = new Set<string>();
+  for (const field of fields) {
+    if (
+      !/^[A-Za-z][A-Za-z0-9_]{0,39}$/.test(field.name) ||
+      names.has(field.name) ||
+      !Number.isInteger(field.page) ||
+      field.page < 0 ||
+      ![field.x, field.y, field.width, field.height].every(Number.isFinite) ||
+      field.x < 0 || field.y < 0 || field.width <= 0 || field.height <= 0 ||
+      field.x + field.width > 1 || field.y + field.height > 1
+    ) {
+      return friendly("One of the form fields has invalid placement or a duplicate name.");
+    }
+    names.add(field.name);
+  }
+
+  report(15, "Opening your PDF");
+  const { doc, pageCount } = await openForEdit(file);
+  if (fields.some((field) => field.page >= pageCount)) {
+    return friendly("A field points to a page that is not in this PDF.");
+  }
+
+  const form = doc.getForm();
+  for (const [index, field] of fields.entries()) {
+    const page = doc.getPage(field.page);
+    const { width: pageWidth, height: pageHeight } = page.getSize();
+    const width = field.width * pageWidth;
+    const height = field.height * pageHeight;
+    const x = field.x * pageWidth;
+    const y = pageHeight - (field.y + field.height) * pageHeight;
+    if (field.type === "text") {
+      form.createTextField(field.name).addToPage(page, { x, y, width, height, borderWidth: 1 });
+    } else {
+      form.createCheckBox(field.name).addToPage(page, {
+        x,
+        y,
+        width: Math.min(width, height),
+        height: Math.min(width, height),
+        borderWidth: 1,
+      });
+    }
+    report(25 + Math.round(((index + 1) / fields.length) * 60), `Adding field ${index + 1} of ${fields.length}`);
+  }
+  report(92, "Saving your fillable PDF");
+  const bytes = await save(doc);
+  const filename = sanitizeFilename(file.name, "document");
+  return makeResult(toBlobPart(bytes), `${filename}-fillable.pdf`, PDF_MIME);
+}
+
 /* -------------------------------------------------------------- redaction */
 
 /**

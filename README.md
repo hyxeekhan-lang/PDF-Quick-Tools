@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://pdfpilot.site/">Open the live website</a>
   ·
-  <a href="https://pdfpilot.site/tools">Browse all 58 tools</a>
+  <a href="https://pdfpilot.site/tools">Browse all 57 tools</a>
   ·
   <a href="https://github.com/hyxeekhan-lang/PDF-Quick-Tools/releases/tag/v1.0.0">Chrome Extension release</a>
 </p>
@@ -17,7 +17,7 @@
 </p>
 
 [![Live site](https://img.shields.io/badge/live-pdfpilot.site-4f46e5?style=for-the-badge)](https://pdfpilot.site/)
-[![Tools](https://img.shields.io/badge/tools-58-4f46e5?style=for-the-badge)](https://pdfpilot.site/tools)
+[![Tools](https://img.shields.io/badge/tools-57-4f46e5?style=for-the-badge)](https://pdfpilot.site/tools)
 [![License: MIT](https://img.shields.io/badge/license-MIT-10b981?style=for-the-badge)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=for-the-badge)](tsconfig.json)
 [![React 19](https://img.shields.io/badge/React-19-087ea4?style=for-the-badge)](package.json)
@@ -54,7 +54,7 @@ Captured from the live site, October 2026.
 
 ## What It Includes
 
-58 tools in total. The most-used ones:
+57 tools in total. The most-used ones:
 
 ### PDF tools
 
@@ -88,6 +88,14 @@ Captured from the live site, October 2026.
 - AI PDF Question Generator
 
 Every AI tool uses the same document workflow: browser-side PDF text extraction, an explicit AI action, progress/error states, and structured results. AI output is presented as assistance, not professional, legal, academic, financial, or hiring advice.
+
+### Optional integrations
+
+The original local-only PDF tools remain available without these integrations.
+
+- **Dropbox Sign requests:** configure `DROPBOX_SIGN_API_KEY` and `POSTGRES_URL` in Vercel. Signature PDFs (maximum 4 MB) and signer details are sent to Dropbox Sign only after the user submits the explicit-consent form. Private tracking tokens are stored as hashes and expire after 30 days. Set `DROPBOX_SIGN_TEST_MODE=true` while testing; Dropbox Sign test-mode signatures are not legally valid.
+- **Google Drive import/export:** create a Google Cloud web OAuth client, enable the Google Picker and Drive APIs, and configure `VITE_GOOGLE_CLIENT_ID`, `VITE_GOOGLE_API_KEY`, and `VITE_GOOGLE_APP_ID` in Vercel before building. Restrict the API key to the site's authorized origins and Picker/Drive APIs. Access uses the `drive.file` scope, requested only when the visitor chooses Drive, and the access token is kept in memory.
+- **Create PDF Form:** add interactive text boxes and checkboxes in the browser. This does not need a provider credential.
 
 ## Privacy By Design
 

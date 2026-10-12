@@ -10,7 +10,7 @@ import { TOOLS } from "#/lib/tools";
  *
  * ## Why this exists
  *
- * The site has 55 tools and no account, so a returning visitor has no way back
+ * The site has many tools and no account, so a returning visitor has no way back
  * to the one they used last week except "Your tools" on the homepage and the
  * recents list in their own browser. Someone arriving once and not bookmarking
  * has, on a site this size, very little reason to come back — which is the
@@ -86,15 +86,15 @@ export function WelcomeTour() {
   return (
     <section
       aria-labelledby="tour-heading"
-      className="rounded-2xl bg-white p-5 ring-1 ring-ink-200/80 shadow-sm sm:p-6 dark:bg-ink-900 dark:ring-ink-800"
+      className="rounded-2xl bg-white p-4 ring-1 ring-ink-200/80 shadow-sm sm:p-5 lg:p-6 dark:bg-ink-900 dark:ring-ink-800"
     >
       <div className="flex items-start gap-3">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-300">
           <current.icon className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="flex items-baseline justify-between gap-3">
-            <h2 id="tour-heading" className="text-base font-semibold text-ink-900 dark:text-white">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+            <h2 id="tour-heading" className="min-w-0 flex-1 text-base font-semibold text-ink-900 dark:text-white">
               {current.title}
             </h2>
             {/* Step count as words, not "2/4". A screen reader announcing a
@@ -104,11 +104,11 @@ export function WelcomeTour() {
             </span>
           </div>
 
-          <p className="mt-2 text-sm leading-relaxed text-ink-600 dark:text-ink-400">
+          <p className="mt-2 max-w-4xl text-sm leading-relaxed text-ink-600 dark:text-ink-400">
             {current.body}
           </p>
 
-          <div className="mt-5 flex flex-wrap items-center gap-2">
+          <div className="mt-4 flex flex-wrap items-center gap-2 sm:mt-5">
             {last ? (
               <Link to="/tools" onClick={dismiss} className={button("primary", "sm")}>
                 Browse all {TOOLS.length} tools

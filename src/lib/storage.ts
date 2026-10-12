@@ -48,7 +48,30 @@ export const KEYS = {
   challengeReminder: "challenge-reminder",
   /** Whether the one-time homepage introduction has been seen or skipped. */
   seenTour: "seen-tour",
+  compressionLevel: "compression-level",
+  imageQuality: "image-quality",
 } as const;
+
+export type SavedCompressionLevel = "strong" | "recommended" | "basic";
+export type SavedImageQuality = "high" | "medium" | "small";
+
+export function readCompressionLevel(): SavedCompressionLevel {
+  const value = read<unknown>(KEYS.compressionLevel, "recommended");
+  return value === "strong" || value === "basic" ? value : "recommended";
+}
+
+export function writeCompressionLevel(value: SavedCompressionLevel): void {
+  write(KEYS.compressionLevel, value);
+}
+
+export function readImageQuality(): SavedImageQuality {
+  const value = read<unknown>(KEYS.imageQuality, "medium");
+  return value === "high" || value === "small" ? value : "medium";
+}
+
+export function writeImageQuality(value: SavedImageQuality): void {
+  write(KEYS.imageQuality, value);
+}
 
 /**
  * The visitor's starred tools, newest first.

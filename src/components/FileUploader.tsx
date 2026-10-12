@@ -15,6 +15,7 @@ import { acceptPending, rejectPending } from "#/lib/pendingFile";
 import { MAX_FILE_LABEL } from "#/lib/site";
 import { toolHrefOf } from "#/lib/tools";
 import { ImageFileIcon, PdfFileIcon, UploadIcon } from "./Icons";
+import { GoogleDriveImportButton, asAcceptedDriveFile } from "./GoogleDriveImportButton";
 import { button, cx } from "./ui";
 
 interface FileUploaderProps {
@@ -26,6 +27,7 @@ interface FileUploaderProps {
   label?: string;
   hint?: string;
   compact?: boolean;
+  cameraCapture?: boolean;
 }
 
 export function FileUploader({
@@ -37,6 +39,7 @@ export function FileUploader({
   label,
   hint,
   compact = false,
+  cameraCapture = false,
 }: FileUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -195,6 +198,7 @@ export function FileUploader({
                   : `${PDF_ACCEPT},${IMAGE_ACCEPT}`
         }
         multiple={multiple}
+        capture={cameraCapture && kind === "image" ? "environment" : undefined}
         aria-describedby={hintId}
         onChange={(event) => {
           accept(event.target.files);
@@ -270,7 +274,10 @@ export function FileUploader({
         </span>
 
         <span id={hintId} className="mt-1 text-xs text-ink-500 dark:text-ink-500">
-          {hint ?? `Maximum size: ${MAX_FILE_LABEL} per file`}
+          {hint ??
+            (cameraCapture
+              ? `Take a photo with your camera or choose files · Maximum size: ${MAX_FILE_LABEL} per file`
+              : `Maximum size: ${MAX_FILE_LABEL} per file`)}
         </span>
       </label>
       {sourceUrl && (
@@ -282,6 +289,20 @@ export function FileUploader({
           <button type="button" onClick={useSourcePdf} disabled={sourceLoading} className={button("primary", "sm")}>
             {sourceLoading ? "Loading..." : "Use this PDF"}
           </button>
+        </div>
+      )}
+      {kind === "pdf" && !multiple && (
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <GoogleDriveImportButton
+            onFile={(file) => {
+              toolEvents.fileSelected(toolName, 1, file.size);
+              onFiles([asAcceptedDriveFile(file)]);
+            }}
+            onError={onRejected}
+          />
+          <span className="text-xs text-ink-500 dark:text-ink-400">
+            Optional cloud import; choose only the file this tool needs.
+          </span>
         </div>
       )}
     </div>

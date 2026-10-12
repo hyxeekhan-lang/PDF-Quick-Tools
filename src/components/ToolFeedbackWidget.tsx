@@ -36,6 +36,8 @@ export function ToolFeedbackWidget({ toolPath, toolName }: { toolPath: string; t
   const [choice, setChoice] = useState<1 | -1 | null>(null);
   const [comment, setComment] = useState("");
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   // Read after mount, never during render: tool pages are prerendered, so
   // localStorage does not exist while this renders on the server.
   const [alreadyAnswered, setAlreadyAnswered] = useState(true);
@@ -47,12 +49,19 @@ export function ToolFeedbackWidget({ toolPath, toolName }: { toolPath: string; t
   function submit(next: 1 | -1) {
     if (choice) return;
     setChoice(next);
-    writeFlag(answeredKey(toolPath));
   }
 
-  function send() {
-    if (!choice || sent) return;
-    sendFeedback(toolPath, choice, comment);
+  async function send() {
+    if (!choice || sent || sending) return;
+    setSending(true);
+    setError(null);
+    const stored = await sendFeedback(toolPath, choice, comment);
+    setSending(false);
+    if (!stored) {
+      setError("Feedback could not be saved. Please try again.");
+      return;
+    }
+    writeFlag(answeredKey(toolPath));
     setSent(true);
   }
 
@@ -61,7 +70,9 @@ export function ToolFeedbackWidget({ toolPath, toolName }: { toolPath: string; t
   if (alreadyAnswered || sent) return null;
 
   return (
-    <section aria-labelledby={`feedback-${toolName}`} className="mt-10">
+    // The id is a target: the reviews section above links here with "Leave a
+    // comment" so the two halves of the same feature connect.
+    <section id="tool-feedback" aria-labelledby={`feedback-${toolName}`} className="mt-10 scroll-mt-24">
       <h2 id={`feedback-${toolName}`} className="text-base font-semibold text-ink-900 dark:text-white">
         Did {toolName} work for you?
       </h2>
@@ -100,14 +111,15 @@ export function ToolFeedbackWidget({ toolPath, toolName }: { toolPath: string; t
             className="mt-2 w-full rounded-xl bg-ink-50 px-3 py-2 text-sm text-ink-900 ring-1 ring-ink-200 outline-none placeholder:text-ink-400 focus:ring-brand-400 dark:bg-ink-950 dark:text-ink-100 dark:ring-ink-700 dark:placeholder:text-ink-500"
           />
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <button type="button" onClick={send} className={button("primary", "sm")}>
-              Send
+            <button type="button" onClick={() => void send()} disabled={sending} className={button("primary", "sm")}>
+              {sending ? "Sending…" : "Send"}
             </button>
             <button
               type="button"
               onClick={() => {
                 // Dismissal is a valid answer, and it should not leave the
                 // question half-asked: record the flag, then hide.
+                writeFlag(answeredKey(toolPath));
                 setAlreadyAnswered(true);
               }}
               className={button("ghost", "sm")}
@@ -117,6 +129,7 @@ export function ToolFeedbackWidget({ toolPath, toolName }: { toolPath: string; t
             <span className={cx("text-xs", "text-ink-500 dark:text-ink-500")}>
               Anonymous — no email, no device, no tracking.
             </span>
+            {error && <span role="alert" className="text-xs text-red-700 dark:text-red-300">{error}</span>}
           </div>
         </div>
       )}

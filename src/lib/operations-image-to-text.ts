@@ -14,7 +14,11 @@
 
 import type { Report } from "#/hooks/useToolRun";
 import { friendly, makeResult, sanitizeFilename, type ResultFile } from "./files";
-import { loadTesseract, type TesseractWorker } from "./operations-ocr";
+import {
+  loadTesseract,
+  type OcrLanguage,
+  type TesseractWorker,
+} from "./operations-ocr";
 
 /**
  * Recognition runs at a fixed size rather than at the image's own.
@@ -37,6 +41,7 @@ export type ImageToTextFormat = "txt" | "md";
 
 export interface ImageToTextResult {
   result: ResultFile;
+  text: string;
   images: number;
   characters: number;
   words: number;
@@ -50,6 +55,8 @@ export async function imageToText(
   files: File[],
   format: ImageToTextFormat,
   report: Report,
+  language: OcrLanguage = "eng",
+  improveContrast = false,
 ): Promise<ImageToTextResult> {
   if (files.length === 0) {
     return friendly("Choose at least one image to read.");
@@ -72,7 +79,7 @@ export async function imageToText(
   let read = 0;
 
   try {
-    worker = await createWorker("eng", 1, {
+    worker = await createWorker(language, 1, {
       // Served from this site rather than a CDN, for the reason OCR PDF gives:
       // the model that reads your image should not be fetched from elsewhere.
       workerPath: "/ocr/worker.min.js",
@@ -87,7 +94,7 @@ export async function imageToText(
         `Reading image ${order + 1} of ${files.length}`,
       );
 
-      const read1 = await readImage(worker, file);
+      const read1 = await readImage(worker, file, improveContrast);
 
       if (read1.text.trim() === "") {
         blank.push(order + 1);
@@ -131,6 +138,7 @@ export async function imageToText(
       `${name}.${format}`,
       format === "md" ? "text/markdown" : "text/plain",
     ),
+    text: body,
     images: read,
     characters,
     words,
@@ -151,7 +159,11 @@ interface ReadResult {
  * a decoded image is tens of megabytes for a phone photo, and a batch of
  * thirty left open would take the tab down with it.
  */
-async function readImage(worker: TesseractWorker, file: File): Promise<ReadResult> {
+async function readImage(
+  worker: TesseractWorker,
+  file: File,
+  improveContrast: boolean,
+): Promise<ReadResult> {
   let bitmap: ImageBitmap;
   try {
     bitmap = await createImageBitmap(file);
@@ -175,6 +187,32 @@ async function readImage(worker: TesseractWorker, file: File): Promise<ReadResul
     if (!context) return friendly("This browser could not prepare the image for reading.");
 
     context.drawImage(bitmap, 0, 0, width, height);
+    if (improveContrast) {
+      const image = context.getImageData(0, 0, width, height);
+      const histogram = new Uint32Array(256);
+      const luminance = new Uint8Array(width * height);
+      for (let pixel = 0; pixel < luminance.length; pixel += 1) {
+        const offset = pixel * 4;
+        const value = Math.round(
+          image.data[offset]! * 0.299 +
+            image.data[offset + 1]! * 0.587 +
+            image.data[offset + 2]! * 0.114,
+        );
+        luminance[pixel] = value;
+        histogram[value] += 1;
+      }
+      const low = percentile(histogram, luminance.length, 0.05);
+      const high = percentile(histogram, luminance.length, 0.95);
+      const range = Math.max(1, high - low);
+      for (let pixel = 0; pixel < luminance.length; pixel += 1) {
+        const value = Math.max(0, Math.min(255, ((luminance[pixel]! - low) / range) * 255));
+        const offset = pixel * 4;
+        image.data[offset] = value;
+        image.data[offset + 1] = value;
+        image.data[offset + 2] = value;
+      }
+      context.putImageData(image, 0, 0);
+    }
 
     const { data } = await worker.recognize(
       canvas,
@@ -189,6 +227,16 @@ async function readImage(worker: TesseractWorker, file: File): Promise<ReadResul
   } finally {
     bitmap.close();
   }
+}
+
+function percentile(histogram: Uint32Array, total: number, fraction: number): number {
+  const target = Math.floor(total * fraction);
+  let count = 0;
+  for (let value = 0; value < histogram.length; value += 1) {
+    count += histogram[value]!;
+    if (count >= target) return value;
+  }
+  return 255;
 }
 
 /**

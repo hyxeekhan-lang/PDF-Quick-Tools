@@ -2,6 +2,24 @@ import type { ToolHref } from "./tools";
 
 /** How-to steps for the tools in batch A. Merged into HOW_TO by how-to.ts. */
 export const HOW_TO_BATCH_A: Partial<Record<ToolHref, { title: string; body: string }[]>> = {
+  "/pdf-workflow": [
+    {
+      title: "Add one PDF",
+      body: "Choose the document you want to process. The workflow runs on your device, so the original is not uploaded.",
+    },
+    {
+      title: "Choose the steps",
+      body: "Select compression, page numbering, or both. When both are selected, compression runs first and numbering is applied to the resulting PDF.",
+    },
+    {
+      title: "Set the step options",
+      body: "Choose a compression level and, when numbering pages, the first number to use.",
+    },
+    {
+      title: "Run and download",
+      body: "Press Run Workflow and wait for each step to finish. Download the single final PDF and check it before sharing.",
+    },
+  ],
   "/redact-pdf": [
     {
       title: "Open the document you want to share",
@@ -79,7 +97,7 @@ export const HOW_TO_BATCH_A: Partial<Record<ToolHref, { title: string; body: str
     },
     {
       title: "Run the recognition",
-      body: "Press Make PDF Searchable. English text is read on your device and drawn back onto the page invisibly, lined up over the letters in the image, so the scan still looks exactly the same.",
+      body: "Choose English, Arabic, Hindi or Urdu, then press Make PDF Searchable. Text is read on your device and drawn back onto the page invisibly, lined up over the letters in the image, so the scan still looks exactly the same.",
     },
     {
       title: "Read the confidence score",
@@ -208,6 +226,10 @@ export const HOW_TO_BATCH_A: Partial<Record<ToolHref, { title: string; body: str
     {
       title: "Choose the output format",
       body: "Plain text gives you just the words with nothing else. Markdown wraps each image in its own heading, which is the one to pick if you photographed several pages and need to tell them apart later.",
+    },
+    {
+      title: "Choose language and image cleanup",
+      body: "Select English, Arabic, Hindi or Urdu. If the photo is faint or uneven, enable Improve scan contrast to grayscale and normalize it before reading; the source photo remains unchanged.",
     },
     {
       title: "Run the recognition",
