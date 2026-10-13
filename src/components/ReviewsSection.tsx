@@ -130,58 +130,78 @@ export function ReviewsSection({
 
   return (
     <section aria-labelledby="reviews-heading" className={cx("mt-12", className)}>
-      <h2 id="reviews-heading" className={heading.h2}>
-        Reviews from people who used {toolName}
-      </h2>
-      <p className={cx("mt-2 max-w-2xl text-[15px] leading-relaxed", muted)}>
-        Every review below was written by a visitor after using this tool. No account,
-        no email, nothing is edited afterwards.
-      </p>
-
-      <ReviewList comments={comments} />
-
-      <form onSubmit={submit} className="mt-8 rounded-2xl bg-white p-5 ring-1 ring-ink-200/80 dark:bg-ink-900 dark:ring-ink-800">
-        <h3 className="text-base font-semibold text-ink-900 dark:text-white">
-          Used {toolName}? Leave a review.
-        </h3>
-
-        <div className="mt-3">
-          <p className="mb-1 text-sm font-medium text-ink-800 dark:text-ink-200">Your rating</p>
-          <StarRating value={rating} onChange={setRating} />
+      <div className="overflow-hidden rounded-[2rem] border border-ink-200/80 bg-gradient-to-br from-white via-white to-brand-50/50 p-5 shadow-sm dark:border-ink-800 dark:from-ink-950 dark:via-ink-950 dark:to-brand-950/25 sm:p-8">
+        <div className="border-b border-ink-200/70 pb-6 dark:border-ink-800">
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-300">
+            Community feedback
+          </p>
+          <h2 id="reviews-heading" className={heading.h2}>
+            Reviews for {toolName}
+          </h2>
+          <p className={cx("mt-2.5 max-w-2xl text-sm leading-relaxed sm:text-base", muted)}>
+            Real feedback from users who rely on this tool to handle everyday PDF tasks.
+            Reviews are anonymous and shown exactly as submitted.
+          </p>
         </div>
 
-        <label htmlFor={`review-${tool}`} className="sr-only">
-          Your review of {toolName}
-        </label>
-        <textarea
-          id={`review-${tool}`}
-          value={draft}
-          onChange={(event) => setDraft(event.target.value.slice(0, MAX_LENGTH))}
-          maxLength={MAX_LENGTH}
-          rows={3}
-          placeholder="What was it like to use this tool?"
-          className="mt-3 w-full rounded-xl bg-ink-50 px-3 py-2 text-sm text-ink-900 ring-1 ring-ink-200 outline-none placeholder:text-ink-400 focus:ring-brand-400 dark:bg-ink-950 dark:text-ink-100 dark:ring-ink-700 dark:placeholder:text-ink-500"
-        />
+        <ReviewList comments={comments} />
 
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <button type="submit" disabled={rating < 1 || !draft.trim() || busy} className={button("primary", "sm")}>
-            {busy ? "Posting…" : "Post review"}
-          </button>
-          <span className={cx("text-xs", muted)}>
-            Anonymous — no email, no device, no tracking.
-          </span>
-          {posted && (
-            <span role="status" aria-live="polite" className="text-xs font-medium text-brand-700 dark:text-brand-300">
-              Thanks — your review is posted above.
-            </span>
-          )}
-          {submitError && (
-            <span role="alert" className="text-xs font-medium text-red-700 dark:text-red-300">
-              {submitError}
-            </span>
-          )}
-        </div>
-      </form>
+        <form onSubmit={submit} className="mt-7 grid gap-5 rounded-2xl border border-brand-200/70 bg-brand-50/70 p-4 dark:border-brand-800/60 dark:bg-brand-950/25 sm:p-5 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-700 dark:text-brand-300">
+              We value your feedback
+            </p>
+            <h3 className="mt-2 text-lg font-semibold tracking-tight text-ink-900 dark:text-white">
+              How was your experience?
+            </h3>
+            <p className={cx("mt-2 text-sm leading-relaxed", muted)}>
+              Your review helps us improve {toolName} and helps others know what to expect.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-ink-200/80 bg-white p-4 shadow-sm dark:border-ink-800 dark:bg-ink-900 sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm font-semibold text-ink-800 dark:text-ink-200">
+                Your rating <span className="text-red-600">*</span>
+              </p>
+              <StarRating value={rating} onChange={setRating} />
+            </div>
+
+            <label htmlFor={`review-${tool}`} className="sr-only">
+              Your review of {toolName}
+            </label>
+            <textarea
+              id={`review-${tool}`}
+              value={draft}
+              onChange={(event) => setDraft(event.target.value.slice(0, MAX_LENGTH))}
+              maxLength={MAX_LENGTH}
+              rows={3}
+              placeholder="What worked well, or what could be better?"
+              className="mt-3 w-full resize-y rounded-xl border-0 bg-ink-50 px-3.5 py-3 text-sm leading-relaxed text-ink-900 ring-1 ring-ink-200 outline-none transition placeholder:text-ink-400 focus:ring-2 focus:ring-brand-500 dark:bg-ink-950 dark:text-ink-100 dark:ring-ink-700 dark:placeholder:text-ink-500"
+            />
+
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+              <span className={cx("text-xs", muted)}>{draft.length}/{MAX_LENGTH} characters</span>
+              <button type="submit" disabled={rating < 1 || !draft.trim() || busy} className={button("primary", "sm")}>
+                {busy ? "Posting…" : "Submit review"}
+              </button>
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-ink-100 pt-3 dark:border-ink-800">
+              <span className={cx("text-xs", muted)}>Anonymous · No name or email required</span>
+              {posted && (
+                <span role="status" aria-live="polite" className="text-xs font-medium text-brand-700 dark:text-brand-300">
+                  Thank you — your review has been posted.
+                </span>
+              )}
+              {submitError && (
+                <span role="alert" className="text-xs font-medium text-red-700 dark:text-red-300">
+                  {submitError}
+                </span>
+              )}
+            </div>
+          </div>
+        </form>
+      </div>
     </section>
   );
 }
@@ -192,9 +212,8 @@ function ReviewList({ comments }: { comments: Review[] }) {
     // information, and it is honest; an absent section would just look like the
     // feature is broken.
     return (
-      <p className={cx("mt-6 rounded-2xl bg-ink-50 px-5 py-4 text-[15px]", muted)}>
-        No reviews yet. If you use this tool, yours would be the first — and it would
-        show up here for everyone else straight away.
+      <p className={cx("mt-7 rounded-2xl border border-dashed border-ink-300 bg-white/60 px-5 py-6 text-center text-sm leading-relaxed dark:border-ink-700 dark:bg-ink-900/50", muted)}>
+        No reviews yet. Be the first to share your experience, and your feedback will appear here for others to see.
       </p>
     );
   }
@@ -203,15 +222,22 @@ function ReviewList({ comments }: { comments: Review[] }) {
     <ul className="mt-6 grid gap-4 sm:grid-cols-2">
       {comments.map((review, index) => (
         <li key={`${review.at}-${index}`}>
-          <figure className="flex h-full flex-col rounded-2xl bg-white p-5 ring-1 ring-ink-200/80 dark:bg-ink-900 dark:ring-ink-800">
-            {review.rating !== null && review.rating !== undefined && (
-              <StarRating value={review.rating} />
-            )}
-            <blockquote className="mt-3 flex-1 text-[15px] leading-relaxed text-ink-700 dark:text-ink-300">
-              {review.text}
+          <figure className="flex h-full flex-col rounded-2xl border border-ink-200/80 bg-white/90 p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-ink-800 dark:bg-ink-900/90">
+            <div className="flex items-center justify-between gap-3">
+              {review.rating !== null && review.rating !== undefined ? (
+                <StarRating value={review.rating} />
+              ) : (
+                <span className="text-xs font-medium text-ink-500 dark:text-ink-400">Reader comment</span>
+              )}
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-brand-700 dark:text-brand-300">
+                User feedback
+              </span>
+            </div>
+            <blockquote className="mt-4 flex-1 text-sm leading-7 text-ink-700 dark:text-ink-300">
+              “{review.text}”
             </blockquote>
-            <figcaption className={cx("mt-3 text-xs", muted)}>
-              Anonymous visitor · {relativeDate(review.at)}
+            <figcaption className={cx("mt-5 border-t border-ink-100 pt-3 text-xs dark:border-ink-800", muted)}>
+              Anonymous user <span aria-hidden="true">·</span> {relativeDate(review.at)}
             </figcaption>
           </figure>
         </li>
