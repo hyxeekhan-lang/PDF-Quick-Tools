@@ -24,7 +24,7 @@ import {
   TargetIcon,
   ToPdfIcon,
 } from "#/components/Icons";
-import { AdSlot } from "#/components/AdSlot";
+import { MammothSubwaySideRailAd } from "#/components/MammothSubwayAds";
 import { navEvents } from "#/lib/analytics";
 import { ToolCard } from "#/components/ToolCard";
 import { ToolIconTile } from "#/components/ToolIconTile";
@@ -56,6 +56,15 @@ import { TOOLS } from "#/lib/tools";
 const TITLE = `${SITE_NAME} — Free Online PDF Tools`;
 const DESCRIPTION =
   "Free online PDF tools to compress, merge, split, convert, rotate and manage PDF files quickly and easily.";
+type HomeLanguage = "en" | "ur";
+
+// Popular quick-action links for the hero section
+const POPULAR_SHORTCUTS = [
+  { href: "/compress-pdf", label: "Compress" },
+  { href: "/merge-pdf", label: "Merge" },
+  { href: "/pdf-to-word", label: "PDF to Word" },
+  { href: "/ai-summarizer", label: "AI Summary" },
+] as const;
 
 export const Route = createFileRoute("/")({
   head: () => pageHead({ title: TITLE, description: DESCRIPTION, path: "/" }),
@@ -221,6 +230,8 @@ function StatsBanner() {
 }
 
 function Home() {
+  const [language, setLanguage] = useState<HomeLanguage>("en");
+
   // Fires once per mount, not once per render — the funnel has to have a
   // denominator, and "how many people landed here" was the number that was
   // missing.
@@ -281,13 +292,18 @@ function Home() {
         className="fixed top-1/2 z-20 hidden -translate-y-1/2 2xl:block"
         style={{ right: "max(16px, calc((100vw - 1152px) / 2 - 176px))" }}
       >
-        <AdSlot format="skyscraper" className="my-0" />
+        <MammothSubwaySideRailAd />
       </aside>
 
       <div className="lg:flex lg:min-h-[calc(100svh-4.375rem)] lg:flex-col">
-        <Hero />
+        <PremiumHero
+          language={language}
+          onLanguageChange={() => setLanguage((current) => current === "en" ? "ur" : "en")}
+        />
         <PopularToolLinks />
       </div>
+
+      <ProblemPicker language={language} />
 
       <ExtensionBanner />
 
@@ -301,8 +317,6 @@ function Home() {
       <StatsBanner />
 
       <TrustStrip />
-
-      <ProblemPicker />
 
       <UseCasePaths />
 
@@ -611,291 +625,261 @@ function PopularToolLinks() {
   );
 }
 
-function Hero() {
+function PremiumHero({
+  language,
+  onLanguageChange,
+}: {
+  language: HomeLanguage;
+  onLanguageChange: () => void;
+}) {
+  const isUrdu = language === "ur";
   return (
-    <section className="relative overflow-hidden border-b border-ink-200/70 bg-gradient-to-br from-white via-ink-50 to-brand-50/40 dark:border-[#172554] dark:bg-gradient-to-br dark:from-[#000000] dark:via-[#020617] dark:to-[#13264a] lg:flex lg:flex-1 lg:items-center">
-      <div className="relative mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:py-8 xl:py-10">
-        <div className="grid items-center gap-9 lg:grid-cols-[1.08fr_0.92fr] lg:gap-6 xl:gap-10">
-          {/* ── Left — Text content ── */}
-          <div className="max-w-2xl animate-slide-in-left">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full bg-brand-50/90 px-4 py-2 text-xs font-semibold text-brand-700 ring-1 ring-brand-200/60 backdrop-blur-sm dark:bg-brand-900/30 dark:text-brand-300 dark:ring-brand-700/40">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-500" />
+    <section className="relative isolate overflow-hidden border-b border-ink-200/70 bg-gradient-to-br from-white via-blue-50/60 to-purple-50/40 dark:border-[#172554] dark:bg-gradient-to-br dark:from-[#000000] dark:via-[#0a1122] dark:to-[#1a1b3a] lg:flex lg:flex-1 lg:items-center">
+      {/* Premium background effects */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -left-40 -top-44 h-[30rem] w-[30rem] rounded-full bg-gradient-to-br from-purple-300/30 via-blue-300/20 to-cyan-300/10 blur-3xl dark:from-purple-500/15 dark:via-blue-500/10 dark:to-cyan-500/5" />
+        <div className="absolute -right-40 bottom-[-14rem] h-[34rem] w-[34rem] rounded-full bg-gradient-to-br from-blue-300/30 via-purple-300/20 to-pink-300/10 blur-3xl dark:from-blue-500/15 dark:via-purple-500/10 dark:to-pink-500/5" />
+        <div
+          className="absolute inset-0 opacity-50 dark:opacity-30"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, rgba(139, 92, 246, 0.15) 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
+            maskImage: "linear-gradient(to bottom, black, transparent 85%)",
+          }}
+        />
+      </div>
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:py-8 xl:py-10">
+        <div className="mb-4 flex justify-end">
+          <button
+            type="button"
+            onClick={onLanguageChange}
+            aria-label={isUrdu ? "Switch the introduction and tool finder to English" : "تعارف اور ٹول تلاش اردو میں دکھائیں"}
+            className="rounded-full border border-ink-300 bg-white/90 px-4 py-2 text-sm font-semibold text-ink-700 shadow-sm transition-all hover:border-brand-400 hover:text-brand-700 hover:shadow-md dark:border-ink-700 dark:bg-ink-900/80 dark:text-ink-200"
+          >
+            {isUrdu ? "English" : "اردو"}
+          </button>
+        </div>
+        <div className="grid items-center gap-9 lg:grid-cols-[1.08fr_0.92fr] lg:gap-8 xl:gap-12">
+          {/* ── Left — Premium text content ── */}
+          <div dir={isUrdu ? "rtl" : "ltr"} lang={language} className="max-w-2xl animate-slide-in-left">
+            {/* Premium Privacy Badge */}
+            <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-100/90 via-blue-100/80 to-cyan-100/70 px-4 py-2.5 text-xs font-semibold text-purple-800 ring-1 ring-purple-200/60 backdrop-blur-sm dark:from-purple-900/40 dark:via-blue-900/30 dark:to-cyan-900/20 dark:text-purple-300 dark:ring-purple-700/40">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-purple-400 opacity-75" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-gradient-to-br from-purple-500 to-blue-500" />
               </span>
-              Private by default — files stay on your device
+              {isUrdu ? "رازداری پہلے — فائلیں آپ کے آلے پر رہتی ہیں" : "Private by default — files stay on your device"}
             </div>
 
-            <h1 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl lg:mt-4 lg:text-5xl xl:text-[3.5rem]">
-              <span className="text-ink-900 dark:text-white">Your PDFs. </span>
-              <span className="hero-gradient-text bg-gradient-to-r from-brand-600 via-brand-500 to-purple-600 bg-clip-text text-transparent dark:from-brand-400 dark:via-brand-300 dark:to-purple-400">
-                Smarter, Faster, Easier.
+            {/* Premium Gradient Headline */}
+            <h1 className="mt-6 text-4xl font-extrabold tracking-tight sm:text-5xl lg:mt-5 lg:text-5xl xl:text-[3.5rem]">
+              <span className="text-ink-900 dark:text-white">{isUrdu ? "آپ کی PDFs۔ " : "Your PDFs. "}</span>
+              <span className="animate-premium-gradient bg-gradient-to-r from-brand-600 via-purple-500 to-cyan-500 bg-clip-text text-transparent dark:from-brand-400 dark:via-purple-400 dark:to-cyan-400">
+                {isUrdu ? "زیادہ آسان، تیز، بہتر۔" : "Smarter, Faster, Easier."}
               </span>
             </h1>
 
+            {/* Description */}
             <p className="mt-4 max-w-lg text-base/7 text-ink-600 sm:text-lg/7 dark:text-ink-400">
-              Free PDF tools and AI-powered document productivity in one place.
-              Most tools run in your browser on your device; AI features send
-              extracted text to an AI provider when you use them.
+              {isUrdu
+                ? "مفت PDF ٹولز اور AI سے چلنے والی دستاویزی سہولیات، ایک ہی جگہ۔ زیادہ تر ٹولز آپ کے آلے پر براؤزر میں چلتے ہیں؛ AI خصوصیات استعمال کرنے پر نکالا گیا متن AI فراہم کنندہ کو بھیجا جاتا ہے۔"
+                : "Free PDF tools and AI-powered document productivity in one place. Most tools run in your browser on your device; AI features send extracted text to an AI provider when you use them."}
             </p>
 
-            {/* The search sits above the dropzone, not inside it. Someone who
-                arrives knowing the name of the job they want done ("merge two
-                files") never intended to drop anything, and a dropzone alone
-                asks them to do the one thing they came here to avoid. */}
+            {/* Premium Feature Highlights */}
+            <div className="mt-6 flex flex-wrap gap-3 lg:mt-5">
+              {[
+                { icon: LockIcon, label: isUrdu ? "100% محفوظ" : "100% Secure", color: "from-emerald-500 to-emerald-600" },
+                { icon: BoltIcon, label: isUrdu ? "برق رفتار" : "Lightning Fast", color: "from-amber-500 to-amber-600" },
+                { icon: BrainIcon, label: isUrdu ? "AI سے چلنے والا" : "AI Powered", color: "from-purple-500 to-purple-600" },
+                { icon: LeafIcon, label: isUrdu ? "آف لائن کام کرتا ہے" : "Works Offline", color: "from-blue-500 to-blue-600" },
+              ].map((feature) => (
+                <div
+                  key={feature.label}
+                  className="group flex items-center gap-2 rounded-xl bg-white/80 px-3.5 py-2.5 ring-1 ring-ink-200/60 backdrop-blur-sm transition-all hover:scale-105 hover:bg-white hover:shadow-md hover:ring-ink-300 dark:bg-ink-900/60 dark:ring-ink-700/60 dark:hover:bg-ink-800"
+                >
+                  <span className={`flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br ${feature.color} text-white shadow-sm`}>
+                    <feature.icon className="h-4 w-4" />
+                  </span>
+                  <span className="text-sm font-semibold text-ink-800 dark:text-ink-200">{feature.label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Tool Search */}
             <div className="mt-6 max-w-xl lg:mt-5">
               <ToolSearch
-                placeholder="What do you want to do with your PDF?"
-                label="Search PDF tools"
+                placeholder={isUrdu ? "اپنی PDF کے ساتھ کیا کرنا چاہتے ہیں؟" : "What do you want to do with your PDF?"}
+                label={isUrdu ? "PDF ٹولز تلاش کریں" : "Search PDF tools"}
                 className="w-full"
+                iconTrigger={false}
               />
             </div>
 
-            <HeroDropzone />
+            {/* Premium HeroDropzone */}
+            <div className="mt-6">
+              <HeroDropzone language={language} />
+            </div>
 
-            {/* CTA buttons */}
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row lg:mt-4">
+            {/* Urdu note */}
+            {isUrdu ? (
+              <p className="mt-2 text-xs text-ink-500 dark:text-ink-400">
+                صفحے کا تعارف، فائل اپ لوڈ اور ٹول تلاش اردو میں ہیں؛ باقی ہوم پیج اور ٹول صفحات فی الحال انگریزی میں ہیں۔
+              </p>
+            ) : null}
+
+            {/* Premium CTA buttons */}
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:mt-5">
               <Link
                 to="/tools"
                 onClick={() => navEvents.cta("hero", "Explore PDF Tools")}
-                className="btn-press group relative inline-flex items-center justify-center gap-2.5 overflow-hidden rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition-all hover:shadow-xl hover:shadow-brand-600/30 hover:from-brand-500 hover:to-brand-600 dark:from-brand-500 dark:to-brand-600 dark:shadow-brand-600/20 max-sm:w-full lg:py-2.5"
+                className="btn-press group relative inline-flex items-center justify-center gap-2.5 overflow-hidden rounded-xl bg-gradient-to-r from-brand-600 via-purple-600 to-cyan-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/30 transition-all hover:shadow-xl hover:shadow-purple-600/40 hover:from-brand-500 hover:via-purple-500 hover:to-cyan-500 dark:from-brand-500 dark:via-purple-500 dark:to-cyan-500 dark:shadow-brand-600/25 max-sm:w-full lg:py-3"
               >
-                <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
-                Explore PDF Tools
+                <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/15 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-800" />
+                {isUrdu ? "PDF ٹولز دیکھیں" : "Explore PDF Tools"}
                 <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
               <Link
                 to="/compress-pdf"
                 onClick={() => navEvents.cta("hero", "Compress a PDF")}
-                className="btn-press inline-flex items-center justify-center gap-2 rounded-xl bg-white/80 px-7 py-3.5 text-sm font-semibold text-ink-700 ring-1 ring-ink-200 backdrop-blur-sm transition-all hover:bg-white hover:ring-ink-300 hover:shadow-md dark:bg-ink-800/60 dark:text-ink-200 dark:ring-ink-700 dark:hover:bg-ink-800 dark:hover:ring-ink-600 max-sm:w-full lg:py-2.5"
+                className="btn-press inline-flex items-center justify-center gap-2 rounded-xl bg-white/90 px-7 py-3.5 text-sm font-semibold text-ink-800 ring-1 ring-ink-200/80 backdrop-blur-sm transition-all hover:bg-white hover:ring-ink-300 hover:shadow-lg dark:bg-ink-900/70 dark:text-ink-200 dark:ring-ink-700/80 dark:hover:bg-ink-800 dark:hover:ring-ink-600 max-sm:w-full lg:py-3"
               >
                 <BoltIcon className="h-4 w-4 text-brand-600 dark:text-brand-400" />
-                Compress a PDF
+                {isUrdu ? "PDF کمپریس کریں" : "Compress a PDF"}
               </Link>
             </div>
 
-            {/* The trust claims used to be three pills here. They now live in
-                TrustStrip, one section lower, where each one is a link to the
-                page that backs it. Repeating them here in badge form was making
-                the same promise twice in two different voices, and a badge is
-                the weaker of the two forms. */}
-            <p className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink-600 dark:text-ink-400 lg:mt-4">
-              <span className="flex items-center gap-2.5">
-                <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
-                  <LockIcon className="h-3.5 w-3.5" />
-                </span>
-                <span className="font-medium">No account needed</span>
-              </span>
-              <span className="flex items-center gap-2.5">
-                <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
-                  <CheckIcon className="h-3.5 w-3.5" />
-                </span>
-                <span className="font-medium">Works on your phone</span>
-              </span>
-            </p>
-
-          </div>
-
-          {/* ── Right — Laptop mockup with floating icons ── */}
-          <div className="relative mx-auto hidden w-full max-w-sm lg:block xl:max-w-md animate-slide-in-right" style={{ perspective: "1200px" }}>
-            {/* Ambient glow behind laptop */}
-            <div className="hero-ambient-glow absolute -inset-8 rounded-3xl bg-gradient-to-br from-brand-500/10 via-purple-500/5 to-cyan-500/10 blur-2xl" />
-
-            {/* Main desk surface */}
-            <div className="hero-mockup-float relative rounded-3xl bg-gradient-to-br from-[#12121e] via-[#161625] to-[#1a1a2e] p-6 sm:p-8 ring-1 ring-white/[0.06] shadow-2xl shadow-black/40">
-              {/* Screen reflection on desk */}
-              <div className="pointer-events-none absolute bottom-0 left-1/2 h-24 w-3/4 -translate-x-1/2 rounded-full bg-brand-500/[0.04] blur-2xl" />
-
-              {/* ── Laptop body ── */}
-              <div className="relative" style={{ transform: "rotateX(2deg)" }}>
-                {/* Lid / screen housing */}
-                <div className="rounded-t-2xl bg-gradient-to-b from-[#2a2a3a] to-[#1e1e2e] p-[3px] ring-1 ring-white/[0.08] shadow-inner">
-                  {/* Webcam dot */}
-                  <div className="relative flex justify-center pt-2">
-                    <div className="h-1.5 w-1.5 rounded-full bg-ink-700 ring-1 ring-ink-600/50">
-                      <div className="absolute inset-0 rounded-full bg-emerald-500/50 animate-glow-pulse" />
-                    </div>
-                  </div>
-                  {/* Screen bezel */}
-                  <div className="mx-1 mb-1 mt-1.5 overflow-hidden rounded-lg bg-white dark:bg-[#0c0c18]" style={{ aspectRatio: "16/10" }}>
-                    {/* ── App UI mockup ── */}
-                    <div className="flex h-full">
-                      {/* Sidebar */}
-                      <div className="hidden w-[22%] flex-shrink-0 border-r border-ink-200/80 bg-gradient-to-b from-ink-50 to-white p-2 dark:border-ink-700/60 dark:from-[#111120] dark:to-[#0e0e1c] sm:block">
-                        {/* Logo */}
-                        <div className="mb-3 flex items-center gap-1.5 rounded-lg bg-brand-50 px-2.5 py-2 dark:bg-brand-600/15">
-                          <div className="h-3 w-3 rounded bg-gradient-to-br from-brand-500 to-brand-600" />
-                          <div className="h-1.5 w-10 rounded-full bg-brand-300/80 dark:bg-brand-500/60" />
-                        </div>
-                        {/* Nav items */}
-                        {[
-                          { name: "Dashboard", active: true },
-                          { name: "Compress", active: false },
-                          { name: "Merge", active: false },
-                          { name: "Split", active: false },
-                          { name: "Convert", active: false },
-                          { name: "AI Tools", active: false },
-                        ].map((item) => (
-                          <div
-                            key={item.name}
-                            className={`mb-0.5 flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[7px] sm:text-[8px] transition-colors ${
-                              item.active
-                                ? "bg-brand-100 font-semibold text-brand-700 dark:bg-brand-600/20 dark:text-brand-300"
-                                : "text-ink-500 hover:bg-ink-100 dark:text-ink-400 dark:hover:bg-ink-800/50"
-                            }`}
-                          >
-                            <span className={`h-1.5 w-1.5 rounded-sm ${item.active ? "bg-brand-500" : "bg-ink-300 dark:bg-ink-600"}`} />
-                            {item.name}
-                          </div>
-                        ))}
-                      </div>
-                      {/* Main area */}
-                      <div className="flex-1 p-3 sm:p-4">
-                        {/* Top bar */}
-                        <div className="mb-3 flex items-center justify-between">
-                          <div className="h-2 w-24 rounded-full bg-ink-200/80 dark:bg-ink-700/60" />
-                          <div className="flex gap-1">
-                            <div className="h-2 w-2 rounded-full bg-ink-200 dark:bg-ink-700" />
-                            <div className="h-2 w-2 rounded-full bg-ink-200 dark:bg-ink-700" />
-                          </div>
-                        </div>
-                        {/* Upload zone */}
-                        <div className="rounded-xl border-[1.5px] border-dashed border-brand-300/70 bg-gradient-to-b from-brand-50/60 to-white p-4 text-center dark:border-brand-700/50 dark:from-brand-900/15 dark:to-transparent sm:p-6">
-                          <div className="mx-auto mb-2.5 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-100 to-brand-50 shadow-sm dark:from-brand-800/40 dark:to-brand-900/20">
-                            <PdfFileIcon className="h-5 w-5 text-brand-600 dark:text-brand-300" />
-                          </div>
-                          <p className="text-[8px] font-bold text-brand-700 sm:text-[10px] dark:text-brand-300">
-                            Drop your PDF here
-                          </p>
-                          <p className="mt-1 text-[6px] text-ink-400 sm:text-[7px] dark:text-ink-500">
-                            or click to browse
-                          </p>
-                        </div>
-                        {/* Quick tools row */}
-                        <div className="mt-3 grid grid-cols-3 gap-1.5 sm:mt-4 sm:grid-cols-6 sm:gap-2">
-                          {[
-                            { label: "Compress", gradient: "from-teal-400 to-teal-500", shadow: "shadow-teal-500/20" },
-                            { label: "Merge", gradient: "from-purple-400 to-purple-500", shadow: "shadow-purple-500/20" },
-                            { label: "Split", gradient: "from-blue-400 to-blue-500", shadow: "shadow-blue-500/20" },
-                            { label: "Convert", gradient: "from-orange-400 to-orange-500", shadow: "shadow-orange-500/20" },
-                            { label: "Rotate", gradient: "from-pink-400 to-rose-500", shadow: "shadow-rose-500/20" },
-                            { label: "Delete", gradient: "from-slate-400 to-slate-500", shadow: "shadow-slate-500/20" },
-                          ].map((tool) => (
-                            <div
-                              key={tool.label}
-                              className={`flex-1 cursor-pointer rounded-lg bg-gradient-to-br ${tool.gradient} p-1.5 text-center shadow-sm ${tool.shadow} transition-transform hover:scale-105 sm:rounded-xl sm:p-2.5`}
-                            >
-                              <div className="mx-auto mb-1 h-3.5 w-3.5 rounded-md bg-white/30 sm:h-4 sm:w-4" />
-                              <p className="text-[5px] font-bold text-white/90 sm:text-[7px]">{tool.label}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* Hinge */}
-                <div className="h-1.5 w-full bg-gradient-to-b from-[#2a2a3a] to-[#222232]" />
-                {/* Base / keyboard area */}
-                <div className="relative rounded-b-xl bg-gradient-to-b from-[#252535] to-[#1e1e2e] p-2 ring-1 ring-white/[0.05]">
-                  <div className="mx-auto h-1 w-12 rounded-full bg-ink-600/40" />
-                  {/* Keyboard hint */}
-                  <div className="mt-2 grid grid-cols-6 gap-0.5 px-4">
-                    {Array.from({ length: 18 }).map((_, i) => (
-                      <div key={i} className="h-1 rounded-sm bg-ink-600/30" />
-                    ))}
-                  </div>
-                  {/* Trackpad */}
-                  <div className="mx-auto mt-2 h-4 w-[40%] rounded-md bg-ink-600/20 ring-1 ring-ink-600/10" />
-                </div>
+            {/* Premium Quick-Action Links */}
+            <div className="mt-6">
+              <div className="flex items-center gap-3 text-sm text-ink-600 dark:text-ink-400 mb-3">
+                <SearchIcon className="h-4 w-4" />
+                <span>{isUrdu ? "یا براہ راست ٹول کھولیں:" : "Or jump straight to a tool:"}</span>
               </div>
-
-              {/* ── Floating 3D icon badges ── */}
-              {/* PDF badge — top left */}
-              <div className="absolute -top-5 -left-5 animate-float" style={{ animationDelay: "0s" }}>
-                <div className="group flex h-14 w-14 cursor-default items-center justify-center rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-xl shadow-red-500/25 ring-1 ring-red-400/20 transition-transform hover:scale-110">
-                  <span className="text-sm font-extrabold tracking-tight">PDF</span>
-                </div>
+              <div className="flex flex-wrap gap-2">
+                {POPULAR_SHORTCUTS.map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => navEvents.cta("hero_shortcuts", item.label)}
+                    className="group inline-flex items-center gap-2 rounded-xl bg-white/90 px-4 py-2.5 text-sm font-semibold text-ink-800 ring-1 ring-ink-200/80 backdrop-blur-sm transition-all hover:scale-105 hover:bg-white hover:shadow-md hover:ring-brand-300 hover:text-brand-700 dark:bg-ink-900/70 dark:text-ink-200 dark:ring-ink-700/80 dark:hover:bg-ink-800 dark:hover:ring-brand-500/50 dark:hover:text-brand-300"
+                  >
+                    {item.label === "Compress" && <CompressIcon className="h-4 w-4" />}
+                    {item.label === "Merge" && <MergeIcon className="h-4 w-4" />}
+                    {item.label === "PDF to Word" && <ToPdfIcon className="h-4 w-4" />}
+                    {item.label === "AI Summary" && <BrainIcon className="h-4 w-4" />}
+                    {item.label}
+                  </a>
+                ))}
               </div>
-
-              {/* Merge badge — top right */}
-              <div className="absolute -top-3 -right-6 animate-float" style={{ animationDelay: "0.6s" }}>
-                <div className="group flex h-12 w-12 cursor-default items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-xl shadow-purple-500/25 ring-1 ring-purple-400/20 transition-transform hover:scale-110">
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Compress badge — bottom left */}
-              <div className="absolute -bottom-4 left-6 animate-float" style={{ animationDelay: "1.2s" }}>
-                <div className="group flex h-11 w-11 cursor-default items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-500 text-white shadow-xl shadow-teal-500/25 ring-1 ring-teal-400/20 transition-transform hover:scale-110">
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Split badge — right middle */}
-              <div className="absolute top-1/2 -right-7 -translate-y-1/2 animate-float" style={{ animationDelay: "1.8s" }}>
-                <div className="group flex h-11 w-11 cursor-default items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-xl shadow-blue-500/25 ring-1 ring-blue-400/20 transition-transform hover:scale-110">
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* AI sparkle badge — top center */}
-              <div className="absolute -top-6 left-1/2 -translate-x-1/2 animate-float" style={{ animationDelay: "0.3s" }}>
-                <div className="group flex h-10 w-10 cursor-default items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-xl shadow-amber-500/25 ring-1 ring-amber-400/20 transition-transform hover:scale-110">
-                  <SparkIcon className="h-5 w-5" />
-                </div>
-              </div>
-
-              {/* Desk props */}
-              {/* Coffee mug */}
-              <div className="absolute -bottom-3 right-8 hidden animate-float sm:block" style={{ animationDelay: "2.2s" }}>
-                <div className="relative">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg rounded-br-none bg-gradient-to-b from-ink-700 to-ink-800 ring-1 ring-ink-600/50">
-                    <span className="text-[6px] font-bold tracking-wide text-brand-300/80 uppercase">PDF</span>
-                  </div>
-                  {/* Handle */}
-                  <div className="absolute -right-1.5 top-1.5 h-4 w-2 rounded-r-full border-2 border-ink-600 border-l-0" />
-                  {/* Steam */}
-                  <div className="absolute -top-3 left-2.5 flex gap-0.5 opacity-40">
-                    <div className="h-2 w-px rounded-full bg-ink-400 animate-float" style={{ animationDelay: "0.2s" }} />
-                    <div className="h-3 w-px rounded-full bg-ink-400 animate-float" style={{ animationDelay: "0.5s" }} />
-                    <div className="h-2 w-px rounded-full bg-ink-400 animate-float" style={{ animationDelay: "0.8s" }} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Tiny plant */}
-              <div className="absolute -bottom-4 left-0 hidden sm:block animate-float" style={{ animationDelay: "1.5s" }}>
-                <div className="flex flex-col items-center text-emerald-600 dark:text-emerald-400">
-                  <LeafIcon className="h-4 w-4" />
-                  <div className="mt-0.5 h-3 w-4 rounded-b-lg bg-gradient-to-b from-amber-700 to-amber-800" />
-                </div>
-              </div>
-
-              {/* Connection lines (SVG) */}
-              <svg className="pointer-events-none absolute inset-0 h-full w-full opacity-40" viewBox="0 0 400 300" fill="none">
-                <defs>
-                  <linearGradient id="hero-trail" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.4" />
-                    <stop offset="50%" stopColor="#6366f1" stopOpacity="0.15" />
-                    <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.4" />
-                  </linearGradient>
-                </defs>
-                <path d="M70 35 C 150 50, 280 25, 350 45" stroke="url(#hero-trail)" strokeWidth="1" strokeDasharray="3 5" />
-                <path d="M330 130 C 280 170, 180 180, 80 250" stroke="url(#hero-trail)" strokeWidth="1" strokeDasharray="3 5" />
-                <path d="M200 15 C 200 60, 160 100, 140 140" stroke="url(#hero-trail)" strokeWidth="0.8" strokeDasharray="2 4" opacity="0.5" />
-              </svg>
             </div>
           </div>
 
-          {/* ── Mobile only — a phone, because that is the device in hand ── */}
+          {/* ── Right — Premium document conversion illustration ── */}
+          <div className="relative mx-auto hidden w-full max-w-md lg:block xl:max-w-lg animate-slide-in-right">
+            {/* Premium ambient glow */}
+            <div className="absolute -inset-10 rounded-[2.5rem] bg-gradient-to-br from-purple-500/10 via-blue-500/5 to-cyan-500/10 blur-3xl" />
+
+            {/* Main illustration container */}
+            <div className="relative rounded-[2rem] bg-gradient-to-br from-white via-blue-50/80 to-purple-50/60 p-6 sm:p-8 ring-1 ring-white/80 shadow-2xl shadow-purple-500/20 dark:from-ink-900/80 dark:via-blue-900/20 dark:to-purple-900/20 dark:ring-white/10 dark:shadow-black/40">
+              {/* Center document stack */}
+              <div className="relative mx-auto w-48 h-64">
+                {/* Document stack base */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-ink-100 to-ink-50 ring-1 ring-ink-200/60 dark:from-ink-800 dark:to-ink-900 dark:ring-ink-700/60" />
+
+                {/* Document pages */}
+                <div className="absolute inset-2 rounded-xl bg-gradient-to-br from-white to-blue-50/80 ring-1 ring-blue-200/40 dark:from-ink-800 dark:to-blue-900/20 dark:ring-blue-800/40" />
+                <div className="absolute inset-4 rounded-lg bg-gradient-to-br from-white to-purple-50/80 ring-1 ring-purple-200/40 dark:from-ink-800 dark:to-purple-900/20 dark:ring-purple-800/40" />
+
+                {/* Document icon in center */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500/20 to-purple-500/20 ring-1 ring-brand-400/20 dark:from-brand-500/10 dark:to-purple-500/10 dark:ring-brand-400/10">
+                    <PdfFileIcon className="h-10 w-10 text-brand-600 dark:text-brand-400" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating conversion icons */}
+              {/* PDF icon - top left */}
+              <div className="absolute -top-4 -left-4 animate-premium-float" style={{ animationDelay: "0s" }}>
+                <div className="group flex h-16 w-16 cursor-default items-center justify-center rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-xl shadow-red-500/30 ring-1 ring-red-400/30 transition-transform hover:scale-110">
+                  <span className="text-lg font-extrabold tracking-tight">PDF</span>
+                </div>
+              </div>
+
+              {/* Word icon - top right */}
+              <div className="absolute -top-4 -right-4 animate-premium-float" style={{ animationDelay: "0.8s" }}>
+                <div className="group flex h-14 w-14 cursor-default items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl shadow-blue-500/30 ring-1 ring-blue-400/30 transition-transform hover:scale-110">
+                  <span className="text-sm font-extrabold tracking-tight">DOC</span>
+                </div>
+              </div>
+
+              {/* Excel icon - bottom left */}
+              <div className="absolute -bottom-4 left-4 animate-premium-float" style={{ animationDelay: "1.6s" }}>
+                <div className="group flex h-14 w-14 cursor-default items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-xl shadow-emerald-500/30 ring-1 ring-emerald-400/30 transition-transform hover:scale-110">
+                  <span className="text-sm font-extrabold tracking-tight">XLS</span>
+                </div>
+              </div>
+
+              {/* Image icon - bottom right */}
+              <div className="absolute -bottom-4 -right-4 animate-premium-float" style={{ animationDelay: "2.4s" }}>
+                <div className="group flex h-12 w-12 cursor-default items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xl shadow-amber-500/30 ring-1 ring-amber-400/30 transition-transform hover:scale-110">
+                  <span className="text-xs font-extrabold tracking-tight">IMG</span>
+                </div>
+              </div>
+
+              {/* AI icon - top center */}
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 animate-premium-float" style={{ animationDelay: "0.4s" }}>
+                <div className="group flex h-12 w-12 cursor-default items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-xl shadow-purple-500/30 ring-1 ring-purple-400/30 transition-transform hover:scale-110">
+                  <BrainIcon className="h-5 w-5" />
+                </div>
+              </div>
+
+              {/* Conversion arrows */}
+              <svg className="pointer-events-none absolute inset-0 h-full w-full opacity-60" viewBox="0 0 400 300" fill="none">
+                <defs>
+                  <linearGradient id="premium-trail" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.5" />
+                    <stop offset="50%" stopColor="#6366f1" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.5" />
+                  </linearGradient>
+                </defs>
+                {/* Arrow from PDF to DOC */}
+                <path d="M100 80 C 150 60, 250 40, 300 80" stroke="url(#premium-trail)" strokeWidth="1.5" strokeDasharray="4 6" />
+                <path d="M290 75 L 300 80 L 290 85" stroke="url(#premium-trail)" strokeWidth="1.5" fill="none" />
+
+                {/* Arrow from PDF to XLS */}
+                <path d="M100 150 C 120 180, 150 220, 100 250" stroke="url(#premium-trail)" strokeWidth="1.5" strokeDasharray="4 6" />
+                <path d="M105 245 L 100 250 L 95 245" stroke="url(#premium-trail)" strokeWidth="1.5" fill="none" />
+
+                {/* Arrow from PDF to IMG */}
+                <path d="M200 150 C 250 180, 280 220, 300 250" stroke="url(#premium-trail)" strokeWidth="1.5" strokeDasharray="4 6" />
+                <path d="M295 245 L 300 250 L 295 255" stroke="url(#premium-trail)" strokeWidth="1.5" fill="none" />
+
+                {/* Arrow from PDF to AI */}
+                <path d="M200 100 C 200 60, 200 40, 200 20" stroke="url(#premium-trail)" strokeWidth="1.5" strokeDasharray="4 6" />
+                <path d="M195 25 L 200 20 L 205 25" stroke="url(#premium-trail)" strokeWidth="1.5" fill="none" />
+              </svg>
+
+              {/* Sparkle effects */}
+              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem]">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute h-[1px] w-[1px] rounded-full bg-white/40 animate-premium-sparkle"
+                    style={{
+                      left: `${20 + i * 10}%`,
+                      top: `${30 + (i * 7) % 60}%`,
+                      animationDelay: `${i * 0.3}s`,
+                      boxShadow: `0 0 ${4 + i % 3}px ${2 + i % 2}px rgba(255, 255, 255, 0.4)`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ── Mobile only — simplified illustration ── */}
           <div className="animate-slide-in-right lg:hidden">
             <MobileHeroPreview />
           </div>
