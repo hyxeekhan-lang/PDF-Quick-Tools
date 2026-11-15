@@ -18,6 +18,7 @@
     "generate-llms-txt": "node scripts/generate-llms-txt.mjs"
   },
   "dependencies": {
+    "@napi-rs/canvas": "^1.1.1",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-devtools": "latest",
     "@tanstack/react-router": "latest",
