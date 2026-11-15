@@ -1,0 +1,249 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "PDF Quick Tools API",
+    "version": "1.0.0",
+    "description": "Use PDF Quick Tools from another website's server. PDF uploads are processed in memory and are not intentionally stored. Never expose your API key in browser code.",
+    "contact": {
+      "name": "PDF Quick Tools",
+      "url": "https://pdfpilot.site"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://pdfpilot.site",
+      "description": "Production"
+    }
+  ],
+  "tags": [
+    {
+      "name": "API",
+      "description": "PDF operations"
+    }
+  ],
+  "paths": {
+    "/api/v1": {
+      "get": {
+        "tags": ["API"],
+        "summary": "API status and capabilities",
+        "description": "Public endpoint. Does not accept or return an API key.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "API status, operation list, and request limits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "example": "PDF Quick Tools API"
+                    },
+                    "version": {
+                      "type": "string",
+                      "example": "v1"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": ["ready", "needs_configuration"]
+                    },
+                    "authentication": {
+                      "type": "string",
+                      "example": "Authorization: Bearer <PDF_API_KEY>"
+                    },
+                    "limits": {
+                      "type": "object",
+                      "properties": {
+                        "combinedUploadBytes": {
+                          "type": "integer",
+                          "example": 4194304
+                        },
+                        "responseBytes": {
+                          "type": "integer",
+                          "example": 4194304
+                        },
+                        "filesPerRequest": {
+                          "type": "integer",
+                          "example": 10
+                        },
+                        "pagesPerPdf": {
+                          "type": "integer",
+                          "example": 100
+                        },
+                        "requestsPerMinutePerKey": {
+                          "type": "integer",
+                          "example": 10
+                        }
+                      }
+                    },
+                    "operations": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Operation"
+                      }
+                    },
+                    "privacy": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["API"],
+        "summary": "Run a PDF operation",
+        "description": "Send multipart/form-data with an operation and uploaded files. For operations with multiple inputs, use the same `files` field multiple times. Split and PDF-to-JPG return ZIP files. Keep the bearer key on your own server, never in frontend/browser code.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["operation", "files"],
+                "properties": {
+                  "operation": {
+                    "type": "string",
+                    "enum": ["merge", "split", "compress", "pdf-to-jpg", "jpg-to-pdf"],
+                    "description": "Operation to perform."
+                  },
+                  "files": {
+                    "type": "array",
+                    "description": "PDF or JPEG input files. Maximum combined upload: 4 MB. Merge accepts 2-10 PDFs; other PDF operations accept one PDF; JPG-to-PDF accepts up to 10 JPEGs.",
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              },
+              "encoding": {
+                "files": {
+                  "style": "form",
+                  "explode": true
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Processed file. Content type depends on the selected operation.",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/JsonError"
+          },
+          "401": {
+            "$ref": "#/components/responses/JsonError"
+          },
+          "413": {
+            "$ref": "#/components/responses/JsonError"
+          },
+          "415": {
+            "$ref": "#/components/responses/JsonError"
+          },
+          "422": {
+            "$ref": "#/components/responses/JsonError"
+          },
+          "429": {
+            "$ref": "#/components/responses/JsonError"
+          },
+          "500": {
+            "$ref": "#/components/responses/JsonError"
+          },
+          "503": {
+            "$ref": "#/components/responses/JsonError"
+          }
+        }
+      },
+      "options": {
+        "tags": ["API"],
+        "summary": "CORS preflight",
+        "security": [],
+        "responses": {
+          "204": {
+            "description": "CORS preflight accepted"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API key",
+        "description": "Enter your PDF_API_KEY. It is sent as Authorization: Bearer <key>. Do not paste a production key into public browser pages."
+      }
+    },
+    "responses": {
+      "JsonError": {
+        "description": "Request failed",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "A valid Bearer API key is required."
+          }
+        }
+      },
+      "Operation": {
+        "type": "object",
+        "required": ["id", "method", "input", "output"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": ["merge", "split", "compress", "pdf-to-jpg", "jpg-to-pdf"]
+          },
+          "method": {
+            "type": "string",
+            "example": "POST"
+          },
+          "input": {
+            "type": "string"
+          },
+          "output": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

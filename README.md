@@ -101,6 +101,8 @@ The original local-only PDF tools remain available without these integrations.
 
 The versioned API lets another website's **server** call a small set of PDF operations:
 
+- [Interactive Swagger API docs](https://pdfpilot.site/api-docs.html) — authorize with your API key and try the documented requests.
+- [OpenAPI specification](https://pdfpilot.site/openapi.json) — use with API clients and code generators.
 - `GET https://pdfpilot.site/api/v1` — health status, operation list, and limits.
 - `POST https://pdfpilot.site/api/v1` — send `multipart/form-data` with an `operation` field and one or more files under `files`.
 

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta name="description" content="Interactive API documentation for PDF Quick Tools." />
+    <title>PDF Quick Tools API — Swagger UI</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+    <style>
+      body {
+        margin: 0;
+        background: #fafbff;
+      }
+
+      .topbar {
+        display: none;
+      }
+
+      .swagger-ui .info {
+        margin: 32px 0;
+      }
+
+      .swagger-ui .scheme-container {
+        box-shadow: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main id="swagger-ui" aria-label="PDF Quick Tools API documentation"></main>
+    <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+    <script>
+      window.onload = function () {
+        window.ui = SwaggerUIBundle({
+          url: "/openapi.json",
+          dom_id: "#swagger-ui",
+          deepLinking: true,
+          displayRequestDuration: true,
+          persistAuthorization: false,
+          presets: [SwaggerUIBundle.presets.apis],
+          layout: "BaseLayout"
+        });
+      };
+    </script>
+  </body>
+</html>
