@@ -97,10 +97,39 @@ The original local-only PDF tools remain available without these integrations.
 - **Google Drive import/export:** create a Google Cloud web OAuth client, enable the Google Picker and Drive APIs, and configure `VITE_GOOGLE_CLIENT_ID`, `VITE_GOOGLE_API_KEY`, and `VITE_GOOGLE_APP_ID` in Vercel before building. Restrict the API key to the site's authorized origins and Picker/Drive APIs. Access uses the `drive.file` scope, requested only when the visitor chooses Drive, and the access token is kept in memory.
 - **Create PDF Form:** add interactive text boxes and checkboxes in the browser. This does not need a provider credential.
 
+## REST API
+
+The versioned API lets another website's **server** call a small set of PDF operations:
+
+- `GET https://pdfpilot.site/api/v1` — health status, operation list, and limits.
+- `POST https://pdfpilot.site/api/v1` — send `multipart/form-data` with an `operation` field and one or more files under `files`.
+
+Supported `operation` values are `merge`, `split`, `compress`, `pdf-to-jpg`, and `jpg-to-pdf`. Split and PDF-to-JPG return ZIP files. PDF-to-JPG renders at a maximum width of 2,000 pixels; compression rewrites the PDF and returns the original if the rewritten file is not smaller.
+
+Every POST requires `Authorization: Bearer <PDF_API_KEY>`. Create a long random key and add it as the `PDF_API_KEY` environment variable in the Vercel project, then redeploy. Keep the key on your server: **never put it in browser JavaScript, a public repository, or a `VITE_*` variable**. Anyone who can inspect a browser app can copy its key. The API allows cross-origin requests for integrations, but CORS does not protect a key.
+
+Limits: 4 MB combined input and 4 MB output, up to 10 files, 100 pages per PDF, and 10 requests per minute per key. Files are processed in memory and are not intentionally stored. The in-memory rate limit is per serverless instance, not a global quota. Larger file uploads and global usage quotas need a separate storage/rate-limiting service.
+
+Example server-side call:
+
+```js
+const form = new FormData();
+form.set("operation", "merge");
+form.append("files", firstPdf, "first.pdf");
+form.append("files", secondPdf, "second.pdf");
+
+const response = await fetch("https://pdfpilot.site/api/v1", {
+  method: "POST",
+  headers: { Authorization: `Bearer ${process.env.PDF_API_KEY}` },
+  body: form,
+});
+if (!response.ok) throw new Error(await response.text());
+const mergedPdf = await response.arrayBuffer();
+```
+
 ## Privacy By Design
 
-- Regular PDF operations run in the browser.
-- Original PDFs are not uploaded for regular tools.
+- Regular on-site PDF operations run in the browser. Files are uploaded to the server only when a caller explicitly uses the REST API; API uploads are processed in memory and are not intentionally stored.
 - AI tools send extracted text to the server-side AI endpoint only when the user runs an AI action.
 - Analytics are optional and gated behind the privacy choice banner.
 - No PDF files, document text, passwords, or API keys are stored in browser preferences.
